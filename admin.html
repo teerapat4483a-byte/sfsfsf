@@ -97,6 +97,26 @@ tr:hover td{background:#fafafa}
     <div class="stat-card"><div class="stat-label">บังคับขาดทุน</div><div class="stat-val dn" id="stat-lose">0</div></div>
   </div>
 
+  <!-- CHAT SECTION -->
+  <div class="section">
+    <div class="section-title" style="display:flex;justify-content:space-between;align-items:center">
+      <span>💬 ข้อความจากผู้เล่น</span>
+      <span id="chat-unread-badge" style="display:none;background:#ef4444;color:#fff;border-radius:99px;padding:2px 8px;font-size:11px;font-weight:700"></span>
+      <button onclick="loadChatRooms()" style="background:#e8f0fe;color:#2563eb;border:1px solid #93c5fd;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer">รีเฟรช</button>
+    </div>
+    <div class="chat-sidebar">
+      <div class="chat-rooms-list" id="admin-rooms-list">
+        <div style="padding:1rem;text-align:center;color:#94a3b8;font-size:13px">กำลังโหลด...</div>
+      </div>
+      <div class="chat-main" id="admin-chat-main">
+        <div class="no-room-selected">
+          <div style="font-size:36px">💬</div>
+          <div>เลือกผู้เล่นเพื่อดูข้อความ</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Withdrawal Requests -->
   <div class="section" id="wd-section">
     <div class="section-title" style="display:flex;justify-content:space-between;align-items:center">
@@ -156,7 +176,7 @@ function doAdminLogin(){
     sessionStorage.setItem('is_admin','1');
     document.getElementById('login-overlay').style.display='none';
     document.getElementById('main-content').style.display='block';
-    loadUsers();loadWithdrawals();
+    loadUsers();loadWithdrawals();loadChatRooms();
   } else {
     document.getElementById('a-err').textContent='รหัสผ่านไม่ถูกต้อง';
   }
@@ -285,7 +305,77 @@ if(sessionStorage.getItem('is_admin')==='1'){
   isAdmin=true;
   document.getElementById('login-overlay').style.display='none';
   document.getElementById('main-content').style.display='block';
-  loadUsers();loadWithdrawals();
+  loadUsers();loadWithdrawals();loadChatRooms();
+}
+
+/* ─── ADMIN CHAT ─── */
+let activeRoomId=null;
+let chatPollAdminIv=null;
+
+async function loadChatRooms(){
+  const {data:rooms}=await sb.from('chat_rooms').select('*').order('last_time',{ascending:false,nullsFirst:false});
+  const el=document.getElementById('admin-rooms-list');
+  if(!rooms||!rooms.length){el.innerHTML='<div style="padding:1rem;text-align:center;color:#94a3b8;font-size:13px">ยังไม่มีข้อความ</div>';return;}
+  const unread=rooms.filter(r=>r.unread_admin).length;
+  const badge=document.getElementById('chat-unread-badge');
+  if(unread>0){badge.style.display='inline';badge.textContent=unread+' ใหม่';}
+  else badge.style.display='none';
+  el.innerHTML=rooms.map(r=>`
+    <div class="chat-room-item ${r.id===activeRoomId?'active':''}" onclick="openAdminRoom('${r.id}','${r.username}')">
+      <div class="chat-room-header">
+        <div class="chat-room-name">${r.username}${r.unread_admin?'<span class="chat-room-badge">ใหม่</span>':''}</div>
+        <div class="chat-room-time">${r.last_time?new Date(r.last_time).toLocaleTimeString('th',{hour:'2-digit',minute:'2-digit'}):''}</div>
+      </div>
+      <div class="chat-room-preview">${r.last_message||'ยังไม่มีข้อความ'}</div>
+    </div>`).join('');
+}
+
+async function openAdminRoom(roomId, username){
+  activeRoomId=roomId;
+  clearInterval(chatPollAdminIv);
+  // mark as read
+  await sb.from('chat_rooms').update({unread_admin:false}).eq('id',roomId);
+  loadChatRooms();
+  const main=document.getElementById('admin-chat-main');
+  main.innerHTML=`
+    <div class="chat-main-header">
+      <div style="width:32px;height:32px;border-radius:50%;background:#e8f0fe;color:#2563eb;display:flex;align-items:center;justify-content:center;font-weight:700">${username[0].toUpperCase()}</div>
+      <div class="chat-main-name">${username}</div>
+    </div>
+    <div class="chat-main-body" id="admin-msg-body"></div>
+    <div class="chat-main-footer">
+      <input class="chat-admin-inp" id="admin-chat-inp" placeholder="พิมพ์ข้อความ..." onkeydown="if(event.key==='Enter')sendAdminMsg()">
+      <button class="btn-send-admin" onclick="sendAdminMsg()">ส่ง</button>
+    </div>`;
+  loadAdminMsgs();
+  chatPollAdminIv=setInterval(loadAdminMsgs,3000);
+}
+
+async function loadAdminMsgs(){
+  if(!activeRoomId) return;
+  const {data:msgs}=await sb.from('chat_messages').select('*').eq('room_id',activeRoomId).order('created_at',{ascending:true}).limit(100);
+  const el=document.getElementById('admin-msg-body');
+  if(!el||!msgs) return;
+  function fmtTime(ts){const d=new Date(ts);return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');}
+  el.innerHTML=msgs.map(m=>{
+    const isAdmin=m.sender==='admin';
+    return`<div class="admin-msg-wrap ${isAdmin?'me':'user'}">
+      <div class="admin-msg-bubble">${m.message.replace(/
+/g,'<br>')}</div>
+      <div class="admin-msg-time">${isAdmin?'Admin':'ผู้เล่น'} • ${fmtTime(m.created_at)}</div>
+    </div>`;
+  }).join('');
+  el.scrollTop=el.scrollHeight;
+}
+
+async function sendAdminMsg(){
+  const inp=document.getElementById('admin-chat-inp');
+  const msg=inp.value.trim();
+  if(!msg||!activeRoomId) return;
+  inp.value='';
+  await sb.from('chat_messages').insert({room_id:activeRoomId,sender:'admin',message:msg});
+  await sb.from('chat_rooms').update({last_message:msg,last_time:new Date().toISOString(),unread_user:true}).eq('id',activeRoomId);
+  loadAdminMsgs();loadChatRooms();
 }
 
 async function loadWithdrawals(){
@@ -315,7 +405,7 @@ async function rejectWd(id){
   showToast('ปฏิเสธคำขอถอนแล้ว');loadWithdrawals();
 }
 
-setInterval(()=>{if(isAdmin){loadUsers();loadWithdrawals();}}, 15000);
+setInterval(()=>{if(isAdmin){loadUsers();loadWithdrawals();loadChatRooms();}}, 15000);
 </script>
 </body>
 </html>
