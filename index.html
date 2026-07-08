@@ -35,7 +35,7 @@ body{max-width:480px;margin:0 auto;position:relative;overflow-x:hidden}
 .auth-msg.ok{background:rgba(0,192,135,.15);color:var(--green);display:block}
 
 /* MAIN */
-.app{min-height:100vh;padding-bottom:65px}
+.app{min-height:100vh;padding-bottom:70px}
 
 /* TOPBAR */
 .topbar{background:var(--bg);padding:.875rem 1rem;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border)}
@@ -268,7 +268,7 @@ canvas#lc{width:100%;display:block}
 .phi-pnl{font-size:11px;margin-top:2px}
 
 /* BOTTOM NAV */
-.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--card);border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(5,1fr);z-index:50;padding-bottom:env(safe-area-inset-bottom)}
+.bnav{position:fixed!important;bottom:0!important;left:50%!important;transform:translateX(-50%)!important;width:100%!important;max-width:480px;background:var(--card);border-top:1px solid var(--border);display:grid!important;grid-template-columns:repeat(5,1fr)!important;z-index:9990!important;padding-bottom:env(safe-area-inset-bottom)}
 .bnav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 7px;background:none;border:none;color:var(--sub);font-size:10px;cursor:pointer;font-weight:600}
 .bnav-btn.active{color:var(--yellow)}
 .bnav-icon{font-size:22px;line-height:1}
@@ -988,54 +988,62 @@ canvas#lc{width:100%;display:block}
 
   <!-- FUTURES / PORT PAGE -->
   <div class="page" id="page-port">
-    <div class="port-page">
-      <!-- Header -->
-      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.875rem">
-        <button onclick="goBack()" style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--text);font-size:16px;cursor:pointer;line-height:1">‹</button>
-        <div style="font-size:16px;font-weight:700" data-i18n="nav_wallet">กระเป๋าเงิน</div>
-      </div>
-
-      <!-- Profile Card -->
-      <div class="profile-card">
-        <!-- Avatar centered + editable -->
-        <div style="text-align:center;margin-bottom:1rem">
-          <div style="position:relative;display:inline-block">
-            <div class="profile-avatar" style="width:80px;height:80px;font-size:32px;margin:0 auto" onclick="triggerAvatarUpload()">
+    <div class="port-page" style="padding:0;padding-bottom:70px">
+      <!-- Hero Banner -->
+      <div style="background:linear-gradient(160deg,#0f1523 0%,#1a2035 60%,#0d1a0d 100%);padding:0 0 1.5rem;position:relative;overflow:hidden">
+        <!-- Back button -->
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:.875rem 1rem .5rem">
+          <button onclick="goBack()" style="background:rgba(255,255,255,.08);border:none;border-radius:10px;padding:6px 12px;color:var(--text);font-size:16px;cursor:pointer">‹ กลับ</button>
+          <div style="font-size:13px;font-weight:700;color:var(--sub)" data-i18n="nav_wallet">กระเป๋าเงิน</div>
+          <div style="width:60px"></div>
+        </div>
+        <!-- Decorative circles -->
+        <div style="position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(245,166,35,.12),transparent);pointer-events:none"></div>
+        <div style="position:absolute;bottom:-20px;left:-20px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(0,192,135,.08),transparent);pointer-events:none"></div>
+        <!-- Avatar -->
+        <div style="text-align:center;padding:0 1rem">
+          <div style="position:relative;display:inline-block;margin-bottom:.875rem">
+            <div onclick="triggerAvatarUpload()" style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#f5a623,#e8860a);display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:800;color:#000;cursor:pointer;border:3px solid rgba(245,166,35,.5);box-shadow:0 0 30px rgba(245,166,35,.2);overflow:hidden;position:relative">
               <span id="profile-avatar-text">A</span>
-              <img id="profile-avatar-img" src="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%">
-              <div class="avatar-edit" style="font-size:14px">📷</div>
+              <img id="profile-avatar-img" src="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+              <div style="position:absolute;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;font-size:20px" class="avatar-edit">📷</div>
             </div>
-            <div onclick="triggerAvatarUpload()" style="position:absolute;bottom:0;right:0;width:24px;height:24px;border-radius:50%;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;border:2px solid var(--card)">✏️</div>
+            <div onclick="triggerAvatarUpload()" style="position:absolute;bottom:2px;right:2px;width:26px;height:26px;border-radius:50%;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;border:2px solid #0f1523;box-shadow:0 2px 8px rgba(0,0,0,.4)">📷</div>
           </div>
           <input type="file" id="avatar-file-input" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)">
-          <div style="margin-top:.625rem">
-            <div class="profile-name" id="profile-name" style="font-size:18px">-</div>
-            <div id="profile-fullname-show" style="font-size:13px;color:var(--sub);margin-top:2px">-</div>
-            <div class="profile-id" id="profile-id" style="font-size:11px;margin-top:2px">ID: -</div>
-            <div class="profile-badge" style="margin:.5rem auto 0;width:fit-content">⭐ สมาชิก VIP</div>
+          <!-- Name -->
+          <div style="font-size:22px;font-weight:800;color:#fff;margin-bottom:4px" id="profile-name">-</div>
+          <div id="profile-fullname-show" style="font-size:13px;color:rgba(255,255,255,.5);margin-bottom:4px">-</div>
+          <div id="profile-id" style="font-size:11px;color:rgba(255,255,255,.3);margin-bottom:.75rem">ID: -</div>
+          <!-- VIP Badge -->
+          <div style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(245,166,35,.2),rgba(232,134,10,.1));border:1px solid rgba(245,166,35,.4);border-radius:99px;padding:5px 14px;font-size:12px;color:var(--yellow);font-weight:700">
+            ⭐ สมาชิก VIP
           </div>
         </div>
-        <!-- Edit fullname -->
-        <div style="display:flex;gap:8px;margin-bottom:.875rem">
-          <input id="fullname-inp" type="text" placeholder="ชื่อ-นามสกุล" style="flex:1;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--text);outline:none">
-          <button onclick="saveFullname()" style="padding:10px 14px;background:var(--yellow);color:#000;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">บันทึก</button>
-        </div>
-        <!-- Stats -->
-        <div class="profile-stats">
-          <div class="pstat">
-            <div class="pstat-val up" id="pb-total">฿0</div>
-            <div class="pstat-label">สินทรัพย์รวม</div>
-          </div>
-          <div class="pstat">
-            <div class="pstat-val" id="pb-cash">฿0</div>
-            <div class="pstat-label">เงินสด</div>
-          </div>
-          <div class="pstat">
-            <div class="pstat-val" id="pb-pnl">฿0</div>
-            <div class="pstat-label">กำไร/ขาดทุน</div>
-          </div>
+        <!-- Edit name row -->
+        <div style="display:flex;gap:8px;margin:.875rem 1rem 0">
+          <input id="fullname-inp" type="text" placeholder="กรอกชื่อ-นามสกุล..." style="flex:1;padding:11px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;font-size:14px;color:#fff;outline:none;backdrop-filter:blur(4px)">
+          <button onclick="saveFullname()" style="padding:11px 18px;background:var(--yellow);color:#000;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap">บันทึก</button>
         </div>
       </div>
+
+      <!-- Stats Cards -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);margin-bottom:8px">
+        <div style="background:var(--card);padding:.875rem .5rem;text-align:center">
+          <div style="font-size:11px;color:var(--sub);margin-bottom:4px">สินทรัพย์รวม</div>
+          <div style="font-size:16px;font-weight:800;color:var(--green)" id="pb-total">฿0</div>
+        </div>
+        <div style="background:var(--card);padding:.875rem .5rem;text-align:center;border-left:1px solid var(--border);border-right:1px solid var(--border)">
+          <div style="font-size:11px;color:var(--sub);margin-bottom:4px">เงินสด</div>
+          <div style="font-size:16px;font-weight:800;color:var(--text)" id="pb-cash">฿0</div>
+        </div>
+        <div style="background:var(--card);padding:.875rem .5rem;text-align:center">
+          <div style="font-size:11px;color:var(--sub);margin-bottom:4px">กำไร/ขาดทุน</div>
+          <div style="font-size:16px;font-weight:800" id="pb-pnl">฿0</div>
+        </div>
+      </div>
+
+      <div style="padding:.875rem">
 
       <!-- Bank Account -->
       <div class="bank-card">
@@ -1084,7 +1092,6 @@ canvas#lc{width:100%;display:block}
         <div style="font-size:11px;color:var(--sub);margin-top:.5rem">* Admin จะโอนไปที่บัญชีที่ลงทะเบียนไว้</div>
       </div>
 
-      <!-- Holdings -->
       <!-- History shortcut -->
       <div onclick="switchPage('history',document.getElementById('nav-port'))" style="background:var(--card);border-radius:12px;padding:.875rem 1rem;margin-bottom:.875rem;display:flex;justify-content:space-between;align-items:center;cursor:pointer;border:1px solid var(--border)">
         <div style="display:flex;align-items:center;gap:.75rem">
@@ -1147,7 +1154,9 @@ canvas#lc{width:100%;display:block}
     <div id="th-list"><div class="th-empty">กำลังโหลด...</div></div>
   </div>
 
-  <!-- BOTTOM NAV -->
+
+
+<!-- BOTTOM NAV -->
   <nav class="bnav">
     <button class="bnav-btn active" id="nav-home" onclick="switchPage('home',this)">
       <span class="bnav-icon">🏠</span><span data-i18n="nav_home">หน้าหลัก</span>
@@ -2005,5 +2014,6 @@ function tick(){
 renderHomeMlist();updateTicker();startSlider();applyLang();restoreSession();setInterval(tick,3000);
 </script>
 <div id="lang-picker-container"></div>
+
 </body>
 </html>
