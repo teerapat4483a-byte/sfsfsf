@@ -1059,7 +1059,7 @@ canvas#lc{width:100%;display:block}
       <div style="flex:1">
         <div style="font-size:11px;color:#d4af37;font-weight:700;letter-spacing:1px;margin-bottom:2px">GOLD MARKET</div>
         <div style="font-size:14px;font-weight:700;color:#ffd700">ทองคำโลก XAU/USD</div>
-        <div style="font-size:12px;color:#c9a227;margin-top:2px" id="gold-banner-price">฿105,800 / oz</div>
+        <div style="font-size:12px;color:#c9a227;margin-top:2px" id="gold-banner-price">$4,069 / oz</div>
       </div>
       <div style="text-align:right">
         <div style="font-size:11px;color:#d4af37;margin-bottom:2px">เปลี่ยนแปลง</div>
@@ -1647,11 +1647,7 @@ const ASSETS=[
   {sym:'ADVANC',name:'แอดวานซ์',cat:'thai',price:210,color:'#005bac',emoji:'📱'},
   {sym:'TRUE',name:'ทรู คอร์ป',cat:'thai',price:8.5,color:'#e4002b',emoji:'📱'},
   {sym:'GULF',name:'กัลฟ์',cat:'thai',price:45,color:'#00a651',emoji:'⚡'},
-  {sym:'XAUUSD',name:'ทองคำโลก (USD)',cat:'gold',price:105800,color:'#ffd700',goldType:'xau'},
-  {sym:'XAUTHB',name:'ทองคำไทย (THB)',cat:'gold',price:45500,color:'#d4af37',goldType:'xau'},
-  {sym:'GOLD96',name:'ทองคำ 96.5%',cat:'gold',price:43200,color:'#cfb53b',goldType:'gold96'},
-  {sym:'SILVER',name:'เงิน (Silver)',cat:'gold',price:1280,color:'#a8a9ad',goldType:'silver'},
-  {sym:'PLATINUM',name:'แพลทินัม',cat:'gold',price:31500,color:'#e5e4e2',goldType:'platinum'},
+  {sym:'XAUUSD',name:'ทองคำ Spot (USD)',cat:'gold',price:4069,color:'#ffd700',goldType:'xau'},
 ];
 
 let cu=null,cash=0,portfolio={};
@@ -1841,9 +1837,11 @@ function mlistHTML(assets){
   return assets.map(a=>{
     const prev=hists[a.sym][hists[a.sym].length-2]||hists[a.sym][0];
     const cur=prices[a.sym],chg=pct(cur,prev),up=chg>=0;
+    // Gold shows USD price
+    const priceStr=a.sym==='XAUUSD'?'$'+cur.toLocaleString(undefined,{maximumFractionDigits:2}):fmt(cur);
     return`<div class="mlist-item" onclick="goTrade('${a.sym}')">
       <div class="mlist-left">${logoImg(a,'',32)}<div><div class="mlist-name">${a.sym}</div><div class="mlist-sub">${a.name}</div></div></div>
-      <div class="mlist-price ${up?'up':'dn'}">${fmt(cur)}</div>
+      <div class="mlist-price ${up?'up':'dn'}">${priceStr}</div>
       <div class="mlist-chg"><span class="chg-badge ${up?'chg-up':'chg-dn'}">${up?'+':''}${chg}%</span></div>
     </div>`;
   }).join('');
@@ -2876,9 +2874,7 @@ function setLang(lang){
 
 // GOLD
 function updateGoldStats(){
-  const el1=document.getElementById('gs-xauusd');if(el1)el1.textContent='฿'+Math.round(prices['XAUUSD']||105800).toLocaleString();
-  const el2=document.getElementById('gs-gold96');if(el2)el2.textContent='฿'+Math.round(prices['GOLD96']||43200).toLocaleString();
-  const el3=document.getElementById('gs-silver');if(el3)el3.textContent='฿'+Math.round(prices['SILVER']||1280).toLocaleString();
+  const el1=document.getElementById('gs-xauusd');if(el1)el1.textContent='฿'+Math.round(prices['XAUUSD']||4069).toLocaleString();
 }
 
 // TICK
@@ -2897,7 +2893,7 @@ function tick(){
   updateTicker();updateStats();
   const gp=prices['XAUUSD'],gh=hists['XAUUSD'];
   if(gh&&gp){const gprev=gh[gh.length-2]||gh[0],gchg=((gp-gprev)/gprev*100).toFixed(2),gup=gchg>=0;
-    const gpEl=document.getElementById('gold-banner-price');if(gpEl)gpEl.textContent='฿'+Math.round(gp).toLocaleString()+' / oz';
+    const gpEl=document.getElementById('gold-banner-price');if(gpEl)gpEl.textContent='$'+Math.round(gp).toLocaleString()+' / oz';
     const gcEl=document.getElementById('gold-banner-chg');if(gcEl){gcEl.textContent=(gup?'+':'')+gchg+'%';gcEl.style.color=gup?'#00c087':'#ef4444';}
   }
 }
@@ -2906,7 +2902,8 @@ function tick(){
 const BINANCE_MAP={
   'BTC':'BTCUSDT','ETH':'ETHUSDT','BNB':'BNBUSDT','SOL':'SOLUSDT',
   'XRP':'XRPUSDT','ADA':'ADAUSDT','DOGE':'DOGEUSDT','DOT':'DOTUSDT',
-  'AVAX':'AVAXUSDT','MATIC':'MATICUSDT','LINK':'LINKUSDT','LTC':'LTCUSDT'
+  'AVAX':'AVAXUSDT','MATIC':'MATICUSDT','LINK':'LINKUSDT','LTC':'LTCUSDT',
+  'XAUUSD':'PAXGUSDT'
 };
 // Thai stocks: use Stooq CSV (free, no key)
 const THAI_MAP={
@@ -2916,7 +2913,7 @@ const THAI_MAP={
 };
 // Gold & Metals: use Frankfurt Stock Exchange via Stooq
 const GOLD_STOOQ={
-  'XAUUSD':'XAUUSD','XAUTHB':null,'GOLD96':null,'SILVER':'XAGUSD','PLATINUM':'XPTUSD'
+  'XAUUSD':'XAUUSD'
 };
 
 let binanceWS=null;
@@ -2944,7 +2941,8 @@ async function fetchBinancePrices(){
     data.forEach(t=>{
       const sym=Object.keys(BINANCE_MAP).find(k=>BINANCE_MAP[k]===t.symbol);
       if(sym){
-        const p=parseFloat(t.lastPrice)*usdThb;
+        // XAU shows USD price directly (like real gold spot), others convert to THB
+        const p=sym==='XAUUSD'?parseFloat(t.lastPrice):parseFloat(t.lastPrice)*usdThb;
         prices[sym]=p;
         hists[sym].push(p);
         if(hists[sym].length>50)hists[sym].shift();
@@ -2963,7 +2961,7 @@ function startBinanceWS(){
         const d=JSON.parse(e.data).data;if(!d||!d.s)return;
         const sym=Object.keys(BINANCE_MAP).find(k=>BINANCE_MAP[k]===d.s);
         if(sym){
-          const p=parseFloat(d.c)*usdThb;
+          const p=sym==='XAUUSD'?parseFloat(d.c):parseFloat(d.c)*usdThb;
           prices[sym]=p;hists[sym].push(p);if(hists[sym].length>50)hists[sym].shift();
           refreshUI(sym);
         }
@@ -3002,20 +3000,11 @@ async function fetchMetalPrices(){
     const d=await r.json();
     // d = [{metal:'gold',price:2300.5,...},...]
     d.forEach(item=>{
-      const p=item.price*usdThb; // USD/oz → THB/oz
       if(item.metal==='gold'){
+        const p=item.price*usdThb; // USD/oz → THB/oz
         prices['XAUUSD']=p;
-        prices['XAUTHB']=p;
-        prices['GOLD96']=p*0.965; // 96.5% purity
-        hists['XAUUSD'].push(p);hists['XAUTHB'].push(p);hists['GOLD96'].push(p*0.965);
-      }
-      if(item.metal==='silver'){
-        prices['SILVER']=item.price*usdThb;
-        hists['SILVER'].push(prices['SILVER']);
-      }
-      if(item.metal==='platinum'){
-        prices['PLATINUM']=item.price*usdThb;
-        hists['PLATINUM'].push(prices['PLATINUM']);
+        hists['XAUUSD'].push(p);
+        if(hists['XAUUSD'].length>50)hists['XAUUSD'].shift();
       }
     });
   }catch(e){
@@ -3026,7 +3015,7 @@ async function fetchMetalPrices(){
         const d2=await r2.json();
         if(d2.rates&&d2.rates.THB){
           const goldThb=d2.rates.THB;
-          prices['XAUUSD']=goldThb;prices['XAUTHB']=goldThb;prices['GOLD96']=goldThb*0.965;
+          prices['XAUUSD']=goldThb;
           hists['XAUUSD'].push(goldThb);
         }
       }
@@ -3041,7 +3030,8 @@ async function fetchBinanceKlines(sym,tf){
     const r=await fetch(`https://api.binance.com/api/v3/klines?symbol=${bSym}&interval=${TF_TO_INTERVAL[tf]||'1d'}&limit=${TF_TO_LIMIT[tf]||80}`);
     if(!r.ok)return null;
     const data=await r.json();
-    return data.map(k=>({o:parseFloat(k[1])*usdThb,h:parseFloat(k[2])*usdThb,l:parseFloat(k[3])*usdThb,c:parseFloat(k[4])*usdThb,vol:parseFloat(k[5])}));
+    const mult=sym==='XAUUSD'?1:usdThb;
+    return data.map(k=>({o:parseFloat(k[1])*mult,h:parseFloat(k[2])*mult,l:parseFloat(k[3])*mult,c:parseFloat(k[4])*mult,vol:parseFloat(k[5])}));
   }catch(e){return null;}
 }
 
@@ -3065,7 +3055,7 @@ async function initBinance(){
   // 1. Fetch exchange rate
   await fetchUSDTHB();
   // 2. Fetch all prices in parallel
-  await Promise.allSettled([fetchBinancePrices(),fetchThaiStocks(),fetchMetalPrices()]);
+  await Promise.allSettled([fetchBinancePrices(),fetchThaiStocks()]);
   // 3. Update UI
   updateTicker();renderHomeMlist();updateStats();
   // 4. Start WebSocket for crypto
@@ -3079,7 +3069,7 @@ async function initBinance(){
 
 // ── Polling fallback every 60s for stocks & metals ──
 setInterval(async()=>{
-  await Promise.allSettled([fetchBinancePrices(),fetchThaiStocks(),fetchMetalPrices()]);
+  await Promise.allSettled([fetchBinancePrices(),fetchThaiStocks()]);
   updateTicker();renderHomeMlist();updateStats();
 },60000);
 
