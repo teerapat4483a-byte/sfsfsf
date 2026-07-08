@@ -905,19 +905,30 @@ canvas#lc{width:100%;display:block}
 
       <!-- Profile Card -->
       <div class="profile-card">
-        <div class="profile-avatar-wrap">
-          <div class="profile-avatar" id="profile-avatar-wrap" onclick="triggerAvatarUpload()">
-            <span id="profile-avatar-text">A</span>
-            <img id="profile-avatar-img" src="" style="display:none">
-            <div class="avatar-edit">✏️</div>
+        <!-- Avatar centered + editable -->
+        <div style="text-align:center;margin-bottom:1rem">
+          <div style="position:relative;display:inline-block">
+            <div class="profile-avatar" style="width:80px;height:80px;font-size:32px;margin:0 auto" onclick="triggerAvatarUpload()">
+              <span id="profile-avatar-text">A</span>
+              <img id="profile-avatar-img" src="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%">
+              <div class="avatar-edit" style="font-size:14px">📷</div>
+            </div>
+            <div onclick="triggerAvatarUpload()" style="position:absolute;bottom:0;right:0;width:24px;height:24px;border-radius:50%;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;border:2px solid var(--card)">✏️</div>
           </div>
           <input type="file" id="avatar-file-input" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)">
-          <div class="profile-info">
-            <div class="profile-name" id="profile-name">-</div>
-            <div class="profile-id" id="profile-id">ID: -</div>
-            <div class="profile-badge">⭐ สมาชิก VIP</div>
+          <div style="margin-top:.625rem">
+            <div class="profile-name" id="profile-name" style="font-size:18px">-</div>
+            <div id="profile-fullname-show" style="font-size:13px;color:var(--sub);margin-top:2px">-</div>
+            <div class="profile-id" id="profile-id" style="font-size:11px;margin-top:2px">ID: -</div>
+            <div class="profile-badge" style="margin:.5rem auto 0;width:fit-content">⭐ สมาชิก VIP</div>
           </div>
         </div>
+        <!-- Edit fullname -->
+        <div style="display:flex;gap:8px;margin-bottom:.875rem">
+          <input id="fullname-inp" type="text" placeholder="ชื่อ-นามสกุล" style="flex:1;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--text);outline:none">
+          <button onclick="saveFullname()" style="padding:10px 14px;background:var(--yellow);color:#000;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">บันทึก</button>
+        </div>
+        <!-- Stats -->
         <div class="profile-stats">
           <div class="pstat">
             <div class="pstat-val up" id="pb-total">฿0</div>
@@ -1348,7 +1359,7 @@ function updateStats(){
   document.getElementById('user-cash').textContent=fmt(cash);
   document.getElementById('pb-total').textContent=fmt(cash+pv);
   document.getElementById('pb-cash').textContent=fmt(cash);
-  document.getElementById('pb-port').textContent=fmt(pv);
+  const pbPort=document.getElementById('pb-port');if(pbPort)pbPort.textContent=fmt(pv);
   const pEl=document.getElementById('pb-pnl');
   pEl.textContent=(pnl>=0?'+':'')+fmt(pnl);
   pEl.className='pstat-val '+(pnl>=0?'up':'dn');
@@ -2201,9 +2212,25 @@ function renderProfile(){
   document.getElementById('profile-name').textContent=cu.username;
   document.getElementById('profile-avatar-text').textContent=cu.username[0].toUpperCase();
   document.getElementById('profile-id').textContent='ID: '+cu.id.slice(0,8).toUpperCase();
-  document.getElementById('wd-cash-show').textContent=fmt(cash);
+  const wdEl=document.getElementById('wd-cash-show');if(wdEl)wdEl.textContent=fmt(cash);
+  // load fullname
+  const savedName=localStorage.getItem('bf168_fullname_'+cu.id)||'';
+  const fnShow=document.getElementById('profile-fullname-show');
+  if(fnShow)fnShow.textContent=savedName||'(ยังไม่ได้ระบุชื่อ-นามสกุล)';
+  const fnInp=document.getElementById('fullname-inp');
+  if(fnInp)fnInp.value=savedName;
   loadAvatar();
   loadBankInfo();
+}
+
+function saveFullname(){
+  if(!cu)return;
+  const v=document.getElementById('fullname-inp').value.trim();
+  if(!v){toast('กรุณากรอกชื่อ-นามสกุล');return;}
+  localStorage.setItem('bf168_fullname_'+cu.id,v);
+  const fnShow=document.getElementById('profile-fullname-show');
+  if(fnShow)fnShow.textContent=v;
+  toast('บันทึกชื่อ-นามสกุลสำเร็จ ✓');
 }
 
 const BANK_ICONS={
