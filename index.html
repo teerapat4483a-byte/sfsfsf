@@ -144,8 +144,17 @@ body{max-width:480px;margin:0 auto;position:relative;overflow-x:hidden}
 .tpc-right{text-align:right;font-size:12px;color:var(--sub)}
 .tpc-vol{margin-top:4px}
 
-.chart-wrap{background:var(--card);padding:.875rem 1rem;margin-bottom:8px}
-canvas.tchart{width:100%;display:block;border-radius:8px}
+.chart-wrap{background:#0a0c14;padding:0;margin-bottom:8px;border-radius:0}
+canvas.tchart{width:100%;display:block}
+.chart-info-top{background:#0a0c14;padding:.5rem .875rem;border-bottom:1px solid #1a1d2e}
+.chart-symbol-big{font-size:13px;font-weight:700;color:var(--sub);margin-bottom:2px}
+.chart-price-big{font-size:22px;font-weight:800;color:var(--red)}
+.chart-chg-big{font-size:13px;font-weight:700}
+.chart-stats{display:grid;grid-template-columns:1fr 1fr;gap:2px;font-size:11px;margin-top:4px}
+.cs-item{display:flex;justify-content:space-between}
+.cs-label{color:var(--sub)}
+.cs-val{font-weight:600}
+.ma-info{background:#0a0c14;padding:3px .875rem;font-size:10px;display:flex;gap:.75rem;flex-wrap:wrap;border-bottom:1px solid #1a1d2e}
 .tf-bar{display:flex;gap:0;margin-bottom:.75rem;background:var(--card2);border-radius:8px;padding:3px;overflow-x:auto}
 .tf-btn{flex:1;padding:6px 8px;border:none;background:transparent;color:var(--sub);font-size:12px;font-weight:600;cursor:pointer;border-radius:6px;white-space:nowrap;min-width:36px;text-align:center}
 .tf-btn.active{background:var(--card);color:var(--yellow);box-shadow:0 1px 3px rgba(0,0,0,.3)}
@@ -631,27 +640,51 @@ canvas#lc{width:100%;display:block}
       </div>
     </div>
     <div class="chart-wrap">
-      <div class="tf-bar">
-        <button class="tf-btn" onclick="setTF('1m',this)">1นา</button>
-        <button class="tf-btn" onclick="setTF('5m',this)">5นา</button>
-        <button class="tf-btn" onclick="setTF('15m',this)">15นา</button>
-        <button class="tf-btn" onclick="setTF('1h',this)">1ชม</button>
-        <button class="tf-btn active" onclick="setTF('1d',this)">1วัน</button>
-        <button class="tf-btn" onclick="setTF('1w',this)">1สัปดาห์</button>
-        <button class="tf-btn" onclick="setTF('1M',this)">1เดือน</button>
-        <button class="tf-btn" onclick="setTF('1Y',this)">1ปี</button>
-      </div>
-      <div class="chart-info-row">
-        <div class="chart-ohlc" id="chart-ohlc">
-          <span><em>O</em><strong id="ohlc-o">-</strong></span>
-          <span><em>H</em><strong id="ohlc-h" class="up">-</strong></span>
-          <span><em>L</em><strong id="ohlc-l" class="dn">-</strong></span>
-          <span><em>C</em><strong id="ohlc-c">-</strong></span>
+      <!-- Top info -->
+      <div class="chart-info-top">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between">
+          <div>
+            <div class="chart-symbol-big">≡ <span id="chart-sym-label2">BTC/THB</span></div>
+            <div class="chart-price-big" id="chart-price-big">฿0</div>
+            <div class="chart-chg-big dn" id="chart-chg-big">-0.00%</div>
+          </div>
+          <div class="chart-stats">
+            <div class="cs-item"><span class="cs-label">ต่ำ</span><span class="cs-val" id="cs-low">-</span></div>
+            <div class="cs-item"><span class="cs-label">สูง</span><span class="cs-val" id="cs-high">-</span></div>
+            <div class="cs-item" style="grid-column:1/-1"><span class="cs-label">24h จำนวน</span><span class="cs-val" id="cs-vol">-</span></div>
+          </div>
         </div>
-        <div id="chart-vol" style="color:var(--sub);font-size:11px">VOL -</div>
       </div>
-      <div class="chart-container">
-        <canvas class="tchart" id="tchart" height="160"></canvas>
+      <!-- TF + MA info -->
+      <div style="background:#0a0c14;display:flex;align-items:center;padding:0 .875rem;border-bottom:1px solid #1a1d2e;gap:.5rem">
+        <span style="font-size:11px;color:var(--sub);margin-right:4px">เวลา</span>
+        <div class="tf-bar" style="flex:1;margin:0;background:transparent;padding:3px 0;gap:0">
+          <button class="tf-btn active" onclick="setTF('1m',this)">1m</button>
+          <button class="tf-btn" onclick="setTF('5m',this)">5m</button>
+          <button class="tf-btn" onclick="setTF('15m',this)">15m</button>
+          <button class="tf-btn" onclick="setTF('30m',this)">30m</button>
+          <button class="tf-btn" onclick="setTF('1h',this)">1h</button>
+          <button class="tf-btn" onclick="setTF('4h',this)">4h</button>
+          <button class="tf-btn" onclick="setTF('1d',this)">1D</button>
+        </div>
+      </div>
+      <!-- MA info bar -->
+      <div class="ma-info" id="ma-info">
+        <span style="color:#888">Time:<span id="ma-time">-</span></span>
+        <span style="color:#888">S:<span id="ma-s">-</span></span>
+        <span style="color:#888">Collect:<span id="ma-c">-</span></span>
+        <span style="color:var(--yellow)">MA5: <span id="ma5-val">-</span></span>
+        <span style="color:#2196f3">MA10: <span id="ma10-val">-</span></span>
+        <span style="color:#ff9800">MA30: <span id="ma30-val">-</span></span>
+      </div>
+      <!-- Candle chart -->
+      <div style="position:relative">
+        <canvas class="tchart" id="tchart" height="220"></canvas>
+      </div>
+      <!-- Volume chart -->
+      <div style="position:relative;background:#0a0c14">
+        <canvas id="vol-canvas" style="width:100%;display:block" height="60"></canvas>
+        <div style="position:absolute;top:4px;left:8px;font-size:10px;color:var(--sub)">VOL(5,10,20) <span style="color:var(--yellow)">MA5: <span id="vol-ma5">-</span></span> <span style="color:#2196f3">MA10: <span id="vol-ma10">-</span></span></div>
       </div>
     </div>
     <div class="order-card">
@@ -1436,21 +1469,20 @@ function genTFData(basePrice, points, volatility){
 function ensureTFData(sym){
   if(!tfHists[sym]) tfHists[sym]={};
   const base=prices[sym];
-  if(!tfHists[sym]['1m']) tfHists[sym]['1m']=genTFData(base,30,0.008);
-  if(!tfHists[sym]['5m']) tfHists[sym]['5m']=genTFData(base,48,0.015);
-  if(!tfHists[sym]['15m']) tfHists[sym]['15m']=genTFData(base,48,0.025);
-  if(!tfHists[sym]['1h']) tfHists[sym]['1h']=genTFData(base,48,0.04);
-  if(!tfHists[sym]['1d']) tfHists[sym]['1d']=hists[sym].slice(-30);
-  if(!tfHists[sym]['1w']) tfHists[sym]['1w']=genTFData(base,24,0.12);
-  if(!tfHists[sym]['1M']) tfHists[sym]['1M']=genTFData(base,12,0.25);
-  if(!tfHists[sym]['1Y']) tfHists[sym]['1Y']=genTFData(base,12,0.6);
+  if(!tfHists[sym]['1m']) tfHists[sym]['1m']=genTFData(base,60,0.005);
+  if(!tfHists[sym]['5m']) tfHists[sym]['5m']=genTFData(base,60,0.012);
+  if(!tfHists[sym]['15m']) tfHists[sym]['15m']=genTFData(base,60,0.02);
+  if(!tfHists[sym]['30m']) tfHists[sym]['30m']=genTFData(base,60,0.03);
+  if(!tfHists[sym]['1h']) tfHists[sym]['1h']=genTFData(base,60,0.04);
+  if(!tfHists[sym]['4h']) tfHists[sym]['4h']=genTFData(base,60,0.08);
+  if(!tfHists[sym]['1d']) tfHists[sym]['1d']=genTFData(base,60,0.15);
 }
 
 function setTF(tf,el){
   curTF=tf;
   document.querySelectorAll('.tf-btn').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
-  tfHists[selSym]=null;
+  if(tfHists[selSym]) tfHists[selSym][tf]=null; // regenerate this TF
   drawTradeChart();
 }
 
@@ -1460,117 +1492,215 @@ function fmtPrice(n){
   return n.toFixed(2);
 }
 
+function genCandles(data){
+  // convert price array to OHLC candles (group every 3 ticks)
+  const candles=[];
+  const grp=Math.max(2,Math.floor(data.length/40));
+  for(let i=0;i<data.length;i+=grp){
+    const chunk=data.slice(i,i+grp);
+    if(!chunk.length)continue;
+    candles.push({
+      o:chunk[0],
+      h:Math.max(...chunk),
+      l:Math.min(...chunk),
+      c:chunk[chunk.length-1],
+      vol:Math.random()*0.8+0.2
+    });
+  }
+  return candles;
+}
+
+function calcMA(data,period){
+  return data.map((_,i)=>{
+    if(i<period-1)return null;
+    const slice=data.slice(i-period+1,i+1);
+    return slice.reduce((a,b)=>a+b,0)/period;
+  });
+}
+
 function drawTradeChart(){
   const cv=document.getElementById('tchart');
   if(!cv)return;
   ensureTFData(selSym);
   const data=tfHists[selSym][curTF];
-  const ctx=cv.getContext('2d');
+  if(!data||data.length<2)return;
+
+  const candles=genCandles(data);
+  const last=data[data.length-1];
+  const first=data[0];
+  const isUp=last>=first;
+
+  // Update top info
+  const hi=Math.max(...data),lo=Math.min(...data);
+  const chg=((last-first)/first*100);
+  function fp(n){
+    if(n>=1000000)return (n/1000000).toFixed(2)+'M';
+    if(n>=1000)return Math.round(n).toLocaleString();
+    return n.toFixed(2);
+  }
+  const symEl=document.getElementById('chart-sym-label2');
+  if(symEl)symEl.textContent=selSym+'/THB';
+  const pbEl=document.getElementById('chart-price-big');
+  if(pbEl){pbEl.textContent='฿'+fp(last);pbEl.style.color=isUp?'#00c087':'#ef4444';}
+  const cbEl=document.getElementById('chart-chg-big');
+  if(cbEl){cbEl.textContent=(chg>=0?'+':'')+chg.toFixed(2)+'%';cbEl.className='chart-chg-big '+(chg>=0?'up':'dn');}
+  const slEl=document.getElementById('cs-low');if(slEl)slEl.textContent='฿'+fp(lo);
+  const shEl=document.getElementById('cs-high');if(shEl)shEl.textContent='฿'+fp(hi);
+  const svEl=document.getElementById('cs-vol');if(svEl)svEl.textContent=(Math.random()*5000+1000).toFixed(3);
+
+  // MA values
+  const prices5=calcMA(data,5),prices10=calcMA(data,10),prices30=calcMA(data,30);
+  const ma5=prices5[prices5.length-1],ma10=prices10[prices10.length-1],ma30=prices30[prices30.length-1];
+  const now=new Date();
+  const tEl=document.getElementById('ma-time');if(tEl)tEl.textContent=now.getFullYear()+'-'+(now.getMonth()+1).toString().padStart(2,'0')+'-'+now.getDate().toString().padStart(2,'0')+' '+now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  const sEl=document.getElementById('ma-s');if(sEl)sEl.textContent='฿'+fp(last);
+  const cEl=document.getElementById('ma-c');if(cEl)cEl.textContent='฿'+fp(last);
+  const m5El=document.getElementById('ma5-val');if(m5El&&ma5)m5El.textContent='฿'+fp(ma5);
+  const m10El=document.getElementById('ma10-val');if(m10El&&ma10)m10El.textContent='฿'+fp(ma10);
+  const m30El=document.getElementById('ma30-val');if(m30El&&ma30)m30El.textContent='฿'+fp(ma30);
+
+  // Draw candle chart
   const W=cv.width=cv.offsetWidth*2;
-  const H=cv.height=320;
+  const H=cv.height=440;
+  const ctx=cv.getContext('2d');
   ctx.clearRect(0,0,W,H);
 
-  const padL=60,padR=16,padT=16,padB=40;
+  const padL=90,padR=70,padT=20,padB=30;
   const chartW=W-padL-padR;
   const chartH=H-padT-padB;
 
-  const mn=Math.min(...data)*0.999;
-  const mx=Math.max(...data)*1.001;
+  const cPrices=candles.flatMap(c=>[c.h,c.l]);
+  const mn=Math.min(...cPrices)*0.9998;
+  const mx=Math.max(...cPrices)*1.0002;
   const rng=mx-mn||1;
 
-  const first=data[0],last=data[data.length-1];
-  const isUp=last>=first;
-  const lc=isUp?'#00c087':'#ef4444';
+  function py(v){return padT+chartH-(v-mn)/rng*chartH;}
+  function px(i){return padL+(i+0.5)/candles.length*chartW;}
 
-  // grid lines horizontal
-  ctx.strokeStyle='rgba(255,255,255,0.05)';
-  ctx.lineWidth=1;
-  const gridCount=5;
-  for(let i=0;i<=gridCount;i++){
-    const y=padT+chartH*(i/gridCount);
+  // horizontal grid + price labels
+  ctx.strokeStyle='rgba(255,255,255,0.04)';ctx.lineWidth=1;
+  for(let i=0;i<=6;i++){
+    const y=padT+chartH*i/6;
     ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(W-padR,y);ctx.stroke();
-    // price label
-    const pVal=mx-(rng*(i/gridCount));
-    ctx.fillStyle='rgba(255,255,255,0.35)';
-    ctx.font=`${22}px -apple-system,sans-serif`;
-    ctx.textAlign='right';
-    ctx.fillText(fmtPrice(pVal),padL-6,y+4);
+    const pv=mx-rng*i/6;
+    ctx.fillStyle='rgba(255,255,255,0.4)';
+    ctx.font='20px monospace';ctx.textAlign='right';
+    ctx.fillText(fp(pv),padL-8,y+6);
   }
 
-  // grid lines vertical
-  const vCount=Math.min(6,data.length-1);
-  for(let i=0;i<=vCount;i++){
-    const x=padL+chartW*(i/vCount);
+  // vertical grid
+  const vStep=Math.max(1,Math.floor(candles.length/6));
+  for(let i=0;i<candles.length;i+=vStep){
+    const x=px(i);
+    ctx.strokeStyle='rgba(255,255,255,0.04)';ctx.lineWidth=1;
     ctx.beginPath();ctx.moveTo(x,padT);ctx.lineTo(x,H-padB);ctx.stroke();
   }
 
-  // x-axis labels
-  ctx.fillStyle='rgba(255,255,255,0.35)';
-  ctx.font='22px -apple-system,sans-serif';
-  ctx.textAlign='center';
-  const xLabels={'1m':['00','05','10','15','20','25','30'],'5m':['00','08','16','24','32','40','48'],'15m':['0h','4h','8h','12h','16h','20h','24h'],'1h':['0h','8h','16h','24h','32h','40h','48h'],'1d':['D-30','D-25','D-20','D-15','D-10','D-5','วันนี้'],'1w':['W-24','W-20','W-16','W-12','W-8','W-4','สัปดาห์นี้'],'1M':['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ปัจจุบัน'],'1Y':['ปีที่แล้ว','Q1','Q2','Q3','Q4','H1','ปีนี้']};
-  const xl=xLabels[curTF]||[];
-  for(let i=0;i<=vCount;i++){
-    const x=padL+chartW*(i/vCount);
-    if(xl[i]) ctx.fillText(xl[i],x,H-8);
+  // x-axis time labels
+  const tfSuffixes={'1m':'min','5m':'min','15m':'min','30m':'min','1h':'h','4h':'h','1d':'d'};
+  ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font='18px monospace';ctx.textAlign='center';
+  for(let i=0;i<candles.length;i+=vStep){
+    const x=px(i);
+    const label=(i+1)+(tfSuffixes[curTF]||'');
+    ctx.fillText(label,x,H-8);
   }
 
-  // gradient fill
-  const gr=ctx.createLinearGradient(0,padT,0,H-padB);
-  gr.addColorStop(0,isUp?'rgba(0,192,135,.25)':'rgba(239,68,68,.25)');
-  gr.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.beginPath();
-  data.forEach((v,i)=>{
-    const x=padL+i/(data.length-1)*chartW;
-    const y=padT+chartH-(v-mn)/rng*chartH;
-    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
-  });
-  const lx=padL+chartW;
-  ctx.lineTo(lx,H-padB);ctx.lineTo(padL,H-padB);
-  ctx.closePath();ctx.fillStyle=gr;ctx.fill();
+  // candle width
+  const cw=Math.max(2,chartW/candles.length*0.7);
 
-  // line
-  ctx.beginPath();
-  data.forEach((v,i)=>{
-    const x=padL+i/(data.length-1)*chartW;
-    const y=padT+chartH-(v-mn)/rng*chartH;
-    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  // draw candles
+  candles.forEach((c,i)=>{
+    const x=px(i);
+    const up=c.c>=c.o;
+    const col=up?'#0ecb81':'#f6465d';
+    // wick
+    ctx.strokeStyle=col;ctx.lineWidth=Math.max(1,cw*0.15);
+    ctx.beginPath();ctx.moveTo(x,py(c.h));ctx.lineTo(x,py(c.l));ctx.stroke();
+    // body
+    const bodyTop=py(Math.max(c.o,c.c));
+    const bodyBot=py(Math.min(c.o,c.c));
+    const bodyH=Math.max(1.5,bodyBot-bodyTop);
+    ctx.fillStyle=up?'#0ecb81':'#f6465d';
+    if(up){
+      ctx.fillRect(x-cw/2,bodyTop,cw,bodyH);
+    } else {
+      ctx.fillRect(x-cw/2,bodyTop,cw,bodyH);
+      ctx.strokeStyle='#f6465d';ctx.lineWidth=1;
+      ctx.strokeRect(x-cw/2,bodyTop,cw,bodyH);
+    }
   });
-  ctx.strokeStyle=lc;ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.stroke();
 
-  // last price line
-  const ly=padT+chartH-(last-mn)/rng*chartH;
-  ctx.beginPath();ctx.setLineDash([6,4]);
-  ctx.moveTo(padL,ly);ctx.lineTo(W-padR,ly);
-  ctx.strokeStyle=lc+'88';ctx.lineWidth=1;ctx.stroke();
+  // MA lines on candle chart
+  function drawMA(maArr,color){
+    ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=2;
+    let started=false;
+    candles.forEach((_,i)=>{
+      const idx=Math.round(i/candles.length*(data.length-1));
+      const v=maArr[idx];
+      if(v===null||v===undefined)return;
+      const x=px(i),y=py(v);
+      if(!started){ctx.moveTo(x,y);started=true;}else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+  }
+  drawMA(prices5,'#f5a623');
+  drawMA(prices10,'#2196f3');
+  drawMA(prices30,'#ff9800');
+
+  // current price dashed line
+  const curY=py(last);
+  ctx.setLineDash([6,4]);
+  ctx.strokeStyle='#00c08788';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(padL,curY);ctx.lineTo(W-padR,curY);ctx.stroke();
   ctx.setLineDash([]);
-
-  // price tag on right
-  ctx.fillStyle=lc;
+  // price tag right
+  ctx.fillStyle='#00c087';
   ctx.beginPath();
-  ctx.roundRect(W-padR-2,ly-12,padR+2,24,4);
+  if(ctx.roundRect) ctx.roundRect(W-padR+2,curY-14,padR-2,26,3);
   ctx.fill();
-  ctx.fillStyle='#000';
-  ctx.font='bold 20px -apple-system,sans-serif';
-  ctx.textAlign='left';
-  ctx.fillText('◂',W-padR,ly+5);
+  ctx.fillStyle='#000';ctx.font='bold 20px monospace';ctx.textAlign='center';
+  ctx.fillText(fp(last),W-padR+padR/2,curY+6);
 
-  // dot at end
-  ctx.beginPath();
-  ctx.arc(padL+chartW,padT+chartH-(last-mn)/rng*chartH,5,0,Math.PI*2);
-  ctx.fillStyle=lc;ctx.fill();
-  ctx.beginPath();
-  ctx.arc(padL+chartW,padT+chartH-(last-mn)/rng*chartH,9,0,Math.PI*2);
-  ctx.strokeStyle=lc+'55';ctx.lineWidth=2;ctx.stroke();
+  // OHLC legacy elements
+  const oEl=document.getElementById('ohlc-o');if(oEl)oEl.textContent='฿'+fp(first);
+  const hEl=document.getElementById('ohlc-h');if(hEl)hEl.textContent='฿'+fp(hi);
+  const lEl=document.getElementById('ohlc-l');if(lEl)lEl.textContent='฿'+fp(lo);
+  const ccEl=document.getElementById('ohlc-c');if(ccEl)ccEl.textContent='฿'+fp(last);
 
-  // OHLC info
-  const hi=Math.max(...data),lo=Math.min(...data);
-  const vol=Math.floor(Math.random()*9000+1000);
-  document.getElementById('ohlc-o').textContent='฿'+fmtPrice(first);
-  document.getElementById('ohlc-h').textContent='฿'+fmtPrice(hi);
-  document.getElementById('ohlc-l').textContent='฿'+fmtPrice(lo);
-  document.getElementById('ohlc-c').textContent='฿'+fmtPrice(last);
-  document.getElementById('chart-vol').textContent='VOL '+vol.toLocaleString();
+  // Draw volume bars
+  const vc=document.getElementById('vol-canvas');
+  if(vc){
+    const vW=vc.width=vc.offsetWidth*2;
+    const vH=vc.height=120;
+    const vctx=vc.getContext('2d');
+    vctx.clearRect(0,0,vW,vH);
+    const maxVol=Math.max(...candles.map(c=>c.vol));
+    candles.forEach((c,i)=>{
+      const x=padL+(i+0.5)/candles.length*chartW;
+      const up=c.c>=c.o;
+      const barH=(c.vol/maxVol)*(vH-20);
+      vctx.fillStyle=up?'rgba(14,203,129,0.6)':'rgba(246,70,93,0.6)';
+      vctx.fillRect(x-cw/2,vH-barH,cw,barH);
+    });
+    // vol MA lines
+    const vols=candles.map(c=>c.vol);
+    const vma5=calcMA(vols,5),vma10=calcMA(vols,10);
+    function drawVolMA(arr,color){
+      vctx.beginPath();vctx.strokeStyle=color;vctx.lineWidth=1.5;
+      let s=false;
+      arr.forEach((v,i)=>{
+        if(!v)return;
+        const x=padL+(i+0.5)/candles.length*chartW;
+        const y=vH-(v/maxVol)*(vH-20);
+        if(!s){vctx.moveTo(x,y);s=true;}else vctx.lineTo(x,y);
+      });
+      vctx.stroke();
+    }
+    drawVolMA(vma5,'#f5a623');
+    drawVolMA(vma10,'#2196f3');
+    const vm5El=document.getElementById('vol-ma5');if(vm5El&&vma5[vma5.length-1])vm5El.textContent=(vma5[vma5.length-1]*10000).toFixed(0)+'K';
+    const vm10El=document.getElementById('vol-ma10');if(vm10El&&vma10[vma10.length-1])vm10El.textContent=(vma10[vma10.length-1]*10000).toFixed(0)+'K';
+  }
 }
 async function doTrade(){
   if(!requireLogin())return;
