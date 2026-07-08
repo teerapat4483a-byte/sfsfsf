@@ -2054,9 +2054,33 @@ async function resolveFast(bet,forced){
 }
 async function loadFastHist(){
   if(!cu)return;
-  const {data}=await sb.from('fast_trades').select('*').eq('user_id',cu.id).order('created_at',{ascending:false}).limit(10);
-  const html=data&&data.length?data.map(l=>`<div class="fh-item"><div class="fhi-left"><div class="fhi-sym">${l.symbol} ${l.direction==='up'?'▲':'▼'} ${l.duration}วิ</div><div class="fhi-meta">เดิมพัน ${fmt(l.bet)}</div></div><div class="fhi-pnl ${l.pnl>=0?'up':'dn'}">${l.pnl>=0?'+':''}${fmt(l.pnl)}</div></div>`).join(''):'<div class="empty-state"><div class="ei">📋</div><p>ยังไม่มีประวัติ</p></div>';
-  ['fast-hist','ph-fast-hist'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=html;});
+  const {data}=await sb.from('fast_trades').select('*').eq('user_id',cu.id).order('created_at',{ascending:false}).limit(50);
+  function makeItems(list){
+    return list.map(l=>`<div class="fh-item">
+      <div class="fhi-left">
+        <div class="fhi-sym">${l.symbol} ${l.direction==='up'?'▲':'▼'} ${l.duration}วิ</div>
+        <div class="fhi-meta">เดิมพัน ${fmt(l.bet)}</div>
+      </div>
+      <div class="fhi-pnl ${l.pnl>=0?'up':'dn'}">${l.pnl>=0?'+':''}${fmt(l.pnl)}</div>
+    </div>`).join('');
+  }
+  // Fast page: show all
+  const fastEl=document.getElementById('fast-hist');
+  if(fastEl) fastEl.innerHTML=data&&data.length?makeItems(data):'<div class="empty-state"><div class="ei">📋</div><p>ยังไม่มีประวัติ</p></div>';
+  // Port page: show only 3 + see all button
+  const portEl=document.getElementById('ph-fast-hist');
+  if(portEl){
+    if(!data||!data.length){
+      portEl.innerHTML='<div class="empty-state"><div class="ei">📋</div><p>ยังไม่มีประวัติ</p></div>';
+    } else {
+      const preview=data.slice(0,3);
+      const remaining=data.length-3;
+      portEl.innerHTML=makeItems(preview)+(remaining>0?`
+        <div onclick="switchPage('history',document.getElementById('nav-port'))" style="text-align:center;padding:.875rem;background:var(--card);border:1px solid var(--border);border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;color:var(--yellow)">
+          ดูทั้งหมด ${data.length} รายการ ›
+        </div>`:'');
+    }
+  }
 }
 
 // PORT
