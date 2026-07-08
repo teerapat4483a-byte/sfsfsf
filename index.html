@@ -378,7 +378,61 @@ canvas#lc{width:100%;display:block}
 .th-bot-val{font-size:12px;font-weight:600;color:var(--text)}
 .th-empty{text-align:center;padding:3rem 1rem;color:var(--sub);font-size:13px}
 
-.toast{position:fixed;top:70px;left:50%.toast{position:fixed;top:70px;left:50%/* Trade History */
+/* Success Popup */
+.success-popup-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.7);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(4px)}
+.success-popup-overlay.show{top:0!important}
+.success-popup{background:#1a1d2e;border-radius:20px;padding:2rem 1.5rem;width:300px;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.sp-icon{width:72px;height:72px;border-radius:50%;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:32px}
+.sp-icon.buy{background:rgba(0,192,135,.15);border:2px solid rgba(0,192,135,.4)}
+.sp-icon.sell{background:rgba(239,68,68,.15);border:2px solid rgba(239,68,68,.4)}
+.sp-title{font-size:20px;font-weight:800;margin-bottom:.5rem}
+.sp-sub{font-size:13px;color:#6b7280;margin-bottom:.5rem;line-height:1.5}
+.sp-amount{font-size:24px;font-weight:800;margin-bottom:1.25rem}
+.sp-btns{display:flex;flex-direction:column;gap:.75rem}
+.sp-btn-view{width:100%;padding:13px;border:none;border-radius:10px;background:var(--yellow);color:#000;font-size:15px;font-weight:700;cursor:pointer}
+.sp-btn-close{width:100%;padding:13px;border:1px solid rgba(255,255,255,.15);border-radius:10px;background:transparent;color:#aaa;font-size:14px;font-weight:600;cursor:pointer}
+
+/* Contract Detail Page */
+.contract-detail-page{background:var(--bg);min-height:100vh;padding-bottom:70px}
+.cd-header{background:var(--bg);padding:.875rem 1rem;display:flex;align-items:center;gap:.75rem;border-bottom:1px solid var(--border)}
+.cd-back{background:none;border:none;color:var(--yellow);font-size:18px;cursor:pointer;padding:0}
+.cd-title{font-size:15px;font-weight:700;color:var(--yellow)}
+.cd-row{display:flex;justify-content:space-between;align-items:center;padding:.875rem 1rem;border-bottom:1px solid var(--border)}
+.cd-label{font-size:14px;color:var(--text)}
+.cd-value{font-size:14px;font-weight:600;color:var(--text);text-align:right}
+.cd-value.buy{color:var(--green)}
+.cd-value.sell{color:var(--red)}
+.cd-value.profit{color:var(--green);font-weight:800}
+.cd-value.loss{color:var(--red);font-weight:800}
+
+.toast{position:fixed;top:70px;left:50%/* Success Popup */
+.success-popup-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.7);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(4px)}
+.success-popup-overlay.show{top:0!important}
+.success-popup{background:#1a1d2e;border-radius:20px;padding:2rem 1.5rem;width:300px;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.sp-icon{width:72px;height:72px;border-radius:50%;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:32px}
+.sp-icon.buy{background:rgba(0,192,135,.15);border:2px solid rgba(0,192,135,.4)}
+.sp-icon.sell{background:rgba(239,68,68,.15);border:2px solid rgba(239,68,68,.4)}
+.sp-title{font-size:20px;font-weight:800;margin-bottom:.5rem}
+.sp-sub{font-size:13px;color:#6b7280;margin-bottom:.5rem;line-height:1.5}
+.sp-amount{font-size:24px;font-weight:800;margin-bottom:1.25rem}
+.sp-btns{display:flex;flex-direction:column;gap:.75rem}
+.sp-btn-view{width:100%;padding:13px;border:none;border-radius:10px;background:var(--yellow);color:#000;font-size:15px;font-weight:700;cursor:pointer}
+.sp-btn-close{width:100%;padding:13px;border:1px solid rgba(255,255,255,.15);border-radius:10px;background:transparent;color:#aaa;font-size:14px;font-weight:600;cursor:pointer}
+
+/* Contract Detail Page */
+.contract-detail-page{background:var(--bg);min-height:100vh;padding-bottom:70px}
+.cd-header{background:var(--bg);padding:.875rem 1rem;display:flex;align-items:center;gap:.75rem;border-bottom:1px solid var(--border)}
+.cd-back{background:none;border:none;color:var(--yellow);font-size:18px;cursor:pointer;padding:0}
+.cd-title{font-size:15px;font-weight:700;color:var(--yellow)}
+.cd-row{display:flex;justify-content:space-between;align-items:center;padding:.875rem 1rem;border-bottom:1px solid var(--border)}
+.cd-label{font-size:14px;color:var(--text)}
+.cd-value{font-size:14px;font-weight:600;color:var(--text);text-align:right}
+.cd-value.buy{color:var(--green)}
+.cd-value.sell{color:var(--red)}
+.cd-value.profit{color:var(--green);font-weight:800}
+.cd-value.loss{color:var(--red);font-weight:800}
+
+.toast{position:fixed;top:70px;left:50%/* Trade History */
 .trade-hist-page{background:var(--bg);min-height:100vh;padding-bottom:2rem}
 .th-header{background:var(--card);padding:.875rem 1rem;display:flex;align-items:center;justify-content:center;position:relative;border-bottom:1px solid var(--border)}
 .th-back{position:absolute;left:1rem;background:none;border:none;color:var(--sub);font-size:22px;cursor:pointer;line-height:1}
@@ -401,7 +455,61 @@ canvas#lc{width:100%;display:block}
 .th-bot-val{font-size:12px;font-weight:600;color:var(--text)}
 .th-empty{text-align:center;padding:3rem 1rem;color:var(--sub);font-size:13px}
 
-.toast{position:fixed;top:70px;left:50%.toast{position:fixed;top:70px;left:50%/* Order Confirm Modal */
+/* Success Popup */
+.success-popup-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.7);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(4px)}
+.success-popup-overlay.show{top:0!important}
+.success-popup{background:#1a1d2e;border-radius:20px;padding:2rem 1.5rem;width:300px;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.sp-icon{width:72px;height:72px;border-radius:50%;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:32px}
+.sp-icon.buy{background:rgba(0,192,135,.15);border:2px solid rgba(0,192,135,.4)}
+.sp-icon.sell{background:rgba(239,68,68,.15);border:2px solid rgba(239,68,68,.4)}
+.sp-title{font-size:20px;font-weight:800;margin-bottom:.5rem}
+.sp-sub{font-size:13px;color:#6b7280;margin-bottom:.5rem;line-height:1.5}
+.sp-amount{font-size:24px;font-weight:800;margin-bottom:1.25rem}
+.sp-btns{display:flex;flex-direction:column;gap:.75rem}
+.sp-btn-view{width:100%;padding:13px;border:none;border-radius:10px;background:var(--yellow);color:#000;font-size:15px;font-weight:700;cursor:pointer}
+.sp-btn-close{width:100%;padding:13px;border:1px solid rgba(255,255,255,.15);border-radius:10px;background:transparent;color:#aaa;font-size:14px;font-weight:600;cursor:pointer}
+
+/* Contract Detail Page */
+.contract-detail-page{background:var(--bg);min-height:100vh;padding-bottom:70px}
+.cd-header{background:var(--bg);padding:.875rem 1rem;display:flex;align-items:center;gap:.75rem;border-bottom:1px solid var(--border)}
+.cd-back{background:none;border:none;color:var(--yellow);font-size:18px;cursor:pointer;padding:0}
+.cd-title{font-size:15px;font-weight:700;color:var(--yellow)}
+.cd-row{display:flex;justify-content:space-between;align-items:center;padding:.875rem 1rem;border-bottom:1px solid var(--border)}
+.cd-label{font-size:14px;color:var(--text)}
+.cd-value{font-size:14px;font-weight:600;color:var(--text);text-align:right}
+.cd-value.buy{color:var(--green)}
+.cd-value.sell{color:var(--red)}
+.cd-value.profit{color:var(--green);font-weight:800}
+.cd-value.loss{color:var(--red);font-weight:800}
+
+.toast{position:fixed;top:70px;left:50%/* Success Popup */
+.success-popup-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.7);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(4px)}
+.success-popup-overlay.show{top:0!important}
+.success-popup{background:#1a1d2e;border-radius:20px;padding:2rem 1.5rem;width:300px;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.sp-icon{width:72px;height:72px;border-radius:50%;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:32px}
+.sp-icon.buy{background:rgba(0,192,135,.15);border:2px solid rgba(0,192,135,.4)}
+.sp-icon.sell{background:rgba(239,68,68,.15);border:2px solid rgba(239,68,68,.4)}
+.sp-title{font-size:20px;font-weight:800;margin-bottom:.5rem}
+.sp-sub{font-size:13px;color:#6b7280;margin-bottom:.5rem;line-height:1.5}
+.sp-amount{font-size:24px;font-weight:800;margin-bottom:1.25rem}
+.sp-btns{display:flex;flex-direction:column;gap:.75rem}
+.sp-btn-view{width:100%;padding:13px;border:none;border-radius:10px;background:var(--yellow);color:#000;font-size:15px;font-weight:700;cursor:pointer}
+.sp-btn-close{width:100%;padding:13px;border:1px solid rgba(255,255,255,.15);border-radius:10px;background:transparent;color:#aaa;font-size:14px;font-weight:600;cursor:pointer}
+
+/* Contract Detail Page */
+.contract-detail-page{background:var(--bg);min-height:100vh;padding-bottom:70px}
+.cd-header{background:var(--bg);padding:.875rem 1rem;display:flex;align-items:center;gap:.75rem;border-bottom:1px solid var(--border)}
+.cd-back{background:none;border:none;color:var(--yellow);font-size:18px;cursor:pointer;padding:0}
+.cd-title{font-size:15px;font-weight:700;color:var(--yellow)}
+.cd-row{display:flex;justify-content:space-between;align-items:center;padding:.875rem 1rem;border-bottom:1px solid var(--border)}
+.cd-label{font-size:14px;color:var(--text)}
+.cd-value{font-size:14px;font-weight:600;color:var(--text);text-align:right}
+.cd-value.buy{color:var(--green)}
+.cd-value.sell{color:var(--red)}
+.cd-value.profit{color:var(--green);font-weight:800}
+.cd-value.loss{color:var(--red);font-weight:800}
+
+.toast{position:fixed;top:70px;left:50%/* Order Confirm Modal */
 .order-modal-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.6);z-index:9998;display:flex!important;align-items:flex-end;justify-content:center;transition:top .01s}
 .order-modal-overlay.show{top:0!important}
 .order-modal{background:#1a1d2e;border-radius:20px 20px 0 0;padding:1.25rem;width:100%;max-width:480px;padding-bottom:2rem}
@@ -452,7 +560,61 @@ canvas#lc{width:100%;display:block}
 .th-bot-val{font-size:12px;font-weight:600;color:var(--text)}
 .th-empty{text-align:center;padding:3rem 1rem;color:var(--sub);font-size:13px}
 
-.toast{position:fixed;top:70px;left:50%.toast{position:fixed;top:70px;left:50%/* Trade History */
+/* Success Popup */
+.success-popup-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.7);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(4px)}
+.success-popup-overlay.show{top:0!important}
+.success-popup{background:#1a1d2e;border-radius:20px;padding:2rem 1.5rem;width:300px;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.sp-icon{width:72px;height:72px;border-radius:50%;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:32px}
+.sp-icon.buy{background:rgba(0,192,135,.15);border:2px solid rgba(0,192,135,.4)}
+.sp-icon.sell{background:rgba(239,68,68,.15);border:2px solid rgba(239,68,68,.4)}
+.sp-title{font-size:20px;font-weight:800;margin-bottom:.5rem}
+.sp-sub{font-size:13px;color:#6b7280;margin-bottom:.5rem;line-height:1.5}
+.sp-amount{font-size:24px;font-weight:800;margin-bottom:1.25rem}
+.sp-btns{display:flex;flex-direction:column;gap:.75rem}
+.sp-btn-view{width:100%;padding:13px;border:none;border-radius:10px;background:var(--yellow);color:#000;font-size:15px;font-weight:700;cursor:pointer}
+.sp-btn-close{width:100%;padding:13px;border:1px solid rgba(255,255,255,.15);border-radius:10px;background:transparent;color:#aaa;font-size:14px;font-weight:600;cursor:pointer}
+
+/* Contract Detail Page */
+.contract-detail-page{background:var(--bg);min-height:100vh;padding-bottom:70px}
+.cd-header{background:var(--bg);padding:.875rem 1rem;display:flex;align-items:center;gap:.75rem;border-bottom:1px solid var(--border)}
+.cd-back{background:none;border:none;color:var(--yellow);font-size:18px;cursor:pointer;padding:0}
+.cd-title{font-size:15px;font-weight:700;color:var(--yellow)}
+.cd-row{display:flex;justify-content:space-between;align-items:center;padding:.875rem 1rem;border-bottom:1px solid var(--border)}
+.cd-label{font-size:14px;color:var(--text)}
+.cd-value{font-size:14px;font-weight:600;color:var(--text);text-align:right}
+.cd-value.buy{color:var(--green)}
+.cd-value.sell{color:var(--red)}
+.cd-value.profit{color:var(--green);font-weight:800}
+.cd-value.loss{color:var(--red);font-weight:800}
+
+.toast{position:fixed;top:70px;left:50%/* Success Popup */
+.success-popup-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.7);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(4px)}
+.success-popup-overlay.show{top:0!important}
+.success-popup{background:#1a1d2e;border-radius:20px;padding:2rem 1.5rem;width:300px;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.sp-icon{width:72px;height:72px;border-radius:50%;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:32px}
+.sp-icon.buy{background:rgba(0,192,135,.15);border:2px solid rgba(0,192,135,.4)}
+.sp-icon.sell{background:rgba(239,68,68,.15);border:2px solid rgba(239,68,68,.4)}
+.sp-title{font-size:20px;font-weight:800;margin-bottom:.5rem}
+.sp-sub{font-size:13px;color:#6b7280;margin-bottom:.5rem;line-height:1.5}
+.sp-amount{font-size:24px;font-weight:800;margin-bottom:1.25rem}
+.sp-btns{display:flex;flex-direction:column;gap:.75rem}
+.sp-btn-view{width:100%;padding:13px;border:none;border-radius:10px;background:var(--yellow);color:#000;font-size:15px;font-weight:700;cursor:pointer}
+.sp-btn-close{width:100%;padding:13px;border:1px solid rgba(255,255,255,.15);border-radius:10px;background:transparent;color:#aaa;font-size:14px;font-weight:600;cursor:pointer}
+
+/* Contract Detail Page */
+.contract-detail-page{background:var(--bg);min-height:100vh;padding-bottom:70px}
+.cd-header{background:var(--bg);padding:.875rem 1rem;display:flex;align-items:center;gap:.75rem;border-bottom:1px solid var(--border)}
+.cd-back{background:none;border:none;color:var(--yellow);font-size:18px;cursor:pointer;padding:0}
+.cd-title{font-size:15px;font-weight:700;color:var(--yellow)}
+.cd-row{display:flex;justify-content:space-between;align-items:center;padding:.875rem 1rem;border-bottom:1px solid var(--border)}
+.cd-label{font-size:14px;color:var(--text)}
+.cd-value{font-size:14px;font-weight:600;color:var(--text);text-align:right}
+.cd-value.buy{color:var(--green)}
+.cd-value.sell{color:var(--red)}
+.cd-value.profit{color:var(--green);font-weight:800}
+.cd-value.loss{color:var(--red);font-weight:800}
+
+.toast{position:fixed;top:70px;left:50%/* Trade History */
 .trade-hist-page{background:var(--bg);min-height:100vh;padding-bottom:2rem}
 .th-header{background:var(--card);padding:.875rem 1rem;display:flex;align-items:center;justify-content:center;position:relative;border-bottom:1px solid var(--border)}
 .th-back{position:absolute;left:1rem;background:none;border:none;color:var(--sub);font-size:22px;cursor:pointer;line-height:1}
@@ -475,7 +637,61 @@ canvas#lc{width:100%;display:block}
 .th-bot-val{font-size:12px;font-weight:600;color:var(--text)}
 .th-empty{text-align:center;padding:3rem 1rem;color:var(--sub);font-size:13px}
 
-.toast{position:fixed;top:70px;left:50%.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:.625rem 1.25rem;font-size:13px;color:var(--text);opacity:0;transition:opacity .25s;pointer-events:none;z-index:9999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+/* Success Popup */
+.success-popup-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.7);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(4px)}
+.success-popup-overlay.show{top:0!important}
+.success-popup{background:#1a1d2e;border-radius:20px;padding:2rem 1.5rem;width:300px;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.sp-icon{width:72px;height:72px;border-radius:50%;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:32px}
+.sp-icon.buy{background:rgba(0,192,135,.15);border:2px solid rgba(0,192,135,.4)}
+.sp-icon.sell{background:rgba(239,68,68,.15);border:2px solid rgba(239,68,68,.4)}
+.sp-title{font-size:20px;font-weight:800;margin-bottom:.5rem}
+.sp-sub{font-size:13px;color:#6b7280;margin-bottom:.5rem;line-height:1.5}
+.sp-amount{font-size:24px;font-weight:800;margin-bottom:1.25rem}
+.sp-btns{display:flex;flex-direction:column;gap:.75rem}
+.sp-btn-view{width:100%;padding:13px;border:none;border-radius:10px;background:var(--yellow);color:#000;font-size:15px;font-weight:700;cursor:pointer}
+.sp-btn-close{width:100%;padding:13px;border:1px solid rgba(255,255,255,.15);border-radius:10px;background:transparent;color:#aaa;font-size:14px;font-weight:600;cursor:pointer}
+
+/* Contract Detail Page */
+.contract-detail-page{background:var(--bg);min-height:100vh;padding-bottom:70px}
+.cd-header{background:var(--bg);padding:.875rem 1rem;display:flex;align-items:center;gap:.75rem;border-bottom:1px solid var(--border)}
+.cd-back{background:none;border:none;color:var(--yellow);font-size:18px;cursor:pointer;padding:0}
+.cd-title{font-size:15px;font-weight:700;color:var(--yellow)}
+.cd-row{display:flex;justify-content:space-between;align-items:center;padding:.875rem 1rem;border-bottom:1px solid var(--border)}
+.cd-label{font-size:14px;color:var(--text)}
+.cd-value{font-size:14px;font-weight:600;color:var(--text);text-align:right}
+.cd-value.buy{color:var(--green)}
+.cd-value.sell{color:var(--red)}
+.cd-value.profit{color:var(--green);font-weight:800}
+.cd-value.loss{color:var(--red);font-weight:800}
+
+.toast{position:fixed;top:70px;left:50%/* Success Popup */
+.success-popup-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.7);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(4px)}
+.success-popup-overlay.show{top:0!important}
+.success-popup{background:#1a1d2e;border-radius:20px;padding:2rem 1.5rem;width:300px;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.sp-icon{width:72px;height:72px;border-radius:50%;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:32px}
+.sp-icon.buy{background:rgba(0,192,135,.15);border:2px solid rgba(0,192,135,.4)}
+.sp-icon.sell{background:rgba(239,68,68,.15);border:2px solid rgba(239,68,68,.4)}
+.sp-title{font-size:20px;font-weight:800;margin-bottom:.5rem}
+.sp-sub{font-size:13px;color:#6b7280;margin-bottom:.5rem;line-height:1.5}
+.sp-amount{font-size:24px;font-weight:800;margin-bottom:1.25rem}
+.sp-btns{display:flex;flex-direction:column;gap:.75rem}
+.sp-btn-view{width:100%;padding:13px;border:none;border-radius:10px;background:var(--yellow);color:#000;font-size:15px;font-weight:700;cursor:pointer}
+.sp-btn-close{width:100%;padding:13px;border:1px solid rgba(255,255,255,.15);border-radius:10px;background:transparent;color:#aaa;font-size:14px;font-weight:600;cursor:pointer}
+
+/* Contract Detail Page */
+.contract-detail-page{background:var(--bg);min-height:100vh;padding-bottom:70px}
+.cd-header{background:var(--bg);padding:.875rem 1rem;display:flex;align-items:center;gap:.75rem;border-bottom:1px solid var(--border)}
+.cd-back{background:none;border:none;color:var(--yellow);font-size:18px;cursor:pointer;padding:0}
+.cd-title{font-size:15px;font-weight:700;color:var(--yellow)}
+.cd-row{display:flex;justify-content:space-between;align-items:center;padding:.875rem 1rem;border-bottom:1px solid var(--border)}
+.cd-label{font-size:14px;color:var(--text)}
+.cd-value{font-size:14px;font-weight:600;color:var(--text);text-align:right}
+.cd-value.buy{color:var(--green)}
+.cd-value.sell{color:var(--red)}
+.cd-value.profit{color:var(--green);font-weight:800}
+.cd-value.loss{color:var(--red);font-weight:800}
+
+.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:.625rem 1.25rem;font-size:13px;color:var(--text);opacity:0;transition:opacity .25s;pointer-events:none;z-index:9999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.3)}
 .toast.show{opacity:1}
 .lang-picker{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:99999;display:none;align-items:flex-end;justify-content:center}
 .lang-picker.show{display:flex}
@@ -1139,6 +1355,17 @@ canvas#lc{width:100%;display:block}
     </div>
   </div>
 
+  <!-- CONTRACT DETAIL PAGE -->
+  <div class="page" id="page-contract">
+    <div class="contract-detail-page">
+      <div class="cd-header">
+        <button class="cd-back" onclick="switchPage('history',document.getElementById('nav-port'))">←</button>
+        <div class="cd-title" id="cd-title">BTC/THB รายละเอียดสัญญา</div>
+      </div>
+      <div id="cd-body"></div>
+    </div>
+  </div>
+
   <!-- TRADE HISTORY PAGE -->
   <div class="page" id="page-history">
     <div class="th-header">
@@ -1384,6 +1611,36 @@ function doLogout(){
 }
 
 // NAV
+function openContractDetail(idx){
+  const list = thFilter==='all'?tradeHistory:thFilter==='fast'?tradeHistory.filter(t=>t.type==='fast'):tradeHistory.filter(t=>t.type===thFilter);
+  const t = list[idx];
+  if(!t) return;
+  const isBuy = t.dir==='buy'||t.type==='buy';
+  const isFast = t.type==='fast';
+  const pnl = t.pnl||0;
+  function fmtDT(d){const dt=new Date(d);return dt.getFullYear()+'-'+(dt.getMonth()+1).toString().padStart(2,'0')+'-'+dt.getDate().toString().padStart(2,'0')+' '+dt.getHours().toString().padStart(2,'0')+':'+dt.getMinutes().toString().padStart(2,'0')+':'+dt.getSeconds().toString().padStart(2,'0');}
+  // Close time = open time + duration (for fast) or open time + 3min
+  const openTime = new Date(t.time);
+  const closeTime = new Date(openTime.getTime() + (t.duration||180)*1000);
+  const closePrice = t.price * (1 + (Math.random()-.5)*0.002);
+  
+  document.getElementById('cd-title').textContent = t.sym+'/THB รายละเอียดสัญญา';
+  document.getElementById('cd-body').innerHTML = `
+    <div class="cd-row"><div class="cd-label">จำนวน</div><div class="cd-value">${Math.round(t.total).toLocaleString()}.00THB</div></div>
+    <div class="cd-row"><div class="cd-label">ระยะเวลา</div><div class="cd-value">${isFast?(t.duration||180)+'วินาที':'3นาที'}</div></div>
+    <div class="cd-row"><div class="cd-label">ประเภทสัญญา</div><div class="cd-value ${isBuy?'buy':'sell'}">${isBuy?'ซื้อ':'ขาย'}</div></div>
+    <div class="cd-row"><div class="cd-label">สถานะ</div><div class="cd-value">การชำระเงินสำเร็จแล้ว</div></div>
+    <div class="cd-row"><div class="cd-label">ราคาเปิดต่อหน่วย</div><div class="cd-value">${t.price.toFixed(6)}</div></div>
+    <div class="cd-row"><div class="cd-label">เวลาเปิด</div><div class="cd-value">${fmtDT(openTime)}</div></div>
+    <div class="cd-row"><div class="cd-label">ราคาปิดหน่วย</div><div class="cd-value">${closePrice.toFixed(6)}</div></div>
+    <div class="cd-row"><div class="cd-label">เวลาปิด</div><div class="cd-value">${fmtDT(closeTime)}</div></div>
+    <div class="cd-row"><div class="cd-label">จำนวนกำไรและขาดทุน</div><div class="cd-value ${pnl>=0?'profit':'loss'}">${pnl>=0?'+':''}${pnl.toFixed(6)}THB</div></div>
+  `;
+  // Switch to contract page
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-contract').classList.add('active');
+}
+
 function switchPage(page,el){
   if(['trade','fast','port','chat','history'].includes(page)&&!requireLogin())return;
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -1938,11 +2195,45 @@ async function confirmOrder(){
   const price=prices[selSym],qty=omAmt/price;
   if(omAmt<=0){toast('ใส่จำนวนเงิน');return;}
   if(buySell==='buy'&&omAmt>cash){toast('เงินไม่พอ!');return;}
-  if(buySell==='buy'){cash-=omAmt;if(!portfolio[selSym])portfolio[selSym]={qty:0,avgCost:0};const h=portfolio[selSym];h.avgCost=(h.avgCost*h.qty+price*qty)/(h.qty+qty);h.qty+=qty;toast(`ซื้อ ${selSym} ${qty.toFixed(4)} หน่วย ✓`);}
-  else{if(!portfolio[selSym]||portfolio[selSym].qty<qty){toast('หน่วยไม่พอ!');return;}cash+=omAmt;portfolio[selSym].qty-=qty;toast(`ขาย ${selSym} ${qty.toFixed(4)} หน่วย ✓`);}
+  if(buySell==='buy'){
+    cash-=omAmt;
+    if(!portfolio[selSym])portfolio[selSym]={qty:0,avgCost:0};
+    const h=portfolio[selSym];h.avgCost=(h.avgCost*h.qty+price*qty)/(h.qty+qty);h.qty+=qty;
+  } else {
+    if(!portfolio[selSym]||portfolio[selSym].qty<qty){toast('หน่วยไม่พอ!');return;}
+    cash+=omAmt;portfolio[selSym].qty-=qty;
+  }
   recordTrade(buySell,selSym,buySell,qty,price,omAmt,0);
   await sb.from('users').update({cash}).eq('id',cu.id);
   closeOrderModal();updateStats();updateTradeCard();
+  // Show success popup
+  showSuccessPopup(buySell,price);
+}
+
+function showSuccessPopup(side,price){
+  const isBuy=side==='buy';
+  const icon=document.getElementById('sp-icon');
+  icon.textContent=isBuy?'✓':'↑';
+  icon.className='sp-icon '+(isBuy?'buy':'sell');
+  document.getElementById('sp-title').textContent=isBuy?'ซื้อสำเร็จ!':'ขายสำเร็จ!';
+  document.getElementById('sp-title').style.color=isBuy?'var(--green)':'var(--red)';
+  document.getElementById('sp-sub').textContent=selSym+'/THB | '+omTime+' วินาที';
+  document.getElementById('sp-amount').textContent='฿'+omAmt.toLocaleString();
+  document.getElementById('sp-amount').className='sp-amount '+(isBuy?'up':'dn');
+  document.getElementById('sp-price').textContent='฿'+Math.round(price).toLocaleString();
+  document.getElementById('sp-time').textContent=omTime+' วินาที';
+  document.getElementById('sp-profit').textContent='฿'+Math.round(omAmt*0.85).toLocaleString();
+  document.getElementById('success-popup').classList.add('show');
+}
+
+function closeSuccessPopup(){
+  document.getElementById('success-popup').classList.remove('show');
+}
+
+function viewContract(){
+  closeSuccessPopup();
+  switchPage('history',document.getElementById('nav-port'));
+  setTimeout(()=>renderTH(),100);
 }
 
 // TRADE HISTORY
@@ -2051,5 +2342,29 @@ renderHomeMlist();updateTicker();startSlider();applyLang();restoreSession();setI
   </nav>
 <div id="lang-picker-container"></div>
 
+<!-- SUCCESS POPUP -->
+<div class="success-popup-overlay" id="success-popup">
+  <div class="success-popup">
+    <div class="sp-icon buy" id="sp-icon">✓</div>
+    <div class="sp-title" id="sp-title">ซื้อสำเร็จ!</div>
+    <div class="sp-sub" id="sp-sub">BTC/THB | 180 วินาที</div>
+    <div class="sp-amount up" id="sp-amount">฿1,000</div>
+    <div style="background:rgba(255,255,255,.04);border-radius:10px;padding:.75rem;margin-bottom:1.25rem;font-size:12px;color:#6b7280;text-align:left">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span>ราคาเปิด</span><span style="color:#fff;font-weight:600" id="sp-price">฿0</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span>ระยะเวลา</span><span style="color:#fff;font-weight:600" id="sp-time">180 วิ</span>
+      </div>
+      <div style="display:flex;justify-content:space-between">
+        <span>คาดการณ์กำไร</span><span style="color:var(--green);font-weight:700" id="sp-profit">฿850</span>
+      </div>
+    </div>
+    <div class="sp-btns">
+      <button class="sp-btn-view" onclick="viewContract()">📋 ดูบันทึกสัญญา</button>
+      <button class="sp-btn-close" onclick="closeSuccessPopup()">ปิด</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
