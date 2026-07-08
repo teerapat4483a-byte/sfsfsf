@@ -433,14 +433,14 @@ const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 const ALL_STOCKS=[
-  {sym:'BTC',name:'Bitcoin',cat:'crypto',price:2100000,color:'#f0b90b',icon:'₿'},
-  {sym:'ETH',name:'Ethereum',cat:'crypto',price:62000,color:'#627eea',icon:'Ξ'},
-  {sym:'BNB',name:'BNB',cat:'crypto',price:15000,color:'#f3ba2f',icon:'B'},
-  {sym:'SOL',name:'Solana',cat:'crypto',price:5200,color:'#9945ff',icon:'◎'},
-  {sym:'PTT',name:'PTT',cat:'thai',price:35,color:'#0ecb81',icon:'P'},
-  {sym:'CPALL',name:'CP ALL',cat:'thai',price:58,color:'#1890ff',icon:'C'},
-  {sym:'AOT',name:'AOT',cat:'thai',price:72,color:'#f6465d',icon:'A'},
-  {sym:'KBANK',name:'กสิกรไทย',cat:'thai',price:145,color:'#9333ea',icon:'K'},
+  {sym:'BTC',name:'Bitcoin',cat:'crypto',price:2100000,color:'#f0b90b',logo:'https://cdn.jsdelivr.net/gh/spothq/cryptocurrency-icons/128/color/btc.png'},
+  {sym:'ETH',name:'Ethereum',cat:'crypto',price:62000,color:'#627eea',logo:'https://cdn.jsdelivr.net/gh/spothq/cryptocurrency-icons/128/color/eth.png'},
+  {sym:'BNB',name:'BNB',cat:'crypto',price:15000,color:'#f3ba2f',logo:'https://cdn.jsdelivr.net/gh/spothq/cryptocurrency-icons/128/color/bnb.png'},
+  {sym:'SOL',name:'Solana',cat:'crypto',price:5200,color:'#9945ff',logo:'https://cdn.jsdelivr.net/gh/spothq/cryptocurrency-icons/128/color/sol.png'},
+  {sym:'PTT',name:'PTT',cat:'thai',price:35,color:'#0ecb81',logo:'https://upload.wikimedia.org/wikipedia/th/thumb/5/5f/PTT_Logo.svg/200px-PTT_Logo.svg.png'},
+  {sym:'CPALL',name:'CP ALL',cat:'thai',price:58,color:'#1890ff',logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/7-eleven_logo.svg/200px-7-eleven_logo.svg.png'},
+  {sym:'AOT',name:'AOT',cat:'thai',price:72,color:'#f6465d',logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/thirty/AOT_logo.svg/200px-AOT_logo.svg.png'},
+  {sym:'KBANK',name:'กสิกรไทย',cat:'thai',price:145,color:'#1ba345',logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/thirty/KBank_logo.svg/200px-KBank_logo.svg.png'},
 ];
 
 let currentUser=null,cash=0,portfolio={};
@@ -593,6 +593,28 @@ function switchCat(cat,el){
   renderMarket();
 }
 
+function renderHomePreview(){
+  const el=document.getElementById('home-market-preview');
+  if(!el) return;
+  el.innerHTML=ALL_STOCKS.slice(0,4).map(s=>{
+    const hist=histories[s.sym];
+    const prev=hist[hist.length-2]||hist[0];
+    const cur=prices[s.sym];
+    const chg=pct(cur,prev);
+    const isUp=chg>=0;
+    return`<div class="market-row" onclick="goTrade('${s.sym}')">
+      <div class="market-left">
+        <div class="market-icon"><img src="${s.logo}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="width:36px;height:36px;border-radius:50%;object-fit:contain;background:${s.color}22;padding:4px"><span style="display:none;width:36px;height:36px;border-radius:50%;background:${s.color}22;color:${s.color};align-items:center;justify-content:center;font-size:14px;font-weight:700">${s.sym[0]}</span></div>
+        <div><div class="market-name">${s.sym}</div><div class="market-sub">${s.name}</div></div>
+      </div>
+      <div class="market-right">
+        <div class="market-price">${fmt(cur)}</div>
+        <div class="market-chg ${isUp?'chg-up':'chg-dn'}">${isUp?'+':''}${chg}%</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function renderMarket(){
   const list=document.getElementById('market-list');
   const filtered=currentCat==='all'?ALL_STOCKS:ALL_STOCKS.filter(s=>s.cat===currentCat);
@@ -604,28 +626,7 @@ function renderMarket(){
     const isUp=chg>=0;
     return`<div class="market-row" onclick="goTrade('${s.sym}')">
       <div class="market-left">
-        <div class="market-icon" style="background:${s.color}22;color:${s.color}">${s.icon}</div>
-        <div><div class="market-name">${s.sym}</div><div class="market-sub">${s.name}</div></div>
-      </div>
-      <div class="market-right">
-        <div class="market-price">${fmt(cur)}</div>
-        <div class="market-chg ${isUp?'chg-up':'chg-dn'}">${isUp?'+':''}${chg}%</div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function renderHomePreview(){
-  const el=document.getElementById('home-market-preview');
-  el.innerHTML=ALL_STOCKS.slice(0,4).map(s=>{
-    const hist=histories[s.sym];
-    const prev=hist[hist.length-2]||hist[0];
-    const cur=prices[s.sym];
-    const chg=pct(cur,prev);
-    const isUp=chg>=0;
-    return`<div class="market-row" onclick="goTrade('${s.sym}')">
-      <div class="market-left">
-        <div class="market-icon" style="background:${s.color}22;color:${s.color}">${s.icon}</div>
+        <div class="market-icon"><img src="${s.logo}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="width:36px;height:36px;border-radius:50%;object-fit:contain;background:${s.color}22;padding:4px"><span style="display:none;width:36px;height:36px;border-radius:50%;background:${s.color}22;color:${s.color};align-items:center;justify-content:center;font-size:14px;font-weight:700">${s.sym[0]}</span></div>
         <div><div class="market-name">${s.sym}</div><div class="market-sub">${s.name}</div></div>
       </div>
       <div class="market-right">
@@ -916,7 +917,9 @@ function renderPortfolio(){
     return`<div class="port-item">
       <div class="port-item-left">
         <div style="display:flex;align-items:center;gap:8px">
-          <div style="width:32px;height:32px;border-radius:50%;background:${s?s.color+'22':'#fff2'};color:${s?s.color:'#fff'};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700">${s?s.icon:sym[0]}</div>
+          <div style="width:32px;height:32px;border-radius:50%;overflow:hidden;background:${s?s.color+'22':'#fff2'};display:flex;align-items:center;justify-content:center">
+            ${s?`<img src="${s.logo}" style="width:32px;height:32px;object-fit:contain;padding:3px" onerror="this.outerHTML='<span style=color:${s.color};font-weight:700;font-size:13px>${sym[0]}</span>'">`:`<span style="color:#fff;font-weight:700;font-size:13px">${sym[0]}</span>`}
+          </div>
           <div>
             <div class="port-sym">${sym}</div>
             <div class="port-detail">${h.qty} หน่วย @ ${fmt(h.avgCost)}</div>
