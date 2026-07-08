@@ -355,6 +355,52 @@ canvas#lc{width:100%;display:block}
 .btn-confirm{width:100%;padding:14px;border:none;border-radius:12px;background:var(--green);color:#000;font-size:16px;font-weight:800;cursor:pointer;letter-spacing:.3px}
 .btn-confirm.sell{background:var(--red);color:#fff}
 
+/* Trade History */
+.trade-hist-page{background:var(--bg);min-height:100vh;padding-bottom:2rem}
+.th-header{background:var(--card);padding:.875rem 1rem;display:flex;align-items:center;justify-content:center;position:relative;border-bottom:1px solid var(--border)}
+.th-back{position:absolute;left:1rem;background:none;border:none;color:var(--sub);font-size:22px;cursor:pointer;line-height:1}
+.th-title{font-size:16px;font-weight:700}
+.th-filter{display:flex;gap:6px;padding:.75rem 1rem;overflow-x:auto}
+.th-filter::-webkit-scrollbar{display:none}
+.th-fbtn{padding:6px 14px;background:var(--card);border:1px solid var(--border);border-radius:99px;font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;white-space:nowrap}
+.th-fbtn.active{background:var(--yellow);color:#000;border-color:var(--yellow)}
+.th-group{margin-bottom:1rem}
+.th-group-title{font-size:12px;color:var(--sub);padding:.5rem 1rem;background:var(--card2);font-weight:600}
+.th-item{background:var(--card);margin:0;padding:.875rem 1rem;border-bottom:1px solid var(--border);cursor:pointer}
+.th-item:last-child{border-bottom:none}
+.th-item-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.th-sym{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px}
+.th-dir-buy{color:var(--green);font-size:11px;font-weight:700;background:rgba(0,192,135,.1);padding:2px 7px;border-radius:4px}
+.th-dir-sell{color:var(--red);font-size:11px;font-weight:700;background:rgba(239,68,68,.1);padding:2px 7px;border-radius:4px}
+.th-see-all{font-size:12px;color:var(--yellow)}
+.th-item-bot{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;font-size:11px}
+.th-bot-label{color:var(--sub);margin-bottom:1px}
+.th-bot-val{font-size:12px;font-weight:600;color:var(--text)}
+.th-empty{text-align:center;padding:3rem 1rem;color:var(--sub);font-size:13px}
+
+.toast{position:fixed;top:70px;left:50%.toast{position:fixed;top:70px;left:50%/* Trade History */
+.trade-hist-page{background:var(--bg);min-height:100vh;padding-bottom:2rem}
+.th-header{background:var(--card);padding:.875rem 1rem;display:flex;align-items:center;justify-content:center;position:relative;border-bottom:1px solid var(--border)}
+.th-back{position:absolute;left:1rem;background:none;border:none;color:var(--sub);font-size:22px;cursor:pointer;line-height:1}
+.th-title{font-size:16px;font-weight:700}
+.th-filter{display:flex;gap:6px;padding:.75rem 1rem;overflow-x:auto}
+.th-filter::-webkit-scrollbar{display:none}
+.th-fbtn{padding:6px 14px;background:var(--card);border:1px solid var(--border);border-radius:99px;font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;white-space:nowrap}
+.th-fbtn.active{background:var(--yellow);color:#000;border-color:var(--yellow)}
+.th-group{margin-bottom:1rem}
+.th-group-title{font-size:12px;color:var(--sub);padding:.5rem 1rem;background:var(--card2);font-weight:600}
+.th-item{background:var(--card);margin:0;padding:.875rem 1rem;border-bottom:1px solid var(--border);cursor:pointer}
+.th-item:last-child{border-bottom:none}
+.th-item-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.th-sym{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px}
+.th-dir-buy{color:var(--green);font-size:11px;font-weight:700;background:rgba(0,192,135,.1);padding:2px 7px;border-radius:4px}
+.th-dir-sell{color:var(--red);font-size:11px;font-weight:700;background:rgba(239,68,68,.1);padding:2px 7px;border-radius:4px}
+.th-see-all{font-size:12px;color:var(--yellow)}
+.th-item-bot{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;font-size:11px}
+.th-bot-label{color:var(--sub);margin-bottom:1px}
+.th-bot-val{font-size:12px;font-weight:600;color:var(--text)}
+.th-empty{text-align:center;padding:3rem 1rem;color:var(--sub);font-size:13px}
+
 .toast{position:fixed;top:70px;left:50%.toast{position:fixed;top:70px;left:50%/* Order Confirm Modal */
 .order-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9998;align-items:flex-end;justify-content:center}
 .order-modal-overlay.show{display:flex}
@@ -382,6 +428,52 @@ canvas#lc{width:100%;display:block}
 .om-dir-dn{color:var(--red);font-weight:700}
 .btn-confirm{width:100%;padding:14px;border:none;border-radius:12px;background:var(--green);color:#000;font-size:16px;font-weight:800;cursor:pointer;letter-spacing:.3px}
 .btn-confirm.sell{background:var(--red);color:#fff}
+
+/* Trade History */
+.trade-hist-page{background:var(--bg);min-height:100vh;padding-bottom:2rem}
+.th-header{background:var(--card);padding:.875rem 1rem;display:flex;align-items:center;justify-content:center;position:relative;border-bottom:1px solid var(--border)}
+.th-back{position:absolute;left:1rem;background:none;border:none;color:var(--sub);font-size:22px;cursor:pointer;line-height:1}
+.th-title{font-size:16px;font-weight:700}
+.th-filter{display:flex;gap:6px;padding:.75rem 1rem;overflow-x:auto}
+.th-filter::-webkit-scrollbar{display:none}
+.th-fbtn{padding:6px 14px;background:var(--card);border:1px solid var(--border);border-radius:99px;font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;white-space:nowrap}
+.th-fbtn.active{background:var(--yellow);color:#000;border-color:var(--yellow)}
+.th-group{margin-bottom:1rem}
+.th-group-title{font-size:12px;color:var(--sub);padding:.5rem 1rem;background:var(--card2);font-weight:600}
+.th-item{background:var(--card);margin:0;padding:.875rem 1rem;border-bottom:1px solid var(--border);cursor:pointer}
+.th-item:last-child{border-bottom:none}
+.th-item-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.th-sym{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px}
+.th-dir-buy{color:var(--green);font-size:11px;font-weight:700;background:rgba(0,192,135,.1);padding:2px 7px;border-radius:4px}
+.th-dir-sell{color:var(--red);font-size:11px;font-weight:700;background:rgba(239,68,68,.1);padding:2px 7px;border-radius:4px}
+.th-see-all{font-size:12px;color:var(--yellow)}
+.th-item-bot{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;font-size:11px}
+.th-bot-label{color:var(--sub);margin-bottom:1px}
+.th-bot-val{font-size:12px;font-weight:600;color:var(--text)}
+.th-empty{text-align:center;padding:3rem 1rem;color:var(--sub);font-size:13px}
+
+.toast{position:fixed;top:70px;left:50%.toast{position:fixed;top:70px;left:50%/* Trade History */
+.trade-hist-page{background:var(--bg);min-height:100vh;padding-bottom:2rem}
+.th-header{background:var(--card);padding:.875rem 1rem;display:flex;align-items:center;justify-content:center;position:relative;border-bottom:1px solid var(--border)}
+.th-back{position:absolute;left:1rem;background:none;border:none;color:var(--sub);font-size:22px;cursor:pointer;line-height:1}
+.th-title{font-size:16px;font-weight:700}
+.th-filter{display:flex;gap:6px;padding:.75rem 1rem;overflow-x:auto}
+.th-filter::-webkit-scrollbar{display:none}
+.th-fbtn{padding:6px 14px;background:var(--card);border:1px solid var(--border);border-radius:99px;font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;white-space:nowrap}
+.th-fbtn.active{background:var(--yellow);color:#000;border-color:var(--yellow)}
+.th-group{margin-bottom:1rem}
+.th-group-title{font-size:12px;color:var(--sub);padding:.5rem 1rem;background:var(--card2);font-weight:600}
+.th-item{background:var(--card);margin:0;padding:.875rem 1rem;border-bottom:1px solid var(--border);cursor:pointer}
+.th-item:last-child{border-bottom:none}
+.th-item-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.th-sym{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px}
+.th-dir-buy{color:var(--green);font-size:11px;font-weight:700;background:rgba(0,192,135,.1);padding:2px 7px;border-radius:4px}
+.th-dir-sell{color:var(--red);font-size:11px;font-weight:700;background:rgba(239,68,68,.1);padding:2px 7px;border-radius:4px}
+.th-see-all{font-size:12px;color:var(--yellow)}
+.th-item-bot{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;font-size:11px}
+.th-bot-label{color:var(--sub);margin-bottom:1px}
+.th-bot-val{font-size:12px;font-weight:600;color:var(--text)}
+.th-empty{text-align:center;padding:3rem 1rem;color:var(--sub);font-size:13px}
 
 .toast{position:fixed;top:70px;left:50%.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:.625rem 1.25rem;font-size:13px;color:var(--text);opacity:0;transition:opacity .25s;pointer-events:none;z-index:9999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.3)}
 .toast.show{opacity:1}
@@ -993,6 +1085,18 @@ canvas#lc{width:100%;display:block}
       </div>
 
       <!-- Holdings -->
+      <!-- History shortcut -->
+      <div onclick="switchPage('history',document.getElementById('nav-port'))" style="background:var(--card);border-radius:12px;padding:.875rem 1rem;margin-bottom:.875rem;display:flex;justify-content:space-between;align-items:center;cursor:pointer;border:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:.75rem">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(245,166,35,.1);display:flex;align-items:center;justify-content:center;font-size:18px">📋</div>
+          <div>
+            <div style="font-size:14px;font-weight:700">บันทึกสัญญา</div>
+            <div style="font-size:11px;color:var(--sub);margin-top:1px">ประวัติการซื้อขายทั้งหมด</div>
+          </div>
+        </div>
+        <div style="color:var(--sub);font-size:18px">›</div>
+      </div>
+
       <div class="port-section-title">หุ้นที่ถืออยู่</div>
       <div id="ph-list"></div>
 
@@ -1026,6 +1130,21 @@ canvas#lc{width:100%;display:block}
       <textarea class="chat-inp" id="chat-inp" placeholder="พิมพ์ข้อความ..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}" oninput="autoResize(this)"></textarea>
       <button class="chat-send-btn" onclick="sendChat()">➤</button>
     </div>
+  </div>
+
+  <!-- TRADE HISTORY PAGE -->
+  <div class="page" id="page-history">
+    <div class="th-header">
+      <button class="th-back" onclick="goBack()">‹</button>
+      <div class="th-title">บันทึกสัญญา</div>
+    </div>
+    <div class="th-filter">
+      <button class="th-fbtn active" onclick="filterTH('all',this)">ทั้งหมด</button>
+      <button class="th-fbtn" onclick="filterTH('buy',this)">ซื้อ</button>
+      <button class="th-fbtn" onclick="filterTH('sell',this)">ขาย</button>
+      <button class="th-fbtn" onclick="filterTH('fast',this)">เทรดเร็ว</button>
+    </div>
+    <div id="th-list"><div class="th-empty">กำลังโหลด...</div></div>
   </div>
 
   <!-- BOTTOM NAV -->
@@ -1313,6 +1432,7 @@ function showUser(){
   ui.style.display='flex';
   document.getElementById('user-avatar').textContent=cu.username[0].toUpperCase();
   updateStats();
+  loadTradeHistory();
 }
 function doLogout(){
   localStorage.removeItem('bf168_uid');
@@ -1332,6 +1452,7 @@ function switchPage(page,el){
   if(page==='trade'){renderSymScroll();updateTradeCard();}
   if(page==='fast'){renderFastSym();loadFastHist();}
   if(page==='port'){renderPort();loadFastHist();}
+  if(page==='history'){loadTradeHistory();renderTH();}
   if(page==='market')renderMarket();
   if(page==='chat'){
     if(chatChannel) sb.removeChannel(chatChannel);
@@ -2471,9 +2592,87 @@ async function confirmOrder(){
     portfolio[selSym].qty-=qty;
     toast(`ขาย ${selSym} ${qty.toFixed(4)} หน่วย สำเร็จ ✓`);
   }
+  recordTrade(buySell, selSym, buySell, qty, price, omAmt, 0);
   await sb.from('users').update({cash}).eq('id',cu.id);
   closeOrderModal();
   updateStats();updateTradeCard();
+}
+
+/* ─── TRADE HISTORY ─── */
+let tradeHistory = []; // {type:'buy'|'sell'|'fast', sym, dir, qty, price, total, pnl, time}
+let thFilter = 'all';
+
+function recordTrade(type, sym, dir, qty, price, total, pnl){
+  const entry = {
+    id: Date.now(),
+    type, sym, dir: dir||type,
+    qty: qty||0,
+    price: price||0,
+    total: total||0,
+    pnl: pnl||0,
+    time: new Date()
+  };
+  tradeHistory.unshift(entry);
+  // keep max 200
+  if(tradeHistory.length > 200) tradeHistory = tradeHistory.slice(0,200);
+  if(cu) localStorage.setItem('bf168_hist_'+cu.id, JSON.stringify(tradeHistory.slice(0,200)));
+}
+
+function loadTradeHistory(){
+  if(!cu) return;
+  const saved = localStorage.getItem('bf168_hist_'+cu.id);
+  if(saved) try{ tradeHistory = JSON.parse(saved); }catch(e){}
+}
+
+function filterTH(f, el){
+  thFilter = f;
+  document.querySelectorAll('.th-fbtn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderTH();
+}
+
+function renderTH(){
+  const el = document.getElementById('th-list');
+  if(!el) return;
+  let list = thFilter==='all' ? tradeHistory :
+    thFilter==='fast' ? tradeHistory.filter(t=>t.type==='fast') :
+    tradeHistory.filter(t=>t.type===thFilter);
+
+  if(!list.length){
+    el.innerHTML='<div class="th-empty">📭 ยังไม่มีรายการ</div>';
+    return;
+  }
+
+  function fmtDate(d){ const dt=new Date(d); return (dt.getMonth()+1).toString().padStart(2,'0')+'-'+dt.getDate().toString().padStart(2,'0')+' '+dt.getHours().toString().padStart(2,'0')+':'+dt.getMinutes().toString().padStart(2,'0'); }
+  function fmtQty(q){ return q>=1?q.toFixed(2):q.toFixed(4); }
+
+  el.innerHTML = list.map(t => {
+    const isBuy = t.dir==='buy'||t.type==='buy';
+    const isFast = t.type==='fast';
+    return `<div class="th-item">
+      <div class="th-item-top">
+        <div class="th-sym">
+          ${isFast?'⚡':''}${t.sym}/THB
+          <span class="${isBuy?'th-dir-buy':'th-dir-sell'}">${isBuy?'ซื้อ':'ขาย'}</span>
+        </div>
+        <span style="font-size:11px;color:var(--sub)">${fmtDate(t.time)}</span>
+      </div>
+      <div class="th-item-bot">
+        <div>
+          <div class="th-bot-label">จำนวนเงินที่ป้อน</div>
+          <div class="th-bot-val">${Math.round(t.total).toLocaleString()}.00</div>
+        </div>
+        <div>
+          <div class="th-bot-label">ราคาเปิดต่อหน่วย</div>
+          <div class="th-bot-val">${t.price.toFixed(6)}</div>
+        </div>
+        <div>
+          <div class="th-bot-label">${isFast?'กำไร/ขาดทุน':'ปิดสิ้นแล้ว'}</div>
+          <div class="th-bot-val ${isFast?(t.pnl>=0?'up':'dn'):''}">${isFast?(t.pnl>=0?'+':'')+Math.round(t.pnl).toLocaleString():fmtDate(t.time)}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 /* ─── INIT ─── */
