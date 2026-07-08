@@ -198,6 +198,18 @@ select{width:100%;padding:7px 8px;border:1px solid #d1d5db;border-radius:6px;fon
           </select>
         </div>
       </div>
+      <div id="live-chart-wrap" style="display:none;margin-bottom:1rem">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span style="font-size:12px;font-weight:700" id="chart-sym-label">PTT</span>
+          <span style="font-size:18px;font-weight:700" id="chart-price-label">฿0.00</span>
+        </div>
+        <canvas id="live-canvas" width="700" height="120" style="width:100%;border-radius:8px;background:#f8fafc"></canvas>
+        <div style="display:flex;justify-content:space-between;margin-top:4px">
+          <span style="font-size:11px;color:#94a3b8" id="chart-dir-label"></span>
+          <span style="font-size:11px;font-weight:700" id="chart-chg-label"></span>
+        </div>
+      </div>
+
       <div class="timer-wrap" id="timer-wrap">
         <div class="timer-bar-bg"><div class="timer-bar" id="timer-bar"></div></div>
         <div class="timer-text" id="timer-text">รอผล...</div>
@@ -237,6 +249,11 @@ let cash = 0;
 let portfolio = {};
 let prices = {}, histories = {};
 let isRunning = false;
+let liveChartData = [];
+let liveChartInterval = null;
+let liveStartPrice = 0;
+let liveDirection = 'up';
+let liveSym = 'PTT';
 
 STOCKS.forEach(s => {
   prices[s.sym] = s.price;
@@ -289,7 +306,7 @@ async function doRegister(){
   const {data:exist} = await sb.from('users').select('id').eq('username',username).single();
   if(exist){showMsg('r-msg','ชื่อผู้ใช้นี้มีแล้ว',true);return;}
 
-  const {error} = await sb.from('users').insert({username, password, cash:100000});
+  const {error} = await sb.from('users').insert({username, password, cash:0});
   if(error){showMsg('r-msg','เกิดข้อผิดพลาด: '+error.message,true);return;}
   showMsg('r-msg','สมัครสำเร็จ กรุณาเข้าสู่ระบบ',false);
 }
@@ -461,6 +478,98 @@ async function getOverride(){
   return data ? data.result : 'auto';
 }
 
+function drawLiveChart(forced){
+  const canvas = document.getElementById('live-canvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+  ctx.clearRect(0,0,w,h);
+  if(liveChartData.length < 2) return;
+
+  const mn = Math.min(...liveChartData);
+  const mx = Math.max(...liveChartData);
+  const rng = mx - mn || 1;
+  const pad = 12;
+
+  // grid lines
+  ctx.strokeStyle = '#e5e7eb';
+  ctx.lineWidth = 0.5;
+  for(let i=0;i<4;i++){
+    const y = pad + (h-pad*2)*i/3;
+    ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();
+  }
+
+  // gradient fill
+  const last = liveChartData[liveChartData.length-1];
+  const first = liveChartData[0];
+  const isUp = last >= first;
+  const grad = ctx.createLinearGradient(0,0,0,h);
+  grad.addColorStop(0, isUp?'rgba(22,163,74,.25)':'rgba(220,38,38,.25)');
+  grad.addColorStop(1, 'rgba(255,255,255,0)');
+
+  ctx.beginPath();
+  liveChartData.forEach((v,i)=>{
+    const x = i/(liveChartData.length-1)*(w-pad*2)+pad;
+    const y = h-pad-(v-mn)/rng*(h-pad*2);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  const lastX = (liveChartData.length-1)/(liveChartData.length-1)*(w-pad*2)+pad;
+  const lastY = h-pad-(last-mn)/rng*(h-pad*2);
+  ctx.lineTo(lastX,h-pad);ctx.lineTo(pad,h-pad);
+  ctx.closePath();ctx.fillStyle=grad;ctx.fill();
+
+  // line
+  ctx.beginPath();
+  liveChartData.forEach((v,i)=>{
+    const x = i/(liveChartData.length-1)*(w-pad*2)+pad;
+    const y = h-pad-(v-mn)/rng*(h-pad*2);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle = isUp?'#16a34a':'#dc2626';
+  ctx.lineWidth = 2;ctx.stroke();
+
+  // dot at end
+  ctx.beginPath();
+  ctx.arc(lastX,lastY,4,0,Math.PI*2);
+  ctx.fillStyle = isUp?'#16a34a':'#dc2626';ctx.fill();
+
+  // update labels
+  document.getElementById('chart-price-label').textContent = fmtDec(last);
+  const chg = ((last-liveStartPrice)/liveStartPrice*100).toFixed(2);
+  const chgEl = document.getElementById('chart-chg-label');
+  chgEl.textContent = (chg>=0?'+':'')+chg+'%';
+  chgEl.style.color = chg>=0?'#16a34a':'#dc2626';
+}
+
+function startLiveChart(sym, direction, forced){
+  liveSym = sym;
+  liveDirection = direction;
+  liveStartPrice = prices[sym];
+  liveChartData = [liveStartPrice];
+
+  document.getElementById('chart-sym-label').textContent = sym;
+  document.getElementById('chart-dir-label').textContent = `เทรดทิศทาง: ${direction==='up'?'⬆ ขึ้น':'⬇ ลง'}`;
+  document.getElementById('live-chart-wrap').style.display = 'block';
+
+  liveChartInterval = setInterval(()=>{
+    const last = liveChartData[liveChartData.length-1];
+    let bias = 0;
+    if(forced==='win') bias = direction==='up' ? 0.008 : -0.008;
+    else if(forced==='lose') bias = direction==='up' ? -0.008 : 0.008;
+    const chg = (Math.random()-0.5+bias)*last*0.03;
+    const next = Math.max(1, +(last+chg).toFixed(2));
+    liveChartData.push(next);
+    if(liveChartData.length > 60) liveChartData.shift();
+    drawLiveChart(forced);
+  }, 500);
+}
+
+function stopLiveChart(){
+  if(liveChartInterval) clearInterval(liveChartInterval);
+  liveChartInterval = null;
+  document.getElementById('live-chart-wrap').style.display = 'none';
+}
+
 async function startFast(){
   if(isRunning) return;
   const bet=parseInt(document.getElementById('f-bet').value)||0;
@@ -469,12 +578,18 @@ async function startFast(){
   const duration=parseInt(document.getElementById('f-time').value);
   if(bet<=0||bet>cash){showToast('เดิมพันไม่ถูกต้องหรือเงินไม่พอ');return;}
 
+  // ดึง override ก่อนเริ่ม เพื่อใช้ bias กราฟ
+  const {data:ov} = await sb.from('result_overrides').select('result').eq('user_id',currentUser.id).single();
+  const forced = ov ? ov.result : 'auto';
+
   isRunning=true;
   cash-=bet;
   updateStats();
   document.getElementById('btn-start').disabled=true;
   document.getElementById('result-popup').classList.remove('show');
   document.getElementById('timer-wrap').style.display='block';
+
+  startLiveChart(sym, direction, forced);
 
   let remaining=duration;
   const bar=document.getElementById('timer-bar');
@@ -490,6 +605,7 @@ async function startFast(){
     txt.textContent=`เหลือ ${remaining} วินาที`;
     if(remaining<=0){
       clearInterval(interval);
+      stopLiveChart();
       resolveFast(sym,direction,bet,duration);
     }
   },1000);
