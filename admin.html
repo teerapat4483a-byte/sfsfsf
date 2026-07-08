@@ -97,6 +97,15 @@ tr:hover td{background:#fafafa}
     <div class="stat-card"><div class="stat-label">บังคับขาดทุน</div><div class="stat-val dn" id="stat-lose">0</div></div>
   </div>
 
+  <!-- Withdrawal Requests -->
+  <div class="section" id="wd-section">
+    <div class="section-title" style="display:flex;justify-content:space-between;align-items:center">
+      <span>💸 คำขอถอนเงิน</span>
+      <button onclick="loadWithdrawals()" style="background:#e8f0fe;color:#2563eb;border:1px solid #93c5fd;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer">รีเฟรช</button>
+    </div>
+    <div id="wd-list"><div class="port-empty">กำลังโหลด...</div></div>
+  </div>
+
   <div class="section">
     <div class="section-title">จัดการผู้เล่น</div>
     <table>
@@ -104,6 +113,7 @@ tr:hover td{background:#fafafa}
         <tr>
           <th>ผู้ใช้</th>
           <th>เงินสด</th>
+          <th>บัญชีธนาคาร</th>
           <th>กำหนดผลเทรดเร็ว</th>
           <th>ปรับเงิน</th>
         </tr>
@@ -116,6 +126,9 @@ tr:hover td{background:#fafafa}
 </div>
 </div>
 
+<!-- Withdraw Requests -->
+<div class="main-content" id="withdraw-section" style="display:none;margin-top:1rem">
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -143,7 +156,7 @@ function doAdminLogin(){
     sessionStorage.setItem('is_admin','1');
     document.getElementById('login-overlay').style.display='none';
     document.getElementById('main-content').style.display='block';
-    loadUsers();
+    loadUsers();loadWithdrawals();
   } else {
     document.getElementById('a-err').textContent='รหัสผ่านไม่ถูกต้อง';
   }
@@ -182,6 +195,9 @@ function renderUsers(){
     <tr>
       <td><strong>${u.username}</strong><br><span style="font-size:10px;color:#94a3b8">${u.id.slice(0,8)}...</span></td>
       <td><span style="font-weight:700;color:#16a34a">฿${Math.round(u.cash).toLocaleString()}</span></td>
+      <td style="font-size:12px">
+        ${u.bank_name?`<div style="font-weight:600">${u.bank_name}</div><div style="color:#64748b">${u.bank_number||'-'}</div><div style="color:#64748b">${u.bank_owner||'-'}</div>`:'<span style="color:#94a3b8">-</span>'}
+      </td>
       <td>
         <div class="result-btns">
           <button class="rb auto ${u.forced_result==='auto'?'on':''}" onclick="setResult('${u.id}','auto',this)">สุ่ม</button>
@@ -269,10 +285,37 @@ if(sessionStorage.getItem('is_admin')==='1'){
   isAdmin=true;
   document.getElementById('login-overlay').style.display='none';
   document.getElementById('main-content').style.display='block';
-  loadUsers();
+  loadUsers();loadWithdrawals();
 }
 
-setInterval(()=>{if(isAdmin)loadUsers();}, 15000);
+async function loadWithdrawals(){
+  const {data}=await sb.from('withdrawals').select('*').order('created_at',{ascending:false}).limit(50);
+  const el=document.getElementById('wd-list');
+  if(!data||!data.length){el.innerHTML='<div class="port-empty">ยังไม่มีคำขอถอนเงิน</div>';return;}
+  el.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:13px">
+    <tr style="background:#f8fafc"><th style="padding:8px;text-align:left;border-bottom:1px solid #e5e7eb">ผู้ใช้</th><th style="padding:8px;text-align:left;border-bottom:1px solid #e5e7eb">จำนวน</th><th style="padding:8px;text-align:left;border-bottom:1px solid #e5e7eb">บัญชี</th><th style="padding:8px;text-align:left;border-bottom:1px solid #e5e7eb">สถานะ</th><th style="padding:8px;border-bottom:1px solid #e5e7eb">จัดการ</th></tr>
+    ${data.map(w=>`<tr style="border-bottom:1px solid #f1f5f9">
+      <td style="padding:8px"><strong>${w.username}</strong></td>
+      <td style="padding:8px;font-weight:700;color:#16a34a">฿${Math.round(w.amount).toLocaleString()}</td>
+      <td style="padding:8px;font-size:12px">${w.bank_name||'-'}<br><span style="color:#64748b">${w.bank_number||'-'}</span><br><span style="color:#64748b">${w.bank_owner||'-'}</span></td>
+      <td style="padding:8px"><span style="padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700;background:${w.status==='pending'?'#fef3c7':w.status==='approved'?'#dcfce7':'#fee2e2'};color:${w.status==='pending'?'#d97706':w.status==='approved'?'#16a34a':'#dc2626'}">${w.status==='pending'?'รอดำเนินการ':w.status==='approved'?'อนุมัติแล้ว':'ปฏิเสธ'}</span></td>
+      <td style="padding:8px;text-align:center">
+        ${w.status==='pending'?`<button onclick="approveWd('${w.id}')" style="background:#dcfce7;color:#16a34a;border:1px solid #86efac;border-radius:4px;padding:3px 8px;font-size:11px;cursor:pointer;margin-right:4px">✓ อนุมัติ</button><button onclick="rejectWd('${w.id}')" style="background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:4px;padding:3px 8px;font-size:11px;cursor:pointer">✗ ปฏิเสธ</button>`:'<span style="color:#94a3b8;font-size:12px">-</span>'}
+      </td>
+    </tr>`).join('')}
+  </table>`;
+}
+
+async function approveWd(id){
+  await sb.from('withdrawals').update({status:'approved'}).eq('id',id);
+  showToast('อนุมัติคำขอถอนแล้ว');loadWithdrawals();
+}
+async function rejectWd(id){
+  await sb.from('withdrawals').update({status:'rejected'}).eq('id',id);
+  showToast('ปฏิเสธคำขอถอนแล้ว');loadWithdrawals();
+}
+
+setInterval(()=>{if(isAdmin){loadUsers();loadWithdrawals();}}, 15000);
 </script>
 </body>
 </html>
