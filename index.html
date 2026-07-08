@@ -1810,35 +1810,70 @@ function updateTradeCard(){
 }
 
 // CHART
-function genTFData(base,points,vol){
-  // Start from realistic past — min 20% away for interesting charts
-  const startRatio = 0.7 + Math.random()*0.45;
-  let v = base * startRatio;
-  const data = [];
-  const trendBias = v < base ? 0.525 : 0.475; // trend toward base
+// Generate realistic OHLC candles directly (not price array)
+function genOHLCCandles(base, count, vol, trend){
+  const candles = [];
+  let price = base * (0.65 + Math.random()*0.5);
   let momentum = 0;
-  for(let i=0;i<points;i++){
-    momentum = momentum*0.7 + (Math.random()-0.5)*0.3;
-    v = Math.max(0.01, v*(1+(momentum+Math.random()-trendBias)*vol));
-    data.push(+v.toFixed(v>1000?0:v>10?2:4));
+  const trendStr = trend||0; // positive = uptrend
+  for(let i=0;i<count;i++){
+    const progress = i/count;
+    // momentum-based random walk
+    momentum = momentum*0.75 + (Math.random()-0.5+trendStr)*0.4;
+    const change = momentum * vol;
+    const o = price;
+    const c = Math.max(0.01, price*(1+change));
+    const body = Math.abs(c-o);
+    const minBody = price*vol*0.3;
+    const effectBody = Math.max(body, minBody);
+    // wicks: upper and lower, scaled to body
+    const upperWick = effectBody * (0.3 + Math.random()*1.2);
+    const lowerWick = effectBody * (0.3 + Math.random()*1.2);
+    const h = Math.max(o,c) + upperWick;
+    const l = Math.min(o,c) - lowerWick;
+    candles.push({
+      o: +o.toFixed(o>1000?0:4),
+      h: +h.toFixed(h>1000?0:4),
+      l: +Math.max(0.01,l).toFixed(l>1000?0:4),
+      c: +c.toFixed(c>1000?0:4),
+      vol: 0.15 + Math.random()*0.85
+    });
+    price = c;
   }
-  data.push(base);
-  return data;
+  // Gently push last candle toward base price
+  const last = candles[candles.length-1];
+  last.c = base;
+  last.h = Math.max(last.h, base);
+  last.l = Math.min(last.l, base);
+  return candles;
+}
+
+function genTFData(base,points,vol){
+  // Legacy: return price array for compatibility
+  const candles = genOHLCCandles(base, points, vol, 0);
+  return candles.map(c=>c.c);
 }
 function genSmoothData(base,points,vol){
-  // For short TFs: still show visible candles with min vol of 1.5%
-  const effectiveVol = Math.max(vol, 0.015);
-  return genTFData(base, points, effectiveVol);
+  return genTFData(base, points, Math.max(vol,0.012));
 }
+const TF_CONFIG={
+  '1m': {vol:0.012, count:60, trend:0.02,  label:'min', interval:1},
+  '10m':{vol:0.022, count:60, trend:0.03,  label:'min', interval:10},
+  '1h': {vol:0.04,  count:60, trend:0.04,  label:'h',   interval:1},
+  '1d': {vol:0.055, count:90, trend:0.05,  label:'D',   interval:1},
+  '1mo':{vol:0.09,  count:24, trend:0.06,  label:'Mo',  interval:1},
+  '1y': {vol:0.12,  count:24, trend:0.07,  label:'Y',   interval:1},
+};
+
 function ensureTFData(sym){
   if(!tfHists[sym])tfHists[sym]={};
   const b=prices[sym];
-  if(!tfHists[sym]['1m']) tfHists[sym]['1m'] =genSmoothData(b,60,0.018);
-  if(!tfHists[sym]['10m'])tfHists[sym]['10m']=genSmoothData(b,60,0.035);
-  if(!tfHists[sym]['1h']) tfHists[sym]['1h'] =genTFData(b,60,0.065);
-  if(!tfHists[sym]['1d']) tfHists[sym]['1d'] =genTFData(b,60,0.18);
-  if(!tfHists[sym]['1mo'])tfHists[sym]['1mo']=genTFData(b,60,0.45);
-  if(!tfHists[sym]['1y']) tfHists[sym]['1y'] =genTFData(b,60,1.2);
+  Object.keys(TF_CONFIG).forEach(tf=>{
+    if(!tfHists[sym][tf]){
+      const cfg=TF_CONFIG[tf];
+      tfHists[sym][tf]=genOHLCCandles(b,cfg.count,cfg.vol,cfg.trend);
+    }
+  });
 }
 function setTF(tf,el){
   curTF=tf;
@@ -1850,25 +1885,16 @@ function setTF(tf,el){
 function fmtPrice(n){if(n>=1000000)return(n/1000000).toFixed(2)+'M';if(n>=1000)return Math.round(n).toLocaleString();return n.toFixed(2);}
 function calcMA(data,period){return data.map((_,i)=>{if(i<period-1)return null;return data.slice(i-period+1,i+1).reduce((a,b)=>a+b,0)/period;});}
 function genCandles(data){
-  const result=[], grp=Math.max(2,Math.floor(data.length/50));
-  for(let i=0;i<data.length;i+=grp){
-    const chunk=data.slice(i,i+grp);if(!chunk.length)continue;
-    const o=chunk[0],c=chunk[chunk.length-1];
+  // Legacy compatibility - convert price array to simple candles
+  const result=[];
+  for(let i=0;i<data.length-1;i++){
+    const o=data[i],c=data[i+1];
     const body=Math.abs(c-o);
-    const midPrice=(o+c)/2;
-    // Ensure minimum body size (0.5% of price)
-    const minBody=midPrice*0.005;
-    const effectiveBody=Math.max(body,minBody);
-    const adjC=o<c?o+effectiveBody:o-effectiveBody;
-    // Wicks: 1-2.5x body
-    const wickTop=Math.max(o,adjC)+effectiveBody*(0.5+Math.random()*2);
-    const wickBot=Math.min(o,adjC)-effectiveBody*(0.5+Math.random()*2);
-    result.push({
-      o,c:adjC,
-      h:Math.max(wickTop,o,adjC),
-      l:Math.min(wickBot,o,adjC),
-      vol:0.15+Math.random()*0.85
-    });
+    const mid=(o+c)/2;
+    const minB=mid*0.008;
+    const eb=Math.max(body,minB);
+    const adjC=o<c?o+eb:o-eb;
+    result.push({o,c:adjC,h:Math.max(o,adjC)+eb*(0.4+Math.random()*1.2),l:Math.min(o,adjC)-eb*(0.4+Math.random()*1.2),vol:0.2+Math.random()*0.8});
   }
   return result;
 }
@@ -1876,17 +1902,20 @@ function genCandles(data){
 function drawTradeChart(){
   const cv=document.getElementById('tchart');if(!cv)return;
   ensureTFData(selSym);
-  const data=tfHists[selSym][curTF];if(!data||data.length<2)return;
-  const candles=genCandles(data);
-  const last=data[data.length-1],first=data[0],isUp=last>=first;
-  const hi=Math.max(...data),lo=Math.min(...data),chg=((last-first)/first*100);
+  const rawData=tfHists[selSym][curTF];if(!rawData||!rawData.length)return;
+  // rawData is now OHLC array directly
+  const candles=Array.isArray(rawData)&&rawData[0]&&rawData[0].o!==undefined?rawData:genCandles(rawData);
+  const data=candles.map(c=>c.c); // price array for MA calc
+  const last=candles[candles.length-1].c,first=candles[0].o,isUp=last>=first;
+  const hi=Math.max(...candles.map(c=>c.h)),lo=Math.min(...candles.map(c=>c.l)),chg=((last-first)/first*100);
   function fp(n){if(n>=1000000)return(n/1000000).toFixed(2)+'M';if(n>=1000)return Math.round(n).toLocaleString();return n.toFixed(2);}
   const sl=document.getElementById('chart-sym-label2');if(sl)sl.textContent=selSym+'/THB';
   const pb=document.getElementById('chart-price-big');if(pb){pb.textContent='฿'+fp(last);pb.style.color=isUp?'#00c087':'#ef4444';}
   const cb=document.getElementById('chart-chg-big');if(cb){cb.textContent=(chg>=0?'+':'')+chg.toFixed(2)+'%';cb.className='chart-chg-big '+(chg>=0?'up':'dn');}
   const slw=document.getElementById('cs-low');if(slw)slw.textContent='฿'+fp(lo);
   const shw=document.getElementById('cs-high');if(shw)shw.textContent='฿'+fp(hi);
-  const ma5=calcMA(data,5),ma10=calcMA(data,10),ma30=calcMA(data,30);
+  const closes=candles.map(c=>c.c);
+  const ma5=calcMA(closes,5),ma10=calcMA(closes,10),ma30=calcMA(closes,30);
   const now=new Date();
   const tEl=document.getElementById('ma-time');if(tEl)tEl.textContent=now.getFullYear()+'-'+(now.getMonth()+1).toString().padStart(2,'0')+'-'+now.getDate().toString().padStart(2,'0')+' '+now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
   const m5=document.getElementById('ma5-val');if(m5&&ma5[ma5.length-1])m5.textContent='฿'+fp(ma5[ma5.length-1]);
@@ -1908,7 +1937,7 @@ function drawTradeChart(){
     const bt=py(Math.max(c.o,c.c)),bh=Math.max(1.5,py(Math.min(c.o,c.c))-bt);
     ctx.fillStyle=col;ctx.fillRect(x-cw/2,bt,cw,bh);
   });
-  function drawMA(arr,color){ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=2;let s=false;candles.forEach((_,i)=>{const idx=Math.round(i/candles.length*(data.length-1));const v=arr[idx];if(!v)return;const x=px(i),y=py(v);if(!s){ctx.moveTo(x,y);s=true;}else ctx.lineTo(x,y);});ctx.stroke();}
+  function drawMA(arr,color){if(!arr||arr.length<2)return;ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=2;let s=false;arr.forEach((v,i)=>{if(!v||i>=candles.length)return;const x=px(i),y=py(v);if(!s){ctx.moveTo(x,y);s=true;}else ctx.lineTo(x,y);});ctx.stroke();}
   drawMA(ma5,'#f5a623');drawMA(ma10,'#2196f3');drawMA(ma30,'#ff9800');
   const curY=py(last);
   ctx.setLineDash([6,4]);ctx.strokeStyle='#00c08788';ctx.lineWidth=1;
