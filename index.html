@@ -807,13 +807,13 @@ canvas#lc{width:100%;display:block}
       <div style="background:#0a0c14;display:flex;align-items:center;padding:0 .875rem;border-bottom:1px solid #1a1d2e;gap:.5rem">
         <span style="font-size:11px;color:var(--sub);margin-right:4px">เวลา</span>
         <div class="tf-bar" style="flex:1;margin:0;background:transparent;padding:3px 0;gap:0">
-          <button class="tf-btn active" onclick="setTF('1m',this)">1m</button>
+          <button class="tf-btn" onclick="setTF('1m',this)">1m</button>
           <button class="tf-btn" onclick="setTF('5m',this)">5m</button>
           <button class="tf-btn" onclick="setTF('15m',this)">15m</button>
           <button class="tf-btn" onclick="setTF('30m',this)">30m</button>
           <button class="tf-btn" onclick="setTF('1h',this)">1h</button>
           <button class="tf-btn" onclick="setTF('4h',this)">4h</button>
-          <button class="tf-btn" onclick="setTF('1d',this)">1D</button>
+          <button class="tf-btn active" onclick="setTF('1d',this)">1D</button>
         </div>
       </div>
       <!-- MA info bar -->
@@ -1274,7 +1274,7 @@ let running=false,liveData=[],liveIv=null,liveStart=0;
 let homeCat='all',mktCat='all';
 let slideIdx=0,slideIv=null;
 let inputMode='coin';
-let curTF='1m';
+let curTF='1d';
 let tfHists={};
 let fCat='crypto';
 let chatRoomId=null,chatChannel=null;
@@ -1538,20 +1538,39 @@ function updateTradeCard(){
 
 // CHART
 function genTFData(base,points,vol){
-  let v=base*(0.85+Math.random()*.3),data=[];
-  for(let i=0;i<points;i++){v=Math.max(0.01,v*(1+(Math.random()-.48)*vol));data.push(+v.toFixed(4));}
+  // Start from a realistic past price
+  let v=base*(0.75+Math.random()*.45);
+  const data=[];
+  // Add trend bias so chart looks more natural
+  const trendBias=(base>v?0.52:0.48); // slight uptrend if below base
+  for(let i=0;i<points;i++){
+    // Add some momentum (autocorrelation)
+    const momentum=i>0?(data[i-1]>v?0.001:-0.001):0;
+    v=Math.max(0.01,v*(1+(Math.random()-trendBias+momentum)*vol));
+    data.push(+v.toFixed(v>1000?2:4));
+  }
   data.push(base);return data;
+}
+function genSmoothData(base,points,vol){
+  // Smoother version for short timeframes using moving average
+  const raw=genTFData(base,points*2,vol*0.5);
+  const smoothed=[];
+  for(let i=0;i<points;i++){
+    const chunk=raw.slice(i,i+3);
+    smoothed.push(+(chunk.reduce((a,b)=>a+b,0)/chunk.length).toFixed(4));
+  }
+  smoothed.push(base);return smoothed;
 }
 function ensureTFData(sym){
   if(!tfHists[sym])tfHists[sym]={};
   const b=prices[sym];
-  if(!tfHists[sym]['1m'])tfHists[sym]['1m']=genTFData(b,60,0.005);
-  if(!tfHists[sym]['5m'])tfHists[sym]['5m']=genTFData(b,60,0.012);
-  if(!tfHists[sym]['15m'])tfHists[sym]['15m']=genTFData(b,60,0.02);
-  if(!tfHists[sym]['30m'])tfHists[sym]['30m']=genTFData(b,60,0.03);
-  if(!tfHists[sym]['1h'])tfHists[sym]['1h']=genTFData(b,60,0.04);
-  if(!tfHists[sym]['4h'])tfHists[sym]['4h']=genTFData(b,60,0.08);
-  if(!tfHists[sym]['1d'])tfHists[sym]['1d']=genTFData(b,60,0.15);
+  if(!tfHists[sym]['1m'])tfHists[sym]['1m']=genSmoothData(b,60,0.003);
+  if(!tfHists[sym]['5m'])tfHists[sym]['5m']=genSmoothData(b,60,0.008);
+  if(!tfHists[sym]['15m'])tfHists[sym]['15m']=genTFData(b,60,0.015);
+  if(!tfHists[sym]['30m'])tfHists[sym]['30m']=genTFData(b,60,0.022);
+  if(!tfHists[sym]['1h'])tfHists[sym]['1h']=genTFData(b,60,0.035);
+  if(!tfHists[sym]['4h'])tfHists[sym]['4h']=genTFData(b,60,0.07);
+  if(!tfHists[sym]['1d'])tfHists[sym]['1d']=genTFData(b,60,0.18);
 }
 function setTF(tf,el){
   curTF=tf;
@@ -1563,13 +1582,22 @@ function setTF(tf,el){
 function fmtPrice(n){if(n>=1000000)return(n/1000000).toFixed(2)+'M';if(n>=1000)return Math.round(n).toLocaleString();return n.toFixed(2);}
 function calcMA(data,period){return data.map((_,i)=>{if(i<period-1)return null;return data.slice(i-period+1,i+1).reduce((a,b)=>a+b,0)/period;});}
 function genCandles(data){
-  const candles=[],grp=Math.max(2,Math.floor(data.length/40));
+  // Better candle generation with realistic wicks
+  const result=[],grp=Math.max(2,Math.floor(data.length/40));
   for(let i=0;i<data.length;i+=grp){
     const chunk=data.slice(i,i+grp);if(!chunk.length)continue;
-    candles.push({o:chunk[0],h:Math.max(...chunk),l:Math.min(...chunk),c:chunk[chunk.length-1],vol:Math.random()*0.8+0.2});
+    const o=chunk[0],c=chunk[chunk.length-1];
+    const body=Math.abs(c-o);
+    // Add realistic wicks (1.5-3x body)
+    const wickMult=1.5+Math.random()*1.5;
+    const spread=body*wickMult;
+    const h=Math.max(o,c)+spread*(0.3+Math.random()*0.7);
+    const l=Math.min(o,c)-spread*(0.3+Math.random()*0.7);
+    result.push({o,h:Math.max(h,o,c),l:Math.min(l,o,c),c,vol:0.2+Math.random()*0.8});
   }
-  return candles;
+  return result;
 }
+
 function drawTradeChart(){
   const cv=document.getElementById('tchart');if(!cv)return;
   ensureTFData(selSym);
