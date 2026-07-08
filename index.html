@@ -2,2052 +2,444 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Bitforex168</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — เทรดจำลอง</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{--bg:#121420;--card:#1a1d2e;--card2:#222538;--border:#2a2d3e;--text:#e8eaf0;--sub:#6b7280;--green:#00c087;--red:#ef4444;--yellow:#f5a623;--blue:#3b82f6;--purple:#8b5cf6}
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
-body{max-width:480px;margin:0 auto;position:relative;overflow-x:hidden}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:sans-serif;background:#f3f4f6;color:#1e293b;min-height:100vh;padding:1rem}
+.wrap{max-width:900px;margin:0 auto}
 
-/* SCROLLBAR */
-::-webkit-scrollbar{width:0;height:0}
+.login-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:99}
+.login-card{background:#fff;border-radius:12px;padding:2rem;width:320px;box-shadow:0 4px 20px rgba(0,0,0,.15)}
+.login-title{font-size:18px;font-weight:700;text-align:center;margin-bottom:1.25rem}
+.field{margin-bottom:.875rem}
+label{display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px}
+input{width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none}
+input:focus{border-color:#2563eb}
+.btn-login{width:100%;padding:10px;border:none;border-radius:8px;background:#2563eb;color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-top:.5rem}
+.err{color:#dc2626;font-size:12px;margin-top:.5rem;text-align:center}
 
-/* LOGIN OVERLAY */
-.login-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:999;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
-.login-overlay.show{display:flex}
-.login-sheet{background:var(--card);border-radius:20px 20px 0 0;padding:1.5rem 1.25rem 2rem;width:100%;max-width:480px}
-.sheet-handle{width:40px;height:4px;background:var(--border);border-radius:99px;margin:0 auto 1.25rem}
-.sheet-title{font-size:18px;font-weight:700;margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center}
-.sheet-close{background:none;border:none;color:var(--sub);font-size:24px;cursor:pointer;line-height:1}
-.auth-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:1.25rem}
-.auth-tab{flex:1;padding:10px;background:none;border:none;color:var(--sub);font-size:14px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
-.auth-tab.active{color:var(--yellow);border-bottom-color:var(--yellow)}
-.auth-panel{display:none}.auth-panel.active{display:block}
-.inp-group{margin-bottom:1rem}
-.inp-group label{display:block;font-size:12px;color:var(--sub);margin-bottom:6px}
-.inp-group input{width:100%;padding:13px 14px;background:var(--card2);border:1px solid var(--border);border-radius:10px;font-size:15px;color:var(--text);outline:none}
-.inp-group input:focus{border-color:var(--yellow)}
-.btn-submit{width:100%;padding:14px;border:none;border-radius:10px;background:var(--yellow);color:#000;font-size:16px;font-weight:700;cursor:pointer;margin-top:.5rem}
-.auth-msg{font-size:12px;margin:.5rem 0;padding:8px 10px;border-radius:8px;display:none}
-.auth-msg.err{background:rgba(239,68,68,.15);color:var(--red);display:block}
-.auth-msg.ok{background:rgba(0,192,135,.15);color:var(--green);display:block}
+.main-content{display:none}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;background:#fff;padding:.875rem 1rem;border-radius:10px;border:1px solid #e5e7eb;flex-wrap:wrap;gap:8px}
+.title{font-size:17px;font-weight:700}
+.badge-admin{background:#fef3c7;color:#d97706;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:700;margin-left:8px}
+.topbar-right{display:flex;gap:8px;align-items:center}
+.btn-refresh{background:#f1f5f9;color:#475569;border:1px solid #d1d5db;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer}
+.btn-logout{background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer}
 
-/* MAIN */
-.app{min-height:100vh;padding-bottom:65px}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem}
+.stat-card{background:#fff;border-radius:8px;padding:.875rem 1rem;border:1px solid #e5e7eb;text-align:center}
+.stat-label{font-size:12px;color:#64748b;margin-bottom:4px}
+.stat-val{font-size:24px;font-weight:700}
+.up{color:#16a34a}.dn{color:#dc2626}
 
-/* TOPBAR */
-.topbar{background:var(--bg);padding:.875rem 1rem;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border)}
-.topbar-logo{display:flex;align-items:center;gap:8px}
-.topbar-logo img{width:28px;height:28px;border-radius:6px}
-.topbar-logo span{font-size:18px;font-weight:800;color:var(--yellow);letter-spacing:-.5px}
-.topbar-right{display:flex;align-items:center;gap:8px}
-.btn-login-top{padding:7px 16px;background:var(--yellow);color:#000;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer}
-.user-info{display:none;align-items:center;gap:8px}
-.user-avatar{width:30px;height:30px;border-radius:50%;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#000}
-.user-cash{font-size:13px;color:var(--green);font-weight:700}
-.btn-out{background:none;border:none;color:var(--sub);font-size:20px;cursor:pointer}
+.section{background:#fff;border-radius:10px;padding:1rem;margin-bottom:1rem;border:1px solid #e5e7eb}
+.section-title{font-size:14px;font-weight:700;margin-bottom:1rem}
 
-/* TICKER BAR */
-.ticker-bar{background:var(--card);padding:.5rem 1rem;display:flex;gap:1.5rem;overflow-x:auto;border-bottom:1px solid var(--border)}
-.ticker-item{flex-shrink:0;text-align:center;min-width:90px}
-.ticker-sym{font-size:11px;color:var(--sub);margin-bottom:2px}
-.ticker-price{font-size:14px;font-weight:700}
-.ticker-chg{font-size:11px;font-weight:600}
-.up{color:var(--green)}.dn{color:var(--red)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:8px 10px;background:#f8fafc;color:#64748b;font-weight:700;border-bottom:1px solid #e5e7eb;font-size:12px}
+td{padding:10px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
 
-/* PAGES */
-.page{display:none;padding:0}.page.active{display:block}
+.result-btns{display:flex;gap:5px}
+.rb{padding:4px 10px;border-radius:6px;border:1px solid #d1d5db;font-size:11px;cursor:pointer;font-weight:700;background:#f9fafb;color:#64748b;transition:opacity .2s}
+.rb:hover{opacity:.8}
+.rb.auto.on{background:#e8f0fe;color:#2563eb;border-color:#93c5fd}
+.rb.win.on{background:#dcfce7;color:#16a34a;border-color:#86efac}
+.rb.lose.on{background:#fee2e2;color:#dc2626;border-color:#fca5a5}
+.rb.pct.on{background:#fef3c7;color:#d97706;border-color:#fcd34d}
+.pct-row{display:flex;gap:5px;align-items:center;margin-top:6px}
+.pct-row input{width:70px;padding:4px 7px;font-size:12px;border:1px solid #d1d5db;border-radius:6px;text-align:center}
+.btn-pct{background:#fef3c7;color:#d97706;border:1px solid #fcd34d;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-weight:700}
 
-/* HOME */
-/* Slider */
-.slider-wrap{position:relative;overflow:hidden;margin-bottom:0}
-.slider-track{display:flex;transition:transform .4s ease}
-.slide{min-width:100%;padding:1.25rem 1rem;display:flex;justify-content:space-between;align-items:center}
-.slide-1{background:linear-gradient(135deg,#1a1040 0%,#2d1b69 100%)}
-.slide-2{background:linear-gradient(135deg,#0a2a1a 0%,#0d4a2e 100%)}
-.slide-3{background:linear-gradient(135deg,#1a0a2e 0%,#3b1a6b 100%)}
-.slide-left{flex:1}
-.slide-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;margin-bottom:6px}
-.slide-badge.featured{background:rgba(245,166,35,.2);color:var(--yellow)}
-.slide-badge.new{background:rgba(0,192,135,.2);color:var(--green)}
-.slide-badge.top{background:rgba(239,68,68,.2);color:var(--red)}
-.slide-title{font-size:13px;color:var(--sub);margin-bottom:4px}
-.slide-amount{font-size:22px;font-weight:800;color:var(--yellow);margin-bottom:8px}
-.slide-btn{padding:7px 16px;border:none;border-radius:99px;background:var(--green);color:#000;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;width:fit-content}
-.slide-right{text-align:center}
-.slide-coin-icon{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 4px;border:2px solid rgba(255,255,255,.1)}
-.slide-coin-name{font-size:12px;color:var(--sub)}
-.slide-dots{display:flex;justify-content:center;gap:6px;padding:.5rem 0;background:var(--card)}
-.dot{width:6px;height:6px;border-radius:50%;background:var(--border);cursor:pointer;transition:all .3s}
-.dot.active{background:var(--yellow);width:18px;border-radius:3px}
+.adj-row{display:flex;gap:5px;align-items:center}
+.adj-row input{width:85px;padding:4px 7px;font-size:12px;border:1px solid #d1d5db;border-radius:6px}
+.btn-add{background:#dcfce7;color:#16a34a;border:1px solid #86efac;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;font-weight:700}
+.btn-cut{background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;font-weight:700}
 
-/* Market ticker mini */
-.market-ticker{display:grid;grid-template-columns:repeat(3,1fr);gap:0;background:var(--card);border-top:1px solid var(--border)}
-.mticker-item{padding:.75rem;text-align:center;border-right:1px solid var(--border)}
-.mticker-item:last-child{border-right:none}
-.mticker-sym{font-size:11px;color:var(--sub);margin-bottom:2px}
-.mticker-price{font-size:14px;font-weight:700}
-.mticker-chg{font-size:11px;font-weight:600}
-
-/* Quick Menu */
-.quick-menu{background:var(--card);padding:1rem;margin-top:8px;display:grid;grid-template-columns:repeat(5,1fr);gap:.5rem}
-.qm-item{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer}
-.qm-icon{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px}
-.qm-label{font-size:10px;color:var(--sub);text-align:center;font-weight:500}
-
-/* Announcement */
-.announce-bar{background:var(--card);margin-top:8px;padding:.625rem 1rem;display:flex;align-items:center;gap:.75rem;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
-.announce-icon{font-size:16px;flex-shrink:0}
-.announce-scroll{overflow:hidden;flex:1}
-.announce-text{font-size:12px;color:var(--sub);white-space:nowrap;animation:scrollText 20s linear infinite}
-@keyframes scrollText{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
-.announce-menu{font-size:16px;color:var(--sub);cursor:pointer;flex-shrink:0}
-
-/* Market List Home */
-.market-section{background:var(--card);margin-top:8px;padding:0}
-.market-header{display:flex;align-items:center;justify-content:space-between;padding:.875rem 1rem .5rem}
-.market-header-title{font-size:14px;font-weight:700}
-.market-see-all{font-size:12px;color:var(--yellow);cursor:pointer}
-.market-cats{display:flex;gap:0;padding:0 1rem .5rem;overflow-x:auto}
-.mcat{padding:5px 12px;border-radius:99px;border:none;background:none;font-size:12px;color:var(--sub);cursor:pointer;font-weight:600;white-space:nowrap}
-.mcat.active{background:rgba(245,166,35,.15);color:var(--yellow)}
-.mlist-head{display:grid;grid-template-columns:1fr 1fr 1fr;padding:.5rem 1rem;border-top:1px solid var(--border)}
-.mlist-head span{font-size:11px;color:var(--sub)}
-.mlist-head span:nth-child(2){text-align:center}
-.mlist-head span:last-child{text-align:right}
-.mlist-item{display:grid;grid-template-columns:1fr 1fr 1fr;padding:.75rem 1rem;border-top:1px solid var(--border);cursor:pointer;align-items:center}
-.mlist-item:active{background:var(--card2)}
-.mlist-left{display:flex;align-items:center;gap:10px}
-.mlist-logo{width:32px;height:32px;border-radius:50%;object-fit:contain;padding:3px}
-.mlist-logo-fallback{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
-.mlist-name{font-size:13px;font-weight:700}
-.mlist-sub{font-size:10px;color:var(--sub);margin-top:1px}
-.mlist-price{font-size:13px;font-weight:700;text-align:center}
-.mlist-chg{text-align:right}
-.chg-badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:12px;font-weight:700}
-.chg-up{background:rgba(0,192,135,.15);color:var(--green)}
-.chg-dn{background:rgba(239,68,68,.15);color:var(--red)}
-
-/* TRADE PAGE */
-.trade-page{padding:0}
-.sym-scroll{display:flex;gap:0;overflow-x:auto;background:var(--card);border-bottom:1px solid var(--border)}
-.sym-btn{padding:.625rem 1rem;background:none;border:none;color:var(--sub);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent}
-.sym-btn.active{color:var(--yellow);border-bottom-color:var(--yellow)}
-
-.trade-price-card{background:var(--card);padding:1rem;margin-bottom:8px}
-.tpc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem}
-.tpc-sym{font-size:13px;color:var(--sub);margin-bottom:2px}
-.tpc-price{font-size:28px;font-weight:800}
-.tpc-chg{font-size:12px;font-weight:600;padding:3px 8px;border-radius:4px}
-.tpc-right{text-align:right;font-size:12px;color:var(--sub)}
-.tpc-vol{margin-top:4px}
-
-.chart-wrap{background:var(--card);padding:.875rem 1rem;margin-bottom:8px}
-canvas.tchart{width:100%;display:block;border-radius:8px}
-.tf-bar{display:flex;gap:0;margin-bottom:.75rem;background:var(--card2);border-radius:8px;padding:3px;overflow-x:auto}
-.tf-btn{flex:1;padding:6px 8px;border:none;background:transparent;color:var(--sub);font-size:12px;font-weight:600;cursor:pointer;border-radius:6px;white-space:nowrap;min-width:36px;text-align:center}
-.tf-btn.active{background:var(--card);color:var(--yellow);box-shadow:0 1px 3px rgba(0,0,0,.3)}
-.chart-info-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;font-size:11px;color:var(--sub)}
-.chart-ohlc{display:flex;gap:.75rem}
-.chart-ohlc span{display:flex;flex-direction:column;align-items:center;gap:1px}
-.chart-ohlc span em{font-style:normal;font-size:10px;color:var(--sub)}
-.chart-ohlc span strong{font-size:11px;color:var(--text)}
-.crosshair-info{position:absolute;top:4px;left:8px;font-size:11px;color:var(--sub);pointer-events:none;display:none}
-.chart-container{position:relative}
-
-.order-card{background:var(--card);padding:1rem;margin-bottom:8px}
-.bs-tabs{display:flex;border-radius:10px;overflow:hidden;margin-bottom:1rem;border:1px solid var(--border)}
-.bs-tab{flex:1;padding:11px;background:none;border:none;font-size:14px;font-weight:700;cursor:pointer;color:var(--sub)}
-.bs-tab.buy.active{background:var(--green);color:#000}
-.bs-tab.sell.active{background:var(--red);color:#fff}
-
-.order-row{display:flex;align-items:center;margin-bottom:.875rem;gap:.75rem}
-.order-label{font-size:12px;color:var(--sub);width:60px;flex-shrink:0}
-.order-input{flex:1;padding:11px 12px;background:var(--card2);border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);outline:none}
-.order-input:focus{border-color:var(--yellow)}
-.stepper{display:flex;gap:6px}
-.stepper button{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.order-summary{background:var(--card2);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:12px;display:flex;justify-content:space-between}
-.order-summary span{color:var(--sub)}
-.order-summary strong{color:var(--text)}
-.btn-order{width:100%;padding:14px;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer}
-.btn-order.buy{background:var(--green);color:#000}
-.btn-order.sell{background:var(--red);color:#fff}
-.holding-row{display:flex;justify-content:space-between;font-size:12px;color:var(--sub);margin-bottom:1rem}
-
-/* FAST TRADE PAGE */
-.fast-page{padding:.875rem}
-.fast-header{font-size:16px;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:8px}
-.fast-cat-tabs{display:flex;gap:6px;margin-bottom:.875rem}
-.fcat-btn{flex:1;padding:9px 4px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--sub);font-size:12px;font-weight:700;cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
-.fcat-btn .fcat-icon{font-size:18px}
-.fcat-btn.active{background:rgba(245,166,35,.12);color:var(--yellow);border-color:var(--yellow)}
-.fast-sym-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem}
-.fsym-btn{padding:10px 4px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .15s}
-.fsym-btn.active{background:rgba(245,166,35,.12);color:var(--yellow);border-color:var(--yellow)}
-.fsym-btn:active{transform:scale(.95)}
-.fast-card{background:var(--card);border-radius:12px;padding:1rem;margin-bottom:.875rem}
-.fast-card-title{font-size:12px;color:var(--sub);margin-bottom:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-.fast-dir-btns{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem}
-.fdir-btn{padding:14px;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
-.fdir-btn.up{background:rgba(0,192,135,.15);color:var(--green);border:1.5px solid rgba(0,192,135,.3)}
-.fdir-btn.down{background:rgba(239,68,68,.15);color:var(--red);border:1.5px solid rgba(239,68,68,.3)}
-.fdir-btn.up.active{background:var(--green);color:#000;border-color:var(--green)}
-.fdir-btn.down.active{background:var(--red);color:#fff;border-color:var(--red)}
-.fast-time-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem}
-.ftime-btn{padding:8px;background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--sub);font-size:13px;font-weight:600;cursor:pointer;text-align:center}
-.ftime-btn.active{background:rgba(245,166,35,.15);color:var(--yellow);border-color:var(--yellow)}
-.bet-row{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem}
-.bet-input{flex:1;padding:13px;background:var(--card2);border:1px solid var(--border);border-radius:10px;font-size:16px;color:var(--text);outline:none;font-weight:700}
-.bet-input:focus{border-color:var(--yellow)}
-.bet-presets{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:1rem}
-.bet-preset{padding:6px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--sub);font-size:11px;font-weight:600;cursor:pointer;text-align:center}
-.bet-preset:active{background:var(--yellow);color:#000;border-color:var(--yellow)}
-
-.live-chart-box{background:#0d0f1a;border-radius:14px;overflow:hidden;margin-bottom:.875rem;display:none;border:1px solid #1e2235}
-.lcb-top{display:flex;justify-content:space-between;align-items:flex-start;padding:.875rem 1rem .5rem}
-.lcb-sym{font-size:12px;font-weight:700;color:var(--sub);letter-spacing:.5px;text-transform:uppercase}
-.lcb-price{font-size:26px;font-weight:800;letter-spacing:-.5px}
-.lcb-chg{font-size:13px;font-weight:700;margin-top:2px}
-.lcb-meta{font-size:11px;color:var(--sub);margin-top:2px}
-.lcb-ohlc{display:flex;gap:.75rem;padding:0 1rem .625rem;font-size:11px}
-.lcb-ohlc span{color:var(--sub)}
-.lcb-ohlc strong{margin-left:3px}
-canvas#lc{width:100%;display:block}
-.lc-vol-bar{height:3px;background:linear-gradient(90deg,var(--yellow),transparent);margin:0}
-
-.timer-box{display:none;margin-bottom:.875rem}
-.tbar-bg{background:var(--card2);border-radius:99px;height:6px;overflow:hidden;margin-bottom:6px}
-.tbar-fill{height:6px;border-radius:99px;background:var(--yellow);transition:width .1s linear}
-.tbar-label{font-size:12px;color:var(--sub);text-align:center}
-
-.btn-fast-start{width:100%;padding:16px;border:none;border-radius:12px;background:var(--yellow);color:#000;font-size:17px;font-weight:800;cursor:pointer;letter-spacing:.3px}
-.btn-fast-start:disabled{opacity:.4;cursor:not-allowed}
-
-.result-box{display:none;background:var(--card);border-radius:12px;padding:1.5rem;text-align:center;margin-bottom:.875rem;border:1px solid var(--border)}
-.result-box.show{display:block}
-.rb-amount{font-size:32px;font-weight:800;margin-bottom:4px}
-.rb-detail{font-size:13px;color:var(--sub)}
-
-.fast-hist-title{font-size:13px;font-weight:700;color:var(--sub);margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.5px}
-.fh-item{background:var(--card);border-radius:10px;padding:.875rem 1rem;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border)}
-.fhi-left .fhi-sym{font-size:14px;font-weight:700}
-.fhi-left .fhi-meta{font-size:11px;color:var(--sub);margin-top:2px}
-.fhi-pnl{font-size:16px;font-weight:800}
-
-/* PORTFOLIO PAGE */
-.port-page{padding:.875rem}
-.port-banner{background:linear-gradient(135deg,var(--card) 0%,var(--card2) 100%);border-radius:14px;padding:1.25rem;margin-bottom:1rem;border:1px solid var(--border)}
-.pb-label{font-size:12px;color:var(--sub);margin-bottom:4px}
-.pb-total{font-size:30px;font-weight:800;color:var(--green);margin-bottom:4px}
-.pb-pnl{font-size:13px}
-.pb-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:1rem}
-.pb-stat{background:var(--bg);border-radius:8px;padding:.625rem .875rem}
-.pb-stat-label{font-size:11px;color:var(--sub);margin-bottom:3px}
-.pb-stat-val{font-size:15px;font-weight:700}
-.port-section-title{font-size:13px;font-weight:700;color:var(--sub);margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.5px}
-.ph-item{background:var(--card);border-radius:10px;padding:.875rem 1rem;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);cursor:pointer}
-.phi-left{display:flex;align-items:center;gap:10px}
-.phi-logo{width:36px;height:36px;border-radius:50%;object-fit:contain;padding:3px}
-.phi-logo-fb{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700}
-.phi-name{font-size:14px;font-weight:700}
-.phi-qty{font-size:11px;color:var(--sub);margin-top:2px}
-.phi-right{text-align:right}
-.phi-val{font-size:14px;font-weight:700}
-.phi-pnl{font-size:11px;margin-top:2px}
-
-/* BOTTOM NAV */
-.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--card);border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(5,1fr);z-index:50;padding-bottom:env(safe-area-inset-bottom)}
-.bnav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 7px;background:none;border:none;color:var(--sub);font-size:10px;cursor:pointer;font-weight:600}
-.bnav-btn.active{color:var(--yellow)}
-.bnav-icon{font-size:22px;line-height:1}
-
-/* POPUP */
-.popup-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;align-items:center;justify-content:center}
-.popup-overlay.show{display:flex}
-.popup-box{background:var(--card);border-radius:16px;padding:2rem 1.5rem;width:300px;text-align:center}
-.popup-emoji{font-size:52px;margin-bottom:.75rem}
-.popup-title{font-size:19px;font-weight:700;margin-bottom:.5rem}
-.popup-sub{font-size:13px;color:var(--sub);margin-bottom:1.25rem}
-.popup-btn{width:100%;padding:12px;border:none;border-radius:10px;background:var(--yellow);color:#000;font-size:15px;font-weight:700;cursor:pointer}
-
-/* Contact Modal */
-.contact-sheet{background:var(--card);border-radius:20px 20px 0 0;padding:1.5rem 1.25rem 2rem;width:100%;max-width:480px}
-.contact-title{font-size:16px;font-weight:700;margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center}
-.contact-item{display:flex;align-items:center;gap:1rem;padding:.875rem;background:var(--card2);border-radius:12px;margin-bottom:.75rem;cursor:pointer;border:1px solid var(--border);text-decoration:none;transition:all .15s}
-.contact-item:active{transform:scale(.98)}
-.contact-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-.contact-label{font-size:13px;color:var(--sub);margin-bottom:2px}
-.contact-value{font-size:15px;font-weight:700;color:var(--text)}
-.contact-arrow{margin-left:auto;color:var(--sub);font-size:18px}
-.contact-empty{text-align:center;padding:2rem;color:var(--sub);font-size:13px}
-
-/* CHAT */
-.chat-sheet{background:var(--bg);border-radius:20px 20px 0 0;width:100%;max-width:480px;height:85vh;display:flex;flex-direction:column;overflow:hidden}
-.chat-header{background:var(--card);padding:.875rem 1rem;display:flex;align-items:center;gap:.75rem;border-bottom:1px solid var(--border);flex-shrink:0}
-.chat-header-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--yellow),#e8860a);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#000}
-.chat-header-info{}
-.chat-header-name{font-size:14px;font-weight:700}
-.chat-header-status{font-size:11px;color:var(--green);display:flex;align-items:center;gap:4px}
-.chat-header-status::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block}
-.chat-messages{flex:1;overflow-y:auto;padding:.875rem;display:flex;flex-direction:column;gap:.625rem}
-.chat-messages::-webkit-scrollbar{width:0}
-.msg-wrap{display:flex;flex-direction:column;max-width:78%}
-.msg-wrap.me{align-self:flex-end;align-items:flex-end}
-.msg-wrap.admin{align-self:flex-start;align-items:flex-start}
-.msg-bubble{padding:.625rem .875rem;border-radius:16px;font-size:14px;line-height:1.45;word-break:break-word}
-.msg-wrap.me .msg-bubble{background:var(--yellow);color:#000;border-bottom-right-radius:4px}
-.msg-wrap.admin .msg-bubble{background:var(--card);color:var(--text);border-bottom-left-radius:4px;border:1px solid var(--border)}
-.msg-time{font-size:10px;color:var(--sub);margin-top:3px;padding:0 2px}
-.chat-date-divider{text-align:center;font-size:11px;color:var(--sub);padding:.25rem 0;position:relative}
-.chat-date-divider::before,.chat-date-divider::after{content:'';position:absolute;top:50%;width:35%;height:1px;background:var(--border)}
-.chat-date-divider::before{left:0}.chat-date-divider::after{right:0}
-.chat-input-wrap{background:var(--card);padding:.75rem 1rem;border-top:1px solid var(--border);display:flex;gap:.625rem;align-items:flex-end;flex-shrink:0}
-.chat-inp{flex:1;padding:.75rem;background:var(--card2);border:1px solid var(--border);border-radius:20px;font-size:14px;color:var(--text);outline:none;resize:none;max-height:100px;line-height:1.4;font-family:inherit}
-.chat-inp:focus{border-color:var(--yellow)}
-.chat-send-btn{width:40px;height:40px;border-radius:50%;background:var(--yellow);border:none;color:#000;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .15s}
-.chat-send-btn:active{transform:scale(.9)}
-.chat-typing{font-size:12px;color:var(--sub);padding:0 .875rem .25rem;display:none}
-.chat-typing.show{display:block}
-.msg-wrap.admin .msg-bubble.typing{background:var(--card2)}
-.dot-anim{display:inline-flex;gap:3px;align-items:center}
-.dot-anim span{width:6px;height:6px;border-radius:50%;background:var(--sub);animation:dotBounce .8s infinite}
-.dot-anim span:nth-child(2){animation-delay:.15s}
-.dot-anim span:nth-child(3){animation-delay:.3s}
-@keyframes dotBounce{0%,80%,100%{transform:scale(.6)}40%{transform:scale(1)}}
-
-.toast{position:fixed;top:70px;left:50%.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:.625rem 1.25rem;font-size:13px;color:var(--text);opacity:0;transition:opacity .25s;pointer-events:none;z-index:9999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.empty{text-align:center;color:#94a3b8;padding:2rem;font-size:13px}
+.toast{position:fixed;top:14px;right:14px;background:#fff;border:1px solid #d1d5db;border-radius:8px;padding:.6rem 1rem;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;box-shadow:0 2px 8px rgba(0,0,0,.1)}
 .toast.show{opacity:1}
-.lang-picker{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:998;display:none;align-items:flex-end;justify-content:center}
-.lang-picker.show{display:flex}
-.lang-sheet{background:var(--card);border-radius:20px 20px 0 0;padding:1.25rem;width:100%;max-width:480px}
-.lang-sheet-title{font-size:15px;font-weight:700;margin-bottom:1rem;text-align:center;color:var(--sub)}
-.lang-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.lang-opt{padding:14px;background:var(--card2);border:1px solid var(--border);border-radius:12px;cursor:pointer;text-align:center;transition:all .15s}
-.lang-opt.active{border-color:var(--yellow);background:rgba(245,166,35,.1)}
-.lang-opt .lang-flag{font-size:28px;display:block;margin-bottom:6px}
-.lang-opt .lang-name{font-size:13px;font-weight:700;color:var(--text)}
-.lang-opt .lang-native{font-size:11px;color:var(--sub);margin-top:2px}
-.btn-lang{background:none;border:none;color:var(--sub);font-size:18px;cursor:pointer;padding:4px}
-
-/* Empty state */
-.empty-state{text-align:center;padding:3rem 1rem;color:var(--sub)}
-.empty-state .ei{font-size:48px;margin-bottom:.75rem}
-.empty-state p{font-size:14px}
-
-/* Profile */
-.profile-card{background:linear-gradient(135deg,#1a1d2e,#0d1020);border-radius:16px;padding:1.25rem;margin-bottom:.875rem;border:1px solid var(--border);position:relative;overflow:hidden}
-.profile-card::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:var(--yellow);opacity:.04}
-.profile-avatar-wrap{display:flex;align-items:center;gap:1rem;margin-bottom:1rem}
-.profile-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--yellow),#e8860a);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#000;flex-shrink:0;border:2px solid rgba(245,166,35,.4);cursor:pointer;position:relative;overflow:hidden}
-.profile-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.profile-avatar .avatar-edit{position:absolute;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;font-size:18px}
-.profile-avatar:hover .avatar-edit{display:flex}
-.profile-info{}
-.profile-name{font-size:18px;font-weight:800;color:var(--text)}
-.profile-id{font-size:11px;color:var(--sub);margin-top:2px}
-.profile-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(245,166,35,.15);border:1px solid rgba(245,166,35,.3);border-radius:99px;padding:3px 10px;font-size:11px;color:var(--yellow);font-weight:700;margin-top:6px}
-.profile-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.pstat{background:var(--bg);border-radius:10px;padding:.75rem;text-align:center}
-.pstat-val{font-size:15px;font-weight:800;color:var(--text)}
-.pstat-label{font-size:10px;color:var(--sub);margin-top:2px}
-
-/* Bank section */
-.bank-card{background:var(--card);border-radius:14px;padding:1rem;margin-bottom:.875rem;border:1px solid var(--border)}
-.bank-card-title{font-size:13px;font-weight:700;color:var(--sub);letter-spacing:.5px;text-transform:uppercase;margin-bottom:.875rem;display:flex;justify-content:space-between;align-items:center}
-.bank-edit-btn{background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.3);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--yellow);cursor:pointer;font-weight:700}
-.bank-display{display:flex;align-items:center;gap:.875rem}
-.bank-logo-circle{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
-.bank-info .bank-name{font-size:14px;font-weight:700}
-.bank-info .bank-number{font-size:13px;color:var(--sub);margin-top:2px;letter-spacing:1px}
-.bank-info .bank-owner{font-size:12px;color:var(--sub);margin-top:2px}
-.bank-empty{text-align:center;padding:1.25rem;color:var(--sub);font-size:13px}
-.bank-form{display:none}
-.bank-form.show{display:block}
-.bfinp{width:100%;padding:11px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);outline:none;margin-bottom:.75rem}
-.bfinp:focus{border-color:var(--yellow)}
-.bank-select{width:100%;padding:11px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);outline:none;margin-bottom:.75rem;cursor:pointer}
-.bank-select:focus{border-color:var(--yellow)}
-.btn-save-bank{width:100%;padding:12px;border:none;border-radius:10px;background:var(--yellow);color:#000;font-size:14px;font-weight:700;cursor:pointer}
-.withdraw-card{background:var(--card);border-radius:14px;padding:1rem;margin-bottom:.875rem;border:1px solid var(--border)}
-.withdraw-form{display:flex;gap:8px;margin-top:.875rem}
-.withdraw-inp{flex:1;padding:11px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);outline:none}
-.withdraw-inp:focus{border-color:var(--yellow)}
-.btn-withdraw{padding:11px 16px;background:#ef4444;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap}
-.menu-item{display:flex;align-items:center;justify-content:space-between;padding:.875rem 0;border-bottom:1px solid var(--border);cursor:pointer}
-.menu-item:last-child{border-bottom:none}
-.menu-item-left{display:flex;align-items:center;gap:.75rem}
-.menu-item-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
-.menu-item-label{font-size:14px;font-weight:600}
-.menu-item-sub{font-size:11px;color:var(--sub);margin-top:1px}
-.menu-arrow{color:var(--sub);font-size:18px}
 </style>
 </head>
 <body>
 
-<!-- LOGIN SHEET -->
-<div class="login-overlay" id="login-overlay" onclick="if(event.target===this)closeLogin()">
-  <div class="login-sheet">
-    <div class="sheet-handle"></div>
-    <div class="sheet-title">
-      <span id="sheet-title-text">เข้าสู่ระบบ / ลงทะเบียน</span>
-      <button class="sheet-close" onclick="closeLogin()">×</button>
-    </div>
-    <div class="auth-tabs">
-      <button class="auth-tab active" onclick="switchAuthTab('login',this)">เข้าสู่ระบบ</button>
-      <button class="auth-tab" onclick="switchAuthTab('register',this)">ลงทะเบียน</button>
-    </div>
-    <div class="auth-panel active" id="ap-login">
-      <div class="inp-group"><label>ชื่อผู้ใช้</label><input id="l-user" type="text" placeholder="กรอกชื่อผู้ใช้"></div>
-      <div class="inp-group"><label>รหัสผ่าน</label><input id="l-pass" type="password" placeholder="รหัสผ่าน" onkeydown="if(event.key==='Enter')doLogin()"></div>
-      <div class="auth-msg" id="l-msg"></div>
-      <button class="btn-submit" onclick="doLogin()">เข้าสู่ระบบ</button>
-    </div>
-    <div class="auth-panel" id="ap-register">
-      <div class="inp-group"><label>ชื่อผู้ใช้</label><input id="r-user" type="text" placeholder="อย่างน้อย 3 ตัวอักษร"></div>
-      <div class="inp-group"><label>รหัสผ่าน</label><input id="r-pass" type="password" placeholder="รหัสผ่าน"></div>
-      <div class="auth-msg" id="r-msg"></div>
-      <button class="btn-submit" onclick="doRegister()">ลงทะเบียน</button>
-    </div>
+<!-- Login -->
+<div class="login-overlay" id="login-overlay">
+  <div class="login-card">
+    <div class="login-title">🔐 Admin Login</div>
+    <div class="field"><label>Username</label><input type="text" id="a-user" value="admin" placeholder="admin"></div>
+    <div class="field"><label>Password</label><input type="password" id="a-pass" placeholder="รหัสผ่าน" onkeydown="if(event.key==='Enter')doAdminLogin()"></div>
+    <div class="err" id="a-err"></div>
+    <button class="btn-login" onclick="doAdminLogin()">เข้าสู่ระบบ</button>
   </div>
 </div>
 
-<!-- MAIN APP -->
-<div class="app">
-  <!-- TOPBAR -->
+<!-- Main -->
+<div class="main-content" id="main-content">
+<div class="wrap">
   <div class="topbar">
-    <div class="topbar-logo">
-      <span>📈 Bitforex168</span>
+    <div>
+      <span class="title">⚙️ Admin Panel</span>
+      <span class="badge-admin">ADMIN</span>
     </div>
     <div class="topbar-right">
-      <button class="btn-lang" onclick="openLangPicker()" title="เปลี่ยนภาษา" id="btn-lang">🌐</button>
-      <button class="btn-login-top" id="btn-login-top" onclick="openLogin()" data-i18n="login_btn">เข้าสู่ระบบ / ลงทะเบียน</button>
-      <div class="user-info" id="user-info">
-        <div class="user-avatar" id="user-avatar">T</div>
-        <span class="user-cash" id="user-cash">฿0</span>
-        <button class="btn-out" onclick="doLogout()" title="ออกจากระบบ">⊗</button>
+      <button class="btn-refresh" onclick="loadUsers()">รีเฟรช</button>
+      <button class="btn-logout" onclick="doLogout()">ออกจากระบบ</button>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-label">ผู้เล่นทั้งหมด</div><div class="stat-val" id="stat-total">0</div></div>
+    <div class="stat-card"><div class="stat-label">บังคับกำไร</div><div class="stat-val up" id="stat-win">0</div></div>
+    <div class="stat-card"><div class="stat-label">บังคับขาดทุน</div><div class="stat-val dn" id="stat-lose">0</div></div>
+  </div>
+
+  <!-- CHAT SECTION -->
+  <div class="section">
+    <div class="section-title" style="display:flex;justify-content:space-between;align-items:center">
+      <span>💬 ข้อความจากผู้เล่น</span>
+      <span id="chat-unread-badge" style="display:none;background:#ef4444;color:#fff;border-radius:99px;padding:2px 8px;font-size:11px;font-weight:700"></span>
+      <button onclick="loadChatRooms()" style="background:#e8f0fe;color:#2563eb;border:1px solid #93c5fd;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer">รีเฟรช</button>
+    </div>
+    <div class="chat-sidebar">
+      <div class="chat-rooms-list" id="admin-rooms-list">
+        <div style="padding:1rem;text-align:center;color:#94a3b8;font-size:13px">กำลังโหลด...</div>
+      </div>
+      <div class="chat-main" id="admin-chat-main">
+        <div class="no-room-selected">
+          <div style="font-size:36px">💬</div>
+          <div>เลือกผู้เล่นเพื่อดูข้อความ</div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- HOME PAGE -->
-  <div class="page active" id="page-home">
-    <!-- Slider -->
-    <div class="slider-wrap">
-      <div class="slider-track" id="slider-track">
-        <div class="slide slide-1">
-          <div class="slide-left">
-            <div class="slide-badge featured">⭐ Featured</div>
-            <div class="slide-title">Friendship Invitation Benefits<br>Share Now!</div>
-            <div class="slide-amount">200,000 USDT!</div>
-            <button class="slide-btn" onclick="requireLogin()">GO ›</button>
-          </div>
-          <div class="slide-right">
-            <div class="slide-coin-icon" style="background:rgba(98,126,234,.2)">Ξ</div>
-            <div class="slide-coin-name">ETH</div>
-            <div style="color:var(--green);font-size:13px;font-weight:700;margin-top:4px" id="slide-eth-price">฿0</div>
-          </div>
-        </div>
-        <div class="slide slide-2">
-          <div class="slide-left">
-            <div class="slide-badge new" style="background:rgba(0,192,135,.2);color:var(--green)">🆕 New Listing</div>
-            <div class="slide-title">เทรดคริปโตและหุ้นไทย<br>ด้วยเงินจำลอง!</div>
-            <div class="slide-amount">ฟรี 0 บาท</div>
-            <button class="slide-btn" onclick="openLogin()">สมัครเลย ›</button>
-          </div>
-          <div class="slide-right">
-            <div class="slide-coin-icon" style="background:rgba(240,185,11,.2)">₿</div>
-            <div class="slide-coin-name">BTC</div>
-            <div style="color:var(--yellow);font-size:13px;font-weight:700;margin-top:4px" id="slide-btc-price">฿0</div>
-          </div>
-        </div>
-        <div class="slide slide-3">
-          <div class="slide-left">
-            <div class="slide-badge top" style="background:rgba(239,68,68,.2);color:var(--red)">🔥 TOP1</div>
-            <div class="slide-title">Staking ผลตอบแทนสูง<br>APR สูงสุด 120%</div>
-            <div class="slide-amount">เริ่มต้นวันนี้!</div>
-            <button class="slide-btn" onclick="switchPage('fast',document.getElementById('nav-fast'))">เริ่มเลย ›</button>
-          </div>
-          <div class="slide-right">
-            <div class="slide-coin-icon" style="background:rgba(139,92,246,.2)">◎</div>
-            <div class="slide-coin-name">SOL</div>
-            <div style="color:var(--purple);font-size:13px;font-weight:700;margin-top:4px" id="slide-sol-price">฿0</div>
-          </div>
-        </div>
-      </div>
-      <div class="slide-dots">
-        <div class="dot active" onclick="goSlide(0)"></div>
-        <div class="dot" onclick="goSlide(1)"></div>
-        <div class="dot" onclick="goSlide(2)"></div>
-      </div>
+  <!-- Withdrawal Requests -->
+  <div class="section" id="wd-section">
+    <div class="section-title" style="display:flex;justify-content:space-between;align-items:center">
+      <span>💸 คำขอถอนเงิน</span>
+      <button onclick="loadWithdrawals()" style="background:#e8f0fe;color:#2563eb;border:1px solid #93c5fd;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer">รีเฟรช</button>
     </div>
-
-    <!-- Market Ticker 3 col -->
-    <div class="market-ticker">
-      <div class="mticker-item">
-        <div class="mticker-sym">BTC/THB</div>
-        <div class="mticker-price up" id="mt-btc">฿0</div>
-        <div class="mticker-chg" id="mt-btc-chg">0%</div>
-      </div>
-      <div class="mticker-item">
-        <div class="mticker-sym">BCH/THB</div>
-        <div class="mticker-price" id="mt-eth">฿0</div>
-        <div class="mticker-chg" id="mt-eth-chg">0%</div>
-      </div>
-      <div class="mticker-item">
-        <div class="mticker-sym">ETH/THB</div>
-        <div class="mticker-price" id="mt-bnb">฿0</div>
-        <div class="mticker-chg" id="mt-bnb-chg">0%</div>
-      </div>
-    </div>
-
-    <!-- Quick Menu -->
-    <div class="quick-menu">
-      <div class="qm-item" onclick="requireLogin()">
-        <div class="qm-icon" style="background:rgba(0,192,135,.1)">💰</div>
-        <div class="qm-label">เงินฝาก</div>
-      </div>
-      <div class="qm-item" onclick="requireLogin()">
-        <div class="qm-icon" style="background:rgba(239,68,68,.1)">💸</div>
-        <div class="qm-label">ถอน</div>
-      </div>
-      <div class="qm-item" onclick="requireLogin()">
-        <div class="qm-icon" style="background:rgba(245,166,35,.1)">🚀</div>
-        <div class="qm-label">IEO</div>
-      </div>
-      <div class="qm-item" onclick="requireLogin()">
-        <div class="qm-icon" style="background:rgba(139,92,246,.1)">🔒</div>
-        <div class="qm-label">Staking</div>
-      </div>
-      <div class="qm-item" onclick="openContact()">
-        <div class="qm-icon" style="background:rgba(59,130,246,.1)">🎧</div>
-        <div class="qm-label">ติดต่อ</div>
-      </div>
-    </div>
-
-    <!-- Announcement -->
-    <div class="announce-bar">
-      <div class="announce-icon">📢</div>
-      <div class="announce-scroll">
-        <div class="announce-text" id="announce-text">Bitforex168 ยินดีต้อนรับ! เทรดคริปโตและหุ้นไทยด้วยเงินจำลอง • BTC/THB ราคาอัพเดตเรียลไทม์ • เติมเงินจำลองได้ที่แอดมิน</div>
-      </div>
-      <div class="announce-menu">☰</div>
-    </div>
-
-    <!-- Gold Banner -->
-    <div style="background:linear-gradient(135deg,#1a1200 0%,#3d2b00 50%,#1a1200 100%);margin-top:8px;padding:1rem;display:flex;align-items:center;gap:1rem;border-top:1px solid #5a4000;border-bottom:1px solid #5a4000">
-      <div style="font-size:36px">🥇</div>
-      <div style="flex:1">
-        <div style="font-size:11px;color:#d4af37;font-weight:700;letter-spacing:1px;margin-bottom:2px">GOLD MARKET</div>
-        <div style="font-size:14px;font-weight:700;color:#ffd700">ทองคำโลก XAU/USD</div>
-        <div style="font-size:12px;color:#c9a227;margin-top:2px" id="gold-banner-price">฿105,800 / oz</div>
-      </div>
-      <div style="text-align:right">
-        <div style="font-size:11px;color:#d4af37;margin-bottom:2px">เปลี่ยนแปลง</div>
-        <div id="gold-banner-chg" style="font-size:14px;font-weight:700;color:#00c087">+0.00%</div>
-        <div style="font-size:10px;color:#5a4000;margin-top:4px">อัพเดต 3 วิ</div>
-      </div>
-    </div>
-
-    <!-- Market List -->
-    <div class="market-section">
-      <div class="market-header">
-        <div class="market-header-title">ตลาด</div>
-        <div class="market-see-all" onclick="switchPage('market',document.getElementById('nav-market'))">ดูทั้งหมด ›</div>
-      </div>
-      <div class="market-cats">
-        <button class="mcat active" onclick="homeFilter('all',this)">ทั้งหมด</button>
-        <button class="mcat" onclick="homeFilter('crypto',this)">คริปโต</button>
-        <button class="mcat" onclick="homeFilter('thai',this)">หุ้นไทย</button>
-        <button class="mcat" onclick="homeFilter('gold',this)">ทองคำ</button>
-      </div>
-      <div class="mlist-head">
-        <span>สินทรัพย์</span>
-        <span>ราคาล่าสุด</span>
-        <span>เปลี่ยนแปลง</span>
-      </div>
-      <div id="home-mlist"></div>
-    </div>
+    <div id="wd-list"><div class="port-empty">กำลังโหลด...</div></div>
   </div>
 
-  <!-- MARKET PAGE -->
-  <div class="page" id="page-market">
-    <div style="background:var(--card);padding:.875rem 1rem;border-bottom:1px solid var(--border)">
-      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.875rem">
-        <button onclick="goBack()" style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--text);font-size:16px;cursor:pointer;line-height:1">‹</button>
-        <div style="font-size:16px;font-weight:700" data-i18n="nav_market">ตลาด</div>
-      </div>
-      <div class="market-cats" style="padding:0">
-        <button class="mcat active" onclick="marketFilter('all',this)">ทั้งหมด</button>
-        <button class="mcat" onclick="marketFilter('crypto',this)">คริปโต</button>
-        <button class="mcat" onclick="marketFilter('thai',this)">หุ้นไทย</button>
-        <button class="mcat" onclick="marketFilter('gold',this)">🥇 ทองคำ</button>
-      </div>
-    </div>
-    <!-- Gold stats bar (แสดงเฉพาะตอนเลือกหมวดทอง) -->
-    <div id="gold-stats-bar" style="display:none;background:linear-gradient(135deg,#1a1200,#2d1f00);padding:.875rem 1rem;border-bottom:1px solid #5a4000">
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;text-align:center">
-        <div>
-          <div style="font-size:10px;color:#d4af37;margin-bottom:2px">XAU/USD</div>
-          <div style="font-size:13px;font-weight:700;color:#ffd700" id="gs-xauusd">฿0</div>
-        </div>
-        <div>
-          <div style="font-size:10px;color:#d4af37;margin-bottom:2px">ทอง 96.5%</div>
-          <div style="font-size:13px;font-weight:700;color:#ffd700" id="gs-gold96">฿0</div>
-        </div>
-        <div>
-          <div style="font-size:10px;color:#c0c0c0;margin-bottom:2px">เงิน/Silver</div>
-          <div style="font-size:13px;font-weight:700;color:#c0c0c0" id="gs-silver">฿0</div>
-        </div>
-      </div>
-    </div>
-    <div class="mlist-head" style="padding:.625rem 1rem">
-      <span>สินทรัพย์</span>
-      <span>ราคาล่าสุด</span>
-      <span>เปลี่ยนแปลง</span>
-    </div>
-    <div id="market-mlist"></div>
-  </div>
-
-  <!-- TRADE PAGE -->
-  <div class="page" id="page-trade">
-    <div style="background:var(--card);padding:.625rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.75rem">
-      <button onclick="goBack()" style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--text);font-size:16px;cursor:pointer;line-height:1">‹</button>
-      <div style="font-size:14px;font-weight:700" data-i18n="nav_trade">ซื้อขาย</div>
-    </div>
-    <div class="sym-scroll" id="sym-scroll"></div>
-    <div class="trade-price-card">
-      <div class="tpc-top">
-        <div>
-          <div class="tpc-sym" id="tpc-sym">BTC/THB</div>
-          <div class="tpc-price up" id="tpc-price">฿0</div>
-        </div>
-        <div>
-          <div class="tpc-chg chg-up" id="tpc-chg">+0.00%</div>
-          <div class="tpc-right tpc-vol">ถือ: <span id="tpc-hold">0</span> หน่วย</div>
-        </div>
-      </div>
-    </div>
-    <div class="chart-wrap">
-      <div class="tf-bar">
-        <button class="tf-btn" onclick="setTF('1m',this)">1นา</button>
-        <button class="tf-btn" onclick="setTF('5m',this)">5นา</button>
-        <button class="tf-btn" onclick="setTF('15m',this)">15นา</button>
-        <button class="tf-btn" onclick="setTF('1h',this)">1ชม</button>
-        <button class="tf-btn active" onclick="setTF('1d',this)">1วัน</button>
-        <button class="tf-btn" onclick="setTF('1w',this)">1สัปดาห์</button>
-        <button class="tf-btn" onclick="setTF('1M',this)">1เดือน</button>
-        <button class="tf-btn" onclick="setTF('1Y',this)">1ปี</button>
-      </div>
-      <div class="chart-info-row">
-        <div class="chart-ohlc" id="chart-ohlc">
-          <span><em>O</em><strong id="ohlc-o">-</strong></span>
-          <span><em>H</em><strong id="ohlc-h" class="up">-</strong></span>
-          <span><em>L</em><strong id="ohlc-l" class="dn">-</strong></span>
-          <span><em>C</em><strong id="ohlc-c">-</strong></span>
-        </div>
-        <div id="chart-vol" style="color:var(--sub);font-size:11px">VOL -</div>
-      </div>
-      <div class="chart-container">
-        <canvas class="tchart" id="tchart" height="160"></canvas>
-      </div>
-    </div>
-    <div class="order-card">
-      <div class="bs-tabs">
-        <button class="bs-tab buy active" id="bs-buy" onclick="setBuySell('buy')">ซื้อ</button>
-        <button class="bs-tab sell" id="bs-sell" onclick="setBuySell('sell')">ขาย</button>
-      </div>
-      <div class="order-row">
-        <div class="order-label">จำนวน</div>
-        <div class="stepper">
-          <button onclick="adjQty(-1)">−</button>
-          <input type="number" class="order-input" id="t-qty" value="1" min="1" style="width:80px;text-align:center">
-          <button onclick="adjQty(1)">+</button>
-        </div>
-      </div>
-      <div class="holding-row">
-        <span>ราคาปัจจุบัน: <strong id="t-cur-price">฿0</strong></span>
-        <span>ราคาทุน: <strong id="t-avg-cost">฿0</strong></span>
-      </div>
-      <div class="order-summary">
-        <span>มูลค่ารวม</span>
-        <strong id="t-total">฿0</strong>
-      </div>
-      <button class="btn-order buy" id="btn-order" onclick="doTrade()">ซื้อ</button>
-    </div>
-  </div>
-
-  <!-- FAST TRADE PAGE -->
-  <div class="page" id="page-fast">
-    <div class="fast-page">
-      <div class="fast-header" style="display:flex;align-items:center;gap:.75rem">
-        <button onclick="goBack()" style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--text);font-size:16px;cursor:pointer;line-height:1;flex-shrink:0">‹</button>
-        <div>⚡ <span data-i18n="nav_fast">เทรดเร็ว</span> <span style="font-size:12px;color:var(--sub);font-weight:400" data-i18n="fast_sub">กำหนดผลโดย Admin</span></div>
-      </div>
-
-      <!-- Category tabs -->
-      <div class="fast-cat-tabs">
-        <button class="fcat-btn active" id="fcat-crypto" onclick="setFCat('crypto',this)">
-          <span class="fcat-icon">₿</span>คริปโต
-        </button>
-        <button class="fcat-btn" id="fcat-thai" onclick="setFCat('thai',this)">
-          <span class="fcat-icon">📈</span>หุ้นไทย
-        </button>
-        <button class="fcat-btn" id="fcat-gold" onclick="setFCat('gold',this)">
-          <span class="fcat-icon">🥇</span>ทองคำ
-        </button>
-      </div>
-      <!-- Sym grid (filtered by cat) -->
-      <div class="fast-sym-grid" id="fsym-grid"></div>
-
-      <div class="fast-card">
-        <div class="fast-card-title">ทิศทาง</div>
-        <div class="fast-dir-btns">
-          <button class="fdir-btn up active" id="fdir-up" onclick="setFDir('up')">▲ ขึ้น</button>
-          <button class="fdir-btn down" id="fdir-down" onclick="setFDir('down')">▼ ลง</button>
-        </div>
-        <div class="fast-card-title">เวลา</div>
-        <div class="fast-time-grid">
-          <button class="ftime-btn active" data-sec="10" onclick="setFTime(10,this)">10 วิ</button>
-          <button class="ftime-btn" data-sec="20" onclick="setFTime(20,this)">20 วิ</button>
-          <button class="ftime-btn" data-sec="30" onclick="setFTime(30,this)">30 วิ</button>
-        </div>
-        <div class="fast-card-title">เดิมพัน</div>
-        <input type="number" class="bet-input" id="f-bet" value="100" min="10">
-        <div class="bet-presets">
-          <div class="bet-preset" onclick="setBet(100)">฿100</div>
-          <div class="bet-preset" onclick="setBet(500)">฿500</div>
-          <div class="bet-preset" onclick="setBet(1000)">฿1,000</div>
-          <div class="bet-preset" onclick="setBet(5000)">฿5,000</div>
-        </div>
-      </div>
-
-      <div class="live-chart-box" id="lc-box">
-        <div class="lcb-top">
-          <div>
-            <div class="lcb-sym" id="lc-sym">BTC/THB</div>
-            <div class="lcb-chg up" id="lc-chg">+0.00%</div>
-            <div class="lcb-meta" id="lc-meta">LIVE • อัพเดตทุก 0.5 วิ</div>
-          </div>
-          <div style="text-align:right">
-            <div class="lcb-price" id="lc-price">฿0</div>
-            <div style="font-size:11px;color:var(--sub);margin-top:2px" id="lc-dir-label"></div>
-          </div>
-        </div>
-        <div class="lcb-ohlc">
-          <span>O <strong id="lc-o" style="color:var(--text)">-</strong></span>
-          <span>H <strong id="lc-h" style="color:#00c087">-</strong></span>
-          <span>L <strong id="lc-l" style="color:#ef4444">-</strong></span>
-          <span>C <strong id="lc-c" style="color:var(--text)">-</strong></span>
-        </div>
-        <canvas id="lc" height="160"></canvas>
-        <div class="lc-vol-bar" id="lc-vol-bar" style="width:60%"></div>
-      </div>
-
-      <div class="timer-box" id="timer-box">
-        <div class="tbar-bg"><div class="tbar-fill" id="tbar-fill" style="width:100%"></div></div>
-        <div class="tbar-label" id="tbar-label">รอผล...</div>
-      </div>
-
-      <div class="result-box" id="result-box">
-        <div class="rb-amount" id="rb-amount"></div>
-        <div class="rb-detail" id="rb-detail"></div>
-      </div>
-
-      <button class="btn-fast-start" id="btn-fast" onclick="startFast()">เริ่มเทรด</button>
-
-      <div style="margin-top:1.25rem">
-        <div class="fast-hist-title">ประวัติล่าสุด</div>
-        <div id="fast-hist"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- FUTURES / PORT PAGE -->
-  <div class="page" id="page-port">
-    <div class="port-page">
-      <!-- Header -->
-      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.875rem">
-        <button onclick="goBack()" style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--text);font-size:16px;cursor:pointer;line-height:1">‹</button>
-        <div style="font-size:16px;font-weight:700" data-i18n="nav_wallet">กระเป๋าเงิน</div>
-      </div>
-
-      <!-- Profile Card -->
-      <div class="profile-card">
-        <div class="profile-avatar-wrap">
-          <div class="profile-avatar" id="profile-avatar-wrap" onclick="triggerAvatarUpload()">
-            <span id="profile-avatar-text">A</span>
-            <img id="profile-avatar-img" src="" style="display:none">
-            <div class="avatar-edit">✏️</div>
-          </div>
-          <input type="file" id="avatar-file-input" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)">
-          <div class="profile-info">
-            <div class="profile-name" id="profile-name">-</div>
-            <div class="profile-id" id="profile-id">ID: -</div>
-            <div class="profile-badge">⭐ สมาชิก VIP</div>
-          </div>
-        </div>
-        <div class="profile-stats">
-          <div class="pstat">
-            <div class="pstat-val up" id="pb-total">฿0</div>
-            <div class="pstat-label">สินทรัพย์รวม</div>
-          </div>
-          <div class="pstat">
-            <div class="pstat-val" id="pb-cash">฿0</div>
-            <div class="pstat-label">เงินสด</div>
-          </div>
-          <div class="pstat">
-            <div class="pstat-val" id="pb-pnl">฿0</div>
-            <div class="pstat-label">กำไร/ขาดทุน</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Bank Account -->
-      <div class="bank-card">
-        <div class="bank-card-title">
-          <span>🏦 บัญชีธนาคาร</span>
-          <button class="bank-edit-btn" onclick="toggleBankForm()">✏️ แก้ไข</button>
-        </div>
-        <div id="bank-display-wrap">
-          <div class="bank-empty" id="bank-empty">ยังไม่มีข้อมูลบัญชีธนาคาร<br><span style="font-size:11px">กดแก้ไขเพื่อเพิ่ม</span></div>
-          <div class="bank-display" id="bank-display" style="display:none">
-            <div class="bank-logo-circle" id="bank-logo-circle">🏦</div>
-            <div class="bank-info">
-              <div class="bank-name" id="bank-name-show">-</div>
-              <div class="bank-number" id="bank-number-show">-</div>
-              <div class="bank-owner" id="bank-owner-show">-</div>
-            </div>
-          </div>
-        </div>
-        <div class="bank-form" id="bank-form">
-          <div style="height:.875rem"></div>
-          <select class="bank-select" id="bank-select">
-            <option value="">-- เลือกธนาคาร --</option>
-            <option value="กสิกรไทย|🟢">ธนาคารกสิกรไทย (KBANK)</option>
-            <option value="ไทยพาณิชย์|🟣">ธนาคารไทยพาณิชย์ (SCB)</option>
-            <option value="กรุงเทพ|🔵">ธนาคารกรุงเทพ (BBL)</option>
-            <option value="กรุงไทย|🔷">ธนาคารกรุงไทย (KTB)</option>
-            <option value="ทหารไทยธนชาต|🟠">ธนาคารทหารไทยธนชาต (TTB)</option>
-            <option value="กรุงศรีอยุธยา|🟡">ธนาคารกรุงศรีอยุธยา (BAY)</option>
-            <option value="ออมสิน|💚">ธนาคารออมสิน (GSB)</option>
-            <option value="ธ.ก.ส.|🌾">ธนาคาร ธ.ก.ส.</option>
-          </select>
-          <input class="bfinp" id="bank-number-inp" type="text" placeholder="เลขบัญชี (ไม่มีขีด)" maxlength="15">
-          <input class="bfinp" id="bank-owner-inp" type="text" placeholder="ชื่อ-นามสกุลเจ้าของบัญชี">
-          <button class="btn-save-bank" onclick="saveBankInfo()">💾 บันทึกข้อมูลบัญชี</button>
-        </div>
-      </div>
-
-      <!-- Withdraw -->
-      <div class="withdraw-card">
-        <div style="font-size:13px;font-weight:700;color:var(--sub);letter-spacing:.5px;text-transform:uppercase;margin-bottom:.5rem">💸 แจ้งถอนเงิน</div>
-        <div style="font-size:12px;color:var(--sub)">เงินสดคงเหลือ: <span style="color:var(--green);font-weight:700" id="wd-cash-show">฿0</span></div>
-        <div class="withdraw-form">
-          <input class="withdraw-inp" id="wd-amount" type="number" placeholder="จำนวนที่ต้องการถอน (฿)" min="1">
-          <button class="btn-withdraw" onclick="submitWithdraw()">แจ้งถอน</button>
-        </div>
-        <div style="font-size:11px;color:var(--sub);margin-top:.5rem">* Admin จะโอนไปที่บัญชีที่ลงทะเบียนไว้</div>
-      </div>
-
-      <!-- Holdings -->
-      <div class="port-section-title">หุ้นที่ถืออยู่</div>
-      <div id="ph-list"></div>
-
-      <!-- Fast History -->
-      <div style="margin-top:1.25rem">
-        <div class="port-section-title">ประวัติเทรดเร็ว</div>
-        <div id="ph-fast-hist"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- BOTTOM NAV -->
-  <nav class="bnav">
-    <button class="bnav-btn active" id="nav-home" onclick="switchPage('home',this)">
-      <span class="bnav-icon">🏠</span><span data-i18n="nav_home">หน้าหลัก</span>
-    </button>
-    <button class="bnav-btn" id="nav-market" onclick="switchPage('market',this)">
-      <span class="bnav-icon">📊</span><span data-i18n="nav_market">ตลาด</span>
-    </button>
-    <button class="bnav-btn" id="nav-trade" onclick="switchPage('trade',this)">
-      <span class="bnav-icon">💱</span><span data-i18n="nav_trade">ซื้อขาย</span>
-    </button>
-    <button class="bnav-btn" id="nav-fast" onclick="switchPage('fast',this)">
-      <span class="bnav-icon">⚡</span><span data-i18n="nav_fast">ฟิวเจอร์ส</span>
-    </button>
-    <button class="bnav-btn" id="nav-port" onclick="switchPage('port',this)">
-      <span class="bnav-icon">💼</span><span data-i18n="nav_wallet">กระเป๋าเงิน</span>
-    </button>
-  </nav>
-</div>
-
-<!-- CONTACT / CHAT MODAL -->
-<div class="lang-picker" id="contact-modal" onclick="if(event.target===this)closeContact()">
-  <div class="chat-sheet" id="chat-sheet">
-    <div class="chat-header">
-      <div class="chat-header-avatar">B</div>
-      <div class="chat-header-info">
-        <div class="chat-header-name">Bitforex168 Support</div>
-        <div class="chat-header-status">ออนไลน์ • พร้อมให้บริการ</div>
-      </div>
-      <button onclick="closeContact()" style="margin-left:auto;background:none;border:none;color:var(--sub);font-size:22px;cursor:pointer;line-height:1">×</button>
-    </div>
-    <div class="chat-messages" id="chat-messages">
-      <div class="chat-date-divider">วันนี้</div>
-      <div class="msg-wrap admin">
-        <div class="msg-bubble">👋 สวัสดีครับ! ยินดีต้อนรับสู่ Bitforex168<br>มีอะไรให้ช่วยเหลือไหมครับ?</div>
-        <div class="msg-time">Support</div>
-      </div>
-    </div>
-    <div class="chat-typing" id="chat-typing">Support กำลังพิมพ์ <span class="dot-anim"><span></span><span></span><span></span></span></div>
-    <div class="chat-input-wrap">
-      <textarea class="chat-inp" id="chat-inp" placeholder="พิมพ์ข้อความ..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}" oninput="autoResize(this)"></textarea>
-      <button class="chat-send-btn" onclick="sendChat()">➤</button>
-    </div>
+  <div class="section">
+    <div class="section-title">จัดการผู้เล่น</div>
+    <table>
+      <thead>
+        <tr>
+          <th>ผู้ใช้</th>
+          <th>เงินสด</th>
+          <th>บัญชีธนาคาร</th>
+          <th>กำหนดผลเทรดเร็ว</th>
+          <th>ปรับเงิน</th>
+        </tr>
+      </thead>
+      <tbody id="users-tbody">
+        <tr><td colspan="4" class="empty">กำลังโหลด...</td></tr>
+      </tbody>
+    </table>
   </div>
 </div>
-
-<!-- LANG PICKER -->
-<div class="lang-picker" id="lang-picker" onclick="if(event.target===this)closeLangPicker()">
-  <div class="lang-sheet">
-    <div class="lang-sheet-title" data-i18n="select_lang">เลือกภาษา / Select Language</div>
-    <div class="lang-grid">
-      <div class="lang-opt active" id="lang-th" onclick="setLang('th')">
-        <span class="lang-flag">🇹🇭</span>
-        <div class="lang-name">ภาษาไทย</div>
-        <div class="lang-native">Thai</div>
-      </div>
-      <div class="lang-opt" id="lang-en" onclick="setLang('en')">
-        <span class="lang-flag">🇺🇸</span>
-        <div class="lang-name">English</div>
-        <div class="lang-native">English</div>
-      </div>
-      <div class="lang-opt" id="lang-zh" onclick="setLang('zh')">
-        <span class="lang-flag">🇨🇳</span>
-        <div class="lang-name">中文</div>
-        <div class="lang-native">Chinese</div>
-      </div>
-      <div class="lang-opt" id="lang-ja" onclick="setLang('ja')">
-        <span class="lang-flag">🇯🇵</span>
-        <div class="lang-name">日本語</div>
-        <div class="lang-native">Japanese</div>
-      </div>
-    </div>
-  </div>
 </div>
 
-<!-- POPUPS -->
-<div class="popup-overlay" id="reg-popup">
-  <div class="popup-box">
-    <div class="popup-emoji">🎉</div>
-    <div class="popup-title">ลงทะเบียนสำเร็จ!</div>
-    <div class="popup-sub" id="reg-popup-msg">ยินดีต้อนรับ! กรุณาเข้าสู่ระบบเพื่อเริ่มเทรด</div>
-    <button class="popup-btn" onclick="document.getElementById('reg-popup').classList.remove('show');switchAuthTab('login',document.querySelector('.auth-tab'))">เข้าสู่ระบบเลย</button>
-  </div>
+<!-- Withdraw Requests -->
+<div class="main-content" id="withdraw-section" style="display:none;margin-top:1rem">
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script>
-const SB_URL='https://myjawbecdfwwndyrjttx.supabase.co';
-const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15amF3YmVjZGZ3d25keXJqdHR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0OTMxNzksImV4cCI6MjA5OTA2OTE3OX0.CdysmTFeVMErbKd4OqCRoFLdRKenqfvKkoXw4ISIoOs';
-const sb=supabase.createClient(SB_URL,SB_KEY);
+const SUPABASE_URL = 'https://myjawbecdfwwndyrjttx.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15amF3YmVjZGZ3d25keXJqdHR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0OTMxNzksImV4cCI6MjA5OTA2OTE3OX0.CdysmTFeVMErbKd4OqCRoFLdRKenqfvKkoXw4ISIoOs';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const ASSETS=[
-  // คริปโต
-  {sym:'BTC',name:'Bitcoin',cat:'crypto',price:2100000,color:'#f7931a',logo:'https://assets.coingecko.com/coins/images/1/small/bitcoin.png'},
-  {sym:'ETH',name:'Ethereum',cat:'crypto',price:62000,color:'#627eea',logo:'https://assets.coingecko.com/coins/images/279/small/ethereum.png'},
-  {sym:'BNB',name:'BNB',cat:'crypto',price:15000,color:'#f3ba2f',logo:'https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png'},
-  {sym:'SOL',name:'Solana',cat:'crypto',price:5200,color:'#9945ff',logo:'https://assets.coingecko.com/coins/images/4128/small/solana.png'},
-  {sym:'XRP',name:'Ripple',cat:'crypto',price:680,color:'#00aae4',logo:'https://assets.coingecko.com/coins/images/44/small/xrp-symbol-white-128.png'},
-  {sym:'ADA',name:'Cardano',cat:'crypto',price:520,color:'#0033ad',logo:'https://assets.coingecko.com/coins/images/975/small/cardano.png'},
-  {sym:'DOGE',name:'Dogecoin',cat:'crypto',price:185,color:'#c2a633',logo:'https://assets.coingecko.com/coins/images/5/small/dogecoin.png'},
-  {sym:'DOT',name:'Polkadot',cat:'crypto',price:920,color:'#e6007a',logo:'https://assets.coingecko.com/coins/images/12171/small/polkadot.png'},
-  {sym:'AVAX',name:'Avalanche',cat:'crypto',price:1250,color:'#e84142',logo:'https://assets.coingecko.com/coins/images/12559/small/Avalanche_Circle_RedWhite_Trans.png'},
-  {sym:'MATIC',name:'Polygon',cat:'crypto',price:42,color:'#8247e5',logo:'https://assets.coingecko.com/coins/images/4713/small/matic-token-icon.png'},
-  {sym:'LINK',name:'Chainlink',cat:'crypto',price:780,color:'#375bd2',logo:'https://assets.coingecko.com/coins/images/877/small/chainlink-new-logo.png'},
-  {sym:'UNI',name:'Uniswap',cat:'crypto',price:480,color:'#ff007a',logo:'https://assets.coingecko.com/coins/images/12504/small/uni.jpg'},
-  {sym:'LTC',name:'Litecoin',cat:'crypto',price:3200,color:'#bfbbbb',logo:'https://assets.coingecko.com/coins/images/2/small/litecoin.png'},
-  {sym:'ATOM',name:'Cosmos',cat:'crypto',price:680,color:'#6f4e37',logo:'https://assets.coingecko.com/coins/images/1481/small/cosmos_hub.png'},
-  // หุ้นไทย
-  {sym:'PTT',name:'ปตท.',cat:'thai',price:35,color:'#00a651',emoji:'🛢️'},
-  {sym:'CPALL',name:'ซีพี ออลล์',cat:'thai',price:58,color:'#e31837',emoji:'🏪'},
-  {sym:'AOT',name:'ท่าอากาศยาน',cat:'thai',price:72,color:'#003087',emoji:'✈️'},
-  {sym:'KBANK',name:'กสิกรไทย',cat:'thai',price:145,color:'#138f2d',emoji:'🏦'},
-  {sym:'SCB',name:'ไทยพาณิชย์',cat:'thai',price:112,color:'#4b0082',emoji:'🏦'},
-  {sym:'BBL',name:'กรุงเทพ',cat:'thai',price:168,color:'#003087',emoji:'🏦'},
-  {sym:'KTB',name:'กรุงไทย',cat:'thai',price:22,color:'#0072bc',emoji:'🏦'},
-  {sym:'ADVANC',name:'แอดวานซ์',cat:'thai',price:210,color:'#005bac',emoji:'📱'},
-  {sym:'TRUE',name:'ทรู คอร์ป',cat:'thai',price:8.5,color:'#e4002b',emoji:'📱'},
-  {sym:'GULF',name:'กัลฟ์',cat:'thai',price:45,color:'#00a651',emoji:'⚡'},
-  {sym:'BH',name:'บำรุงราษฎร์',cat:'thai',price:195,color:'#0099cc',emoji:'🏥'},
-  {sym:'SCC',name:'ปูนซิเมนต์ไทย',cat:'thai',price:285,color:'#cc0000',emoji:'🏗️'},
-  {sym:'MINT',name:'ไมเนอร์ อินเตอร์',cat:'thai',price:32,color:'#ff6600',emoji:'🍽️'},
-  {sym:'CPN',name:'เซ็นทรัลพัฒนา',cat:'thai',price:68,color:'#cc0000',emoji:'🏬'},
-  // ทองคำ
-  {sym:'XAUUSD',name:'ทองคำโลก (USD)',cat:'gold',price:105800,color:'#ffd700',goldType:'xau'},
-  {sym:'XAUEUR',name:'ทองคำ (EUR)',cat:'gold',price:97200,color:'#e8b800',goldType:'xau'},
-  {sym:'XAUTHB',name:'ทองคำไทย (THB)',cat:'gold',price:45500,color:'#d4af37',goldType:'xau'},
-  {sym:'GOLD96',name:'ทองคำ 96.5%',cat:'gold',price:43200,color:'#cfb53b',goldType:'gold96'},
-  {sym:'SILVER',name:'เงิน (Silver)',cat:'gold',price:1280,color:'#a8a9ad',goldType:'silver'},
-  {sym:'PLATINUM',name:'แพลทินัม',cat:'gold',price:31500,color:'#e5e4e2',goldType:'platinum'},
-];
+const ADMIN_USER = 'admin';
+const ADMIN_PASS = 'admin1234';
 
-let cu=null,cash=0,portfolio={};
-let prices={},hists={};
-let selSym='BTC',buySell='buy',fDir='up',fTime=10;
-let running=false,liveData=[],liveIv=null,liveStart=0;
-let homeCat='all',mktCat='all';
-let slideIdx=0,slideIv=null;
+let usersData = [];
+let isAdmin = false;
 
-ASSETS.forEach(a=>{
-  prices[a.sym]=a.price;
-  hists[a.sym]=Array.from({length:40},(_,i)=>{
-    let v=a.price;
-    for(let j=0;j<i;j++) v+=(Math.random()-.5)*v*.02;
-    return Math.max(0.01,+v.toFixed(4));
-  });
-});
-
-/* ─── UTILS ─── */
-function fmt(n){
-  if(n>=1000000)return '฿'+(n/1000000).toFixed(2)+'M';
-  if(n>=1000)return '฿'+Math.round(n).toLocaleString();
-  return '฿'+n.toFixed(2);
-}
-function pct(a,b){return((a-b)/b*100).toFixed(2);}
-function toast(msg){
+function showToast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg;t.classList.add('show');
-  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);
-}
-function authMsg(id,msg,err){
-  const el=document.getElementById(id);
-  el.textContent=msg;el.className='auth-msg '+(err?'err':'ok');
-}
-function goldSVG(type, size){
-  const s=size, r=s/2;
-  if(type==='xau'||type==='gold96'){
-    // Gold bar icon
-    const g=type==='gold96'?'96.5':'XAU';
-    return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}" style="flex-shrink:0">
-      <defs>
-        <radialGradient id="gg${s}" cx="40%" cy="35%">
-          <stop offset="0%" stop-color="#fff7a1"/>
-          <stop offset="40%" stop-color="#ffd700"/>
-          <stop offset="100%" stop-color="#b8860b"/>
-        </radialGradient>
-        <radialGradient id="gg2${s}" cx="50%" cy="50%">
-          <stop offset="0%" stop-color="#ffd700"/>
-          <stop offset="100%" stop-color="#8b6914"/>
-        </radialGradient>
-      </defs>
-      <circle cx="${r}" cy="${r}" r="${r}" fill="#1a1200"/>
-      <circle cx="${r}" cy="${r}" r="${r-1}" fill="url(#gg2${s})" opacity=".15"/>
-      <!-- gold bar shape -->
-      <rect x="${s*0.18}" y="${s*0.32}" width="${s*0.64}" height="${s*0.36}" rx="${s*0.06}" fill="url(#gg${s})"/>
-      <rect x="${s*0.24}" y="${s*0.27}" width="${s*0.52}" height="${s*0.12}" rx="${s*0.04}" fill="#ffd700"/>
-      <rect x="${s*0.24}" y="${s*0.27}" width="${s*0.52}" height="${s*0.06}" rx="${s*0.04}" fill="#fff7a1" opacity=".5"/>
-      <!-- shine line -->
-      <line x1="${s*0.25}" y1="${s*0.38}" x2="${s*0.75}" y2="${s*0.38}" stroke="#fff7a1" stroke-width="${s*0.025}" opacity=".4"/>
-      <!-- outer ring -->
-      <circle cx="${r}" cy="${r}" r="${r-1.5}" fill="none" stroke="#ffd700" stroke-width="1.5" opacity=".4"/>
-    </svg>`;
-  }
-  if(type==='silver'){
-    return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}" style="flex-shrink:0">
-      <defs>
-        <radialGradient id="sg${s}" cx="35%" cy="30%">
-          <stop offset="0%" stop-color="#ffffff"/>
-          <stop offset="50%" stop-color="#c0c0c0"/>
-          <stop offset="100%" stop-color="#707070"/>
-        </radialGradient>
-      </defs>
-      <circle cx="${r}" cy="${r}" r="${r}" fill="#111"/>
-      <circle cx="${r}" cy="${r}" r="${r*0.72}" fill="url(#sg${s})"/>
-      <circle cx="${r}" cy="${r}" r="${r*0.72}" fill="none" stroke="#c0c0c0" stroke-width="1.5" opacity=".5"/>
-      <text x="${r}" y="${r*1.15}" text-anchor="middle" font-size="${s*0.28}" font-weight="900" fill="#555" font-family="Arial">Ag</text>
-      <circle cx="${r}" cy="${r}" r="${r-1.5}" fill="none" stroke="#a0a0a0" stroke-width="1.5" opacity=".35"/>
-    </svg>`;
-  }
-  if(type==='platinum'){
-    return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}" style="flex-shrink:0">
-      <defs>
-        <radialGradient id="pg${s}" cx="35%" cy="30%">
-          <stop offset="0%" stop-color="#ffffff"/>
-          <stop offset="50%" stop-color="#e5e4e2"/>
-          <stop offset="100%" stop-color="#8a8a8a"/>
-        </radialGradient>
-      </defs>
-      <circle cx="${r}" cy="${r}" r="${r}" fill="#0a0a12"/>
-      <circle cx="${r}" cy="${r}" r="${r*0.72}" fill="url(#pg${s})"/>
-      <!-- diamond shape -->
-      <polygon points="${r},${r*0.35} ${r*1.45},${r} ${r},${r*1.65} ${r*0.55},${r}" fill="none" stroke="#fff" stroke-width="${s*0.04}" opacity=".6"/>
-      <polygon points="${r},${r*0.5} ${r*1.3},${r} ${r},${r*1.5} ${r*0.7},${r}" fill="rgba(255,255,255,0.3)"/>
-      <circle cx="${r}" cy="${r}" r="${r-1.5}" fill="none" stroke="#e5e4e2" stroke-width="1.5" opacity=".4"/>
-    </svg>`;
-  }
-  return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}" style="flex-shrink:0"><circle cx="${r}" cy="${r}" r="${r}" fill="#ffd700"/></svg>`;
+  setTimeout(()=>t.classList.remove('show'),2200);
 }
 
-function logoImg(a,cls,size=32){
-  if(a.goldType){
-    return goldSVG(a.goldType, size);
+function doAdminLogin(){
+  const u=document.getElementById('a-user').value;
+  const p=document.getElementById('a-pass').value;
+  if(u===ADMIN_USER && p===ADMIN_PASS){
+    isAdmin=true;
+    sessionStorage.setItem('is_admin','1');
+    document.getElementById('login-overlay').style.display='none';
+    document.getElementById('main-content').style.display='block';
+    loadUsers();loadWithdrawals();loadChatRooms();subscribeRooms();
+  } else {
+    document.getElementById('a-err').textContent='รหัสผ่านไม่ถูกต้อง';
   }
-  if(a.emoji){
-    const bg = a.cat==='gold' ? 'linear-gradient(135deg,#3d2b00,#5a4000)' : a.color+'22';
-    return `<span style="width:${size}px;height:${size}px;border-radius:50%;background:${bg};display:inline-flex;align-items:center;justify-content:center;font-size:${size*0.5}px;flex-shrink:0;border:${a.cat==='gold'?'1px solid #d4af3755':''}">${a.emoji}</span>`;
-  }
-  // คริปโต ใช้รูปจาก coingecko
-  return `<img src="${a.logo}" class="${cls}" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:contain;padding:3px;background:${a.color}22;flex-shrink:0" onerror="this.outerHTML='<span style=width:${size}px;height:${size}px;border-radius:50%;background:${a.color}22;display:inline-flex;align-items:center;justify-content:center;font-size:${size*0.4}px;font-weight:700;color:${a.color};flex-shrink:0>${a.sym[0]}</span>'">`;
 }
 
-/* ─── AUTH ─── */
-function openLogin(){document.getElementById('login-overlay').classList.add('show');}
-function closeLogin(){document.getElementById('login-overlay').classList.remove('show');}
-function requireLogin(){if(!cu){openLogin();return false;}return true;}
-function switchAuthTab(tab,el){
-  document.querySelectorAll('.auth-tab').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.auth-panel').forEach(p=>p.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('ap-'+tab).classList.add('active');
-}
-async function doRegister(){
-  const u=document.getElementById('r-user').value.trim();
-  const p=document.getElementById('r-pass').value.trim();
-  if(!u||!p){authMsg('r-msg','กรุณากรอกข้อมูล',true);return;}
-  if(u.length<3){authMsg('r-msg','ชื่อผู้ใช้อย่างน้อย 3 ตัวอักษร',true);return;}
-  const {data:ex}=await sb.from('users').select('id').eq('username',u).single();
-  if(ex){authMsg('r-msg','ชื่อนี้มีแล้ว',true);return;}
-  const {error}=await sb.from('users').insert({username:u,password:p,cash:0});
-  if(error){authMsg('r-msg','เกิดข้อผิดพลาด',true);return;}
-  closeLogin();
-  document.getElementById('reg-popup-msg').textContent=`ยินดีต้อนรับ ${u}! กรุณาเข้าสู่ระบบเพื่อเริ่มเทรด`;
-  document.getElementById('reg-popup').classList.add('show');
-}
-async function doLogin(){
-  const u=document.getElementById('l-user').value.trim();
-  const p=document.getElementById('l-pass').value.trim();
-  if(!u||!p){authMsg('l-msg','กรุณากรอกข้อมูล',true);return;}
-  const {data:user}=await sb.from('users').select('*').eq('username',u).eq('password',p).single();
-  if(!user){authMsg('l-msg','ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง',true);return;}
-  cu=user;cash=user.cash;
-  localStorage.setItem('bf168_uid',user.id);
-  closeLogin();showUser();toast('เข้าสู่ระบบสำเร็จ');
-}
-async function restoreSession(){
-  const uid=localStorage.getItem('bf168_uid');
-  if(!uid)return;
-  const {data:u}=await sb.from('users').select('*').eq('id',uid).single();
-  if(u){cu=u;cash=u.cash;showUser();}
-}
-function showUser(){
-  document.getElementById('btn-login-top').style.display='none';
-  const ui=document.getElementById('user-info');
-  ui.style.display='flex';
-  document.getElementById('user-avatar').textContent=cu.username[0].toUpperCase();
-  updateStats();
-}
 function doLogout(){
-  localStorage.removeItem('bf168_uid');
-  cu=null;cash=0;portfolio={};
-  document.getElementById('btn-login-top').style.display='block';
-  document.getElementById('user-info').style.display='none';
-  toast('ออกจากระบบแล้ว');
+  sessionStorage.removeItem('is_admin');
+  isAdmin=false;
+  document.getElementById('login-overlay').style.display='flex';
+  document.getElementById('main-content').style.display='none';
 }
 
-/* ─── NAV ─── */
-function switchPage(page,el){
-  if(['trade','fast','port'].includes(page)&&!requireLogin())return;
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('page-'+page).classList.add('active');
-  el.classList.add('active');
-  if(page==='trade'){renderSymScroll();updateTradeCard();}
-  if(page==='fast'){renderFastSym();loadFastHist();}
-  if(page==='port'){renderPort();loadFastHist();}
-  if(page==='market')renderMarket();
-}
+async function loadUsers(){
+  const {data:users} = await sb.from('users').select('id,username,cash,created_at').order('created_at');
+  const {data:overrides} = await sb.from('result_overrides').select('*');
 
-/* ─── SLIDER ─── */
-function goSlide(i){
-  slideIdx=i;
-  document.getElementById('slider-track').style.transform=`translateX(-${i*100}%)`;
-  document.querySelectorAll('.dot').forEach((d,j)=>d.classList.toggle('active',j===i));
-}
-function startSlider(){
-  slideIv=setInterval(()=>{slideIdx=(slideIdx+1)%3;goSlide(slideIdx);},4000);
-}
-
-/* ─── STATS ─── */
-function updateStats(){
-  if(!cu)return;
-  let pv=0,cb=0;
-  Object.entries(portfolio).forEach(([sym,h])=>{pv+=h.qty*prices[sym];cb+=h.qty*h.avgCost;});
-  const pnl=pv-cb;
-  document.getElementById('user-cash').textContent=fmt(cash);
-  document.getElementById('pb-total').textContent=fmt(cash+pv);
-  document.getElementById('pb-cash').textContent=fmt(cash);
-  document.getElementById('pb-port').textContent=fmt(pv);
-  const pEl=document.getElementById('pb-pnl');
-  pEl.textContent=(pnl>=0?'+':'')+fmt(pnl);
-  pEl.className='pstat-val '+(pnl>=0?'up':'dn');
-  const wdEl=document.getElementById('wd-cash-show');
-  if(wdEl) wdEl.textContent=fmt(cash);
-}
-
-/* ─── MARKET LIST ─── */
-function mlistHTML(assets){
-  return assets.map(a=>{
-    const prev=hists[a.sym][hists[a.sym].length-2]||hists[a.sym][0];
-    const cur=prices[a.sym];
-    const chg=pct(cur,prev);
-    const up=chg>=0;
-    return`<div class="mlist-item" onclick="goTrade('${a.sym}')">
-      <div class="mlist-left">${logoImg(a,'mlist-logo')}
-        <div><div class="mlist-name">${a.sym}</div><div class="mlist-sub">${a.name}</div></div>
-      </div>
-      <div class="mlist-price ${up?'up':'dn'}">${fmt(cur)}</div>
-      <div class="mlist-chg"><span class="chg-badge ${up?'chg-up':'chg-dn'}">${up?'+':''}${chg}%</span></div>
-    </div>`;
-  }).join('');
-}
-function homeFilter(cat,el){
-  homeCat=cat;
-  document.querySelectorAll('.market-cats .mcat').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  renderHomeMlist();
-}
-function renderHomeMlist(){
-  const data=homeCat==='all'?ASSETS:ASSETS.filter(a=>a.cat===homeCat);
-  document.getElementById('home-mlist').innerHTML=mlistHTML(data);
-}
-function marketFilter(cat,el){
-  mktCat=cat;
-  document.querySelectorAll('#page-market .mcat').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  const gsb=document.getElementById('gold-stats-bar');
-  if(gsb) gsb.style.display=cat==='gold'?'block':'none';
-  if(cat==='gold') updateGoldStats();
-  renderMarket();
-}
-
-function updateGoldStats(){
-  const el1=document.getElementById('gs-xauusd');
-  const el2=document.getElementById('gs-gold96');
-  const el3=document.getElementById('gs-silver');
-  if(el1) el1.textContent='฿'+Math.round(prices['XAUUSD']||105800).toLocaleString();
-  if(el2) el2.textContent='฿'+Math.round(prices['GOLD96']||43200).toLocaleString();
-  if(el3) el3.textContent='฿'+Math.round(prices['SILVER']||1280).toLocaleString();
-}
-function renderMarket(){
-  const data=mktCat==='all'?ASSETS:ASSETS.filter(a=>a.cat===mktCat);
-  document.getElementById('market-mlist').innerHTML=mlistHTML(data);
-}
-function goTrade(sym){selSym=sym;switchPage('trade',document.getElementById('nav-trade'));}
-
-/* ─── TICKER ─── */
-function updateTicker(){
-  document.getElementById('slide-btc-price').textContent=fmt(prices['BTC']);
-  document.getElementById('slide-eth-price').textContent=fmt(prices['ETH']);
-  document.getElementById('slide-sol-price').textContent=fmt(prices['SOL']);
-  ['BTC','ETH','BNB'].forEach((s,i)=>{
-    const ids=[['mt-btc','mt-btc-chg'],['mt-eth','mt-eth-chg'],['mt-bnb','mt-bnb-chg']];
-    const hist=hists[s];
-    const prev=hist[hist.length-2]||hist[0];
-    const cur=prices[s];
-    const chg=pct(cur,prev);
-    const up=chg>=0;
-    document.getElementById(ids[i][0]).textContent=fmt(cur);
-    document.getElementById(ids[i][0]).className='mticker-price '+(up?'up':'dn');
-    const cEl=document.getElementById(ids[i][1]);
-    cEl.textContent=(up?'+':'')+chg+'%';
-    cEl.className='mticker-chg '+(up?'up':'dn');
+  usersData = (users||[]).map(u=>{
+    const ov = (overrides||[]).find(o=>o.user_id===u.id);
+    return {...u, forced_result: ov?ov.result:'auto'};
   });
+
+  document.getElementById('stat-total').textContent = usersData.length;
+  document.getElementById('stat-win').textContent = usersData.filter(u=>!isNaN(parseFloat(u.forced_result))?parseFloat(u.forced_result)>0:u.forced_result==='win').length;
+  document.getElementById('stat-lose').textContent = usersData.filter(u=>!isNaN(parseFloat(u.forced_result))?parseFloat(u.forced_result)<0:u.forced_result==='lose').length;
+
+  renderUsers();
 }
 
-/* ─── TRADE ─── */
-function renderSymScroll(){
-  const el=document.getElementById('sym-scroll');
-  el.innerHTML=ASSETS.map(a=>`<button class="sym-btn ${a.sym===selSym?'active':''}" onclick="selSymbol('${a.sym}')">${a.sym}/THB</button>`).join('');
-}
-function selSymbol(sym){selSym=sym;renderSymScroll();updateTradeCard();}
-function setBuySell(v){
-  buySell=v;
-  document.getElementById('bs-buy').classList.toggle('active',v==='buy');
-  document.getElementById('bs-sell').classList.toggle('active',v==='sell');
-  document.getElementById('btn-order').className='btn-order '+v;
-  document.getElementById('btn-order').textContent=v==='buy'?'ซื้อ':'ขาย';
-  updTradeTotal();
-}
-function adjQty(d){
-  const el=document.getElementById('t-qty');
-  el.value=Math.max(1,(parseInt(el.value)||1)+d);
-  updTradeTotal();
-}
-function updTradeTotal(){
-  const qty=parseInt(document.getElementById('t-qty').value)||1;
-  document.getElementById('t-total').textContent=fmt(qty*prices[selSym]);
-}
-function updateTradeCard(){
-  const a=ASSETS.find(x=>x.sym===selSym);
-  const hist=hists[selSym];
-  const prev=hist[hist.length-2]||hist[0];
-  const cur=prices[selSym];
-  const chg=pct(cur,prev);
-  const up=chg>=0;
-  document.getElementById('tpc-sym').textContent=selSym+'/THB';
-  document.getElementById('tpc-price').textContent=fmt(cur);
-  document.getElementById('tpc-price').className='tpc-price '+(up?'up':'dn');
-  const cEl=document.getElementById('tpc-chg');
-  cEl.textContent=(up?'+':'')+chg+'%';
-  cEl.className='tpc-chg '+(up?'chg-up':'chg-dn');
-  document.getElementById('tpc-hold').textContent=portfolio[selSym]?portfolio[selSym].qty:0;
-  document.getElementById('t-cur-price').textContent=fmt(cur);
-  document.getElementById('t-avg-cost').textContent=portfolio[selSym]?fmt(portfolio[selSym].avgCost):'฿0';
-  drawTradeChart();updTradeTotal();
-}
-let curTF='1d';
-const TF_POINTS={'1m':30,'5m':48,'15m':48,'1h':48,'1d':30,'1w':24,'1M':12,'1Y':12};
-const TF_LABELS={'1m':'นาที','5m':'5นาที','15m':'15นาที','1h':'ชั่วโมง','1d':'วัน','1w':'สัปดาห์','1M':'เดือน','1Y':'ปี'};
-let tfHists={};
-
-function genTFData(basePrice, points, volatility){
-  const data=[];
-  let v=basePrice*(0.85+Math.random()*.3);
-  for(let i=0;i<points;i++){
-    v=Math.max(0.01,v*(1+(Math.random()-.48)*volatility));
-    data.push(+v.toFixed(4));
+function renderUsers(){
+  const tbody = document.getElementById('users-tbody');
+  if(!usersData.length){
+    tbody.innerHTML='<tr><td colspan="4" class="empty">ยังไม่มีผู้เล่น</td></tr>';
+    return;
   }
-  data.push(basePrice);
-  return data;
+  tbody.innerHTML = usersData.map(u=>`
+    <tr>
+      <td><strong>${u.username}</strong><br><span style="font-size:10px;color:#94a3b8">${u.id.slice(0,8)}...</span></td>
+      <td><span style="font-weight:700;color:#16a34a">฿${Math.round(u.cash).toLocaleString()}</span></td>
+      <td style="font-size:12px">
+        ${u.bank_name?`<div style="font-weight:600">${u.bank_name}</div><div style="color:#64748b">${u.bank_number||'-'}</div><div style="color:#64748b">${u.bank_owner||'-'}</div>`:'<span style="color:#94a3b8">-</span>'}
+      </td>
+      <td>
+        <div class="result-btns">
+          <button class="rb auto ${u.forced_result==='auto'?'on':''}" onclick="setResult('${u.id}','auto',this)">สุ่ม</button>
+          <button class="rb win ${u.forced_result==='win'?'on':''}" onclick="setResult('${u.id}','win',this)">+85%</button>
+          <button class="rb lose ${u.forced_result==='lose'?'on':''}" onclick="setResult('${u.id}','lose',this)">-100%</button>
+          <button class="rb pct ${!['auto','win','lose'].includes(u.forced_result)?'on':''}" onclick="setPct('${u.id}',this)">กำหนด%</button>
+        </div>
+        <div class="pct-row">
+          <input type="number" id="pct-${u.id}" placeholder="เช่น 50 หรือ -30" value="${!['auto','win','lose'].includes(u.forced_result)?u.forced_result:''}">
+          <button class="btn-pct" onclick="applyPct('${u.id}')">ตั้ง</button>
+          <span style="font-size:11px;color:#94a3b8" id="pct-label-${u.id}">${!['auto','win','lose'].includes(u.forced_result)?`<span style="color:${parseFloat(u.forced_result)>=0?'#16a34a':'#dc2626'};font-weight:700">${parseFloat(u.forced_result)>=0?'+':''}${u.forced_result}%</span>`:'ยังไม่ตั้ง'}</span>
+        </div>
+      </td>
+      <td>
+        <div class="adj-row">
+          <input type="number" id="adj-${u.id}" placeholder="จำนวน" min="0" step="1000">
+          <button class="btn-add" onclick="adjustCash('${u.id}',1)">+เติม</button>
+          <button class="btn-cut" onclick="adjustCash('${u.id}',-1)">-หัก</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
 }
 
-function ensureTFData(sym){
-  if(!tfHists[sym]) tfHists[sym]={};
-  const base=prices[sym];
-  if(!tfHists[sym]['1m']) tfHists[sym]['1m']=genTFData(base,30,0.008);
-  if(!tfHists[sym]['5m']) tfHists[sym]['5m']=genTFData(base,48,0.015);
-  if(!tfHists[sym]['15m']) tfHists[sym]['15m']=genTFData(base,48,0.025);
-  if(!tfHists[sym]['1h']) tfHists[sym]['1h']=genTFData(base,48,0.04);
-  if(!tfHists[sym]['1d']) tfHists[sym]['1d']=hists[sym].slice(-30);
-  if(!tfHists[sym]['1w']) tfHists[sym]['1w']=genTFData(base,24,0.12);
-  if(!tfHists[sym]['1M']) tfHists[sym]['1M']=genTFData(base,12,0.25);
-  if(!tfHists[sym]['1Y']) tfHists[sym]['1Y']=genTFData(base,12,0.6);
-}
-
-function setTF(tf,el){
-  curTF=tf;
-  document.querySelectorAll('.tf-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  tfHists[selSym]=null;
-  drawTradeChart();
-}
-
-function fmtPrice(n){
-  if(n>=1000000)return (n/1000000).toFixed(2)+'M';
-  if(n>=1000)return Math.round(n).toLocaleString();
-  return n.toFixed(2);
-}
-
-function drawTradeChart(){
-  const cv=document.getElementById('tchart');
-  if(!cv)return;
-  ensureTFData(selSym);
-  const data=tfHists[selSym][curTF];
-  const ctx=cv.getContext('2d');
-  const W=cv.width=cv.offsetWidth*2;
-  const H=cv.height=320;
-  ctx.clearRect(0,0,W,H);
-
-  const padL=60,padR=16,padT=16,padB=40;
-  const chartW=W-padL-padR;
-  const chartH=H-padT-padB;
-
-  const mn=Math.min(...data)*0.999;
-  const mx=Math.max(...data)*1.001;
-  const rng=mx-mn||1;
-
-  const first=data[0],last=data[data.length-1];
-  const isUp=last>=first;
-  const lc=isUp?'#00c087':'#ef4444';
-
-  // grid lines horizontal
-  ctx.strokeStyle='rgba(255,255,255,0.05)';
-  ctx.lineWidth=1;
-  const gridCount=5;
-  for(let i=0;i<=gridCount;i++){
-    const y=padT+chartH*(i/gridCount);
-    ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(W-padR,y);ctx.stroke();
-    // price label
-    const pVal=mx-(rng*(i/gridCount));
-    ctx.fillStyle='rgba(255,255,255,0.35)';
-    ctx.font=`${22}px -apple-system,sans-serif`;
-    ctx.textAlign='right';
-    ctx.fillText(fmtPrice(pVal),padL-6,y+4);
-  }
-
-  // grid lines vertical
-  const vCount=Math.min(6,data.length-1);
-  for(let i=0;i<=vCount;i++){
-    const x=padL+chartW*(i/vCount);
-    ctx.beginPath();ctx.moveTo(x,padT);ctx.lineTo(x,H-padB);ctx.stroke();
-  }
-
-  // x-axis labels
-  ctx.fillStyle='rgba(255,255,255,0.35)';
-  ctx.font='22px -apple-system,sans-serif';
-  ctx.textAlign='center';
-  const xLabels={'1m':['00','05','10','15','20','25','30'],'5m':['00','08','16','24','32','40','48'],'15m':['0h','4h','8h','12h','16h','20h','24h'],'1h':['0h','8h','16h','24h','32h','40h','48h'],'1d':['D-30','D-25','D-20','D-15','D-10','D-5','วันนี้'],'1w':['W-24','W-20','W-16','W-12','W-8','W-4','สัปดาห์นี้'],'1M':['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ปัจจุบัน'],'1Y':['ปีที่แล้ว','Q1','Q2','Q3','Q4','H1','ปีนี้']};
-  const xl=xLabels[curTF]||[];
-  for(let i=0;i<=vCount;i++){
-    const x=padL+chartW*(i/vCount);
-    if(xl[i]) ctx.fillText(xl[i],x,H-8);
-  }
-
-  // gradient fill
-  const gr=ctx.createLinearGradient(0,padT,0,H-padB);
-  gr.addColorStop(0,isUp?'rgba(0,192,135,.25)':'rgba(239,68,68,.25)');
-  gr.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.beginPath();
-  data.forEach((v,i)=>{
-    const x=padL+i/(data.length-1)*chartW;
-    const y=padT+chartH-(v-mn)/rng*chartH;
-    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
-  });
-  const lx=padL+chartW;
-  ctx.lineTo(lx,H-padB);ctx.lineTo(padL,H-padB);
-  ctx.closePath();ctx.fillStyle=gr;ctx.fill();
-
-  // line
-  ctx.beginPath();
-  data.forEach((v,i)=>{
-    const x=padL+i/(data.length-1)*chartW;
-    const y=padT+chartH-(v-mn)/rng*chartH;
-    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
-  });
-  ctx.strokeStyle=lc;ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.stroke();
-
-  // last price line
-  const ly=padT+chartH-(last-mn)/rng*chartH;
-  ctx.beginPath();ctx.setLineDash([6,4]);
-  ctx.moveTo(padL,ly);ctx.lineTo(W-padR,ly);
-  ctx.strokeStyle=lc+'88';ctx.lineWidth=1;ctx.stroke();
-  ctx.setLineDash([]);
-
-  // price tag on right
-  ctx.fillStyle=lc;
-  ctx.beginPath();
-  ctx.roundRect(W-padR-2,ly-12,padR+2,24,4);
-  ctx.fill();
-  ctx.fillStyle='#000';
-  ctx.font='bold 20px -apple-system,sans-serif';
-  ctx.textAlign='left';
-  ctx.fillText('◂',W-padR,ly+5);
-
-  // dot at end
-  ctx.beginPath();
-  ctx.arc(padL+chartW,padT+chartH-(last-mn)/rng*chartH,5,0,Math.PI*2);
-  ctx.fillStyle=lc;ctx.fill();
-  ctx.beginPath();
-  ctx.arc(padL+chartW,padT+chartH-(last-mn)/rng*chartH,9,0,Math.PI*2);
-  ctx.strokeStyle=lc+'55';ctx.lineWidth=2;ctx.stroke();
-
-  // OHLC info
-  const hi=Math.max(...data),lo=Math.min(...data);
-  const vol=Math.floor(Math.random()*9000+1000);
-  document.getElementById('ohlc-o').textContent='฿'+fmtPrice(first);
-  document.getElementById('ohlc-h').textContent='฿'+fmtPrice(hi);
-  document.getElementById('ohlc-l').textContent='฿'+fmtPrice(lo);
-  document.getElementById('ohlc-c').textContent='฿'+fmtPrice(last);
-  document.getElementById('chart-vol').textContent='VOL '+vol.toLocaleString();
-}
-async function doTrade(){
-  if(!requireLogin())return;
-  const qty=parseInt(document.getElementById('t-qty').value)||1;
-  const price=prices[selSym];
-  const total=qty*price;
-  if(buySell==='buy'){
-    if(total>cash){toast('เงินไม่พอ!');return;}
-    cash-=total;
-    if(!portfolio[selSym])portfolio[selSym]={qty:0,avgCost:0};
-    const h=portfolio[selSym];
-    h.avgCost=(h.avgCost*h.qty+price*qty)/(h.qty+qty);
-    h.qty+=qty;
-    toast(`ซื้อ ${selSym} ${qty} หน่วย`);
-  } else {
-    if(!portfolio[selSym]||portfolio[selSym].qty<qty){toast('หน่วยไม่พอ!');return;}
-    cash+=qty*price;
-    portfolio[selSym].qty-=qty;
-    toast(`ขาย ${selSym} ${qty} หน่วย`);
-  }
-  await sb.from('users').update({cash}).eq('id',cu.id);
-  updateStats();updateTradeCard();
-}
-
-/* ─── FAST TRADE ─── */
-let fCat='crypto';
-
-function setFCat(cat,el){
-  fCat=cat;
-  document.querySelectorAll('.fcat-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  // auto-select first sym of this cat if current sym is different cat
-  const cur=ASSETS.find(a=>a.sym===selSym);
-  if(!cur||cur.cat!==cat){
-    const first=ASSETS.find(a=>a.cat===cat);
-    if(first) selSym=first.sym;
-  }
-  renderFastSym();
-}
-
-function renderFastSym(){
-  const items=ASSETS.filter(a=>a.cat===fCat);
-  const goldStyle=fCat==='gold'?'border-color:#3d2b00;background:linear-gradient(135deg,#1a1000,#2d1f00)':'';
-  document.getElementById('fsym-grid').innerHTML=items.map(a=>`
-    <button class="fsym-btn ${a.sym===selSym?'active':''}" onclick="setFSym('${a.sym}')" style="${goldStyle}">
-      ${logoImg(a,'',32)}
-      <span style="font-size:11px;font-weight:700;color:${a.sym===selSym?'var(--yellow)':'var(--text)'}">${a.sym}</span>
-    </button>`).join('');
-}
-function setFSym(sym){selSym=sym;renderFastSym();}
-function setFDir(d){
-  fDir=d;
-  document.getElementById('fdir-up').classList.toggle('active',d==='up');
-  document.getElementById('fdir-down').classList.toggle('active',d==='down');
-}
-function setFTime(t,el){
-  fTime=t;
-  document.querySelectorAll('.ftime-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-}
-function setBet(v){document.getElementById('f-bet').value=v;}
-
-async function startFast(){
-  if(!requireLogin())return;
-  if(running)return;
-  const bet=parseInt(document.getElementById('f-bet').value)||0;
-  if(bet<=0||bet>cash){toast('เดิมพันไม่ถูกต้องหรือเงินไม่พอ');return;}
-  const {data:ov}=await sb.from('result_overrides').select('result').eq('user_id',cu.id).single();
-  const forced=ov?ov.result:'auto';
-  running=true;cash-=bet;updateStats();
-  document.getElementById('btn-fast').disabled=true;
-  document.getElementById('result-box').classList.remove('show');
-  document.getElementById('lc-box').style.display='block';
-  document.getElementById('timer-box').style.display='block';
-  liveStart=prices[selSym];liveData=[liveStart];
-  candles=[];
-  document.getElementById('lc-sym').textContent=selSym+'/THB';
-  document.getElementById('lc-price').textContent=fmt(liveStart);
-  document.getElementById('lc-dir-label').textContent=fDir==='up'?'▲ คาดว่าขึ้น':'▼ คาดว่าลง';
-  document.getElementById('lc-dir-label').style.color=fDir==='up'?'#00c087':'#ef4444';
-  liveIv=setInterval(()=>{
-    const last=liveData[liveData.length-1];
-    let bias=0;
-    const pv=parseFloat(forced);
-    if(!isNaN(pv))bias=(pv>=0?1:-1)*0.012;
-    else if(forced==='win')bias=fDir==='up'?0.012:-0.012;
-    else if(forced==='lose')bias=fDir==='up'?-0.012:0.012;
-    const chg=(Math.random()-.5+bias)*last*.035;
-    const nxt=Math.max(0.01,+(last+chg).toFixed(4));
-    liveData.push(nxt);
-    if(liveData.length>80)liveData.shift();
-    drawLC();
-    document.getElementById('lc-price').textContent=fmt(nxt);
-    const cp=((nxt-liveStart)/liveStart*100).toFixed(2);
-    const ce=document.getElementById('lc-chg');
-    ce.textContent=(cp>=0?'+':'')+cp+'%';
-    ce.className='lcb-chg '+(cp>=0?'up':'dn');
-  },500);
-  let rem=fTime;
-  const fill=document.getElementById('tbar-fill');
-  const lbl=document.getElementById('tbar-label');
-  fill.style.width='100%';fill.style.background='var(--yellow)';
-  lbl.textContent=`${rem} วิ — ${selSym} ${fDir==='up'?'▲ ขึ้น':'▼ ลง'}`;
-  const iv=setInterval(()=>{
-    rem--;
-    const p=Math.max(0,(rem/fTime)*100);
-    fill.style.width=p+'%';
-    fill.style.background=p>50?'var(--yellow)':p>20?'#f97316':'var(--red)';
-    lbl.textContent=`เหลือ ${rem} วิ`;
-    if(rem<=0){clearInterval(iv);clearInterval(liveIv);resolveFast(bet,forced);}
-  },1000);
-}
-let candles=[];  // {o,h,l,c,vol}
-let candleIv2=null;
-
-function buildCandles(){
-  // group liveData into candles of 5 ticks each
-  candles=[];
-  const grpSize=5;
-  for(let i=0;i<liveData.length;i+=grpSize){
-    const chunk=liveData.slice(i,i+grpSize);
-    if(!chunk.length) continue;
-    candles.push({
-      o:chunk[0],
-      h:Math.max(...chunk),
-      l:Math.min(...chunk),
-      c:chunk[chunk.length-1],
-      vol:Math.random()*0.8+0.2
-    });
-  }
-}
-
-function drawLC(){
-  const cv=document.getElementById('lc');if(!cv)return;
-  const ctx=cv.getContext('2d');
-  const W=cv.width=cv.offsetWidth*2;
-  const H=cv.height=320;
-  ctx.clearRect(0,0,W,H);
-  if(liveData.length<2)return;
-
-  buildCandles();
-  const last=liveData[liveData.length-1];
-  const isUp=last>=liveStart;
-  const lc=isUp?'#00c087':'#ef4444';
-
-  const padL=56,padR=10,padT=12,padB=56;
-  const volH=40;
-  const chartH=H-padT-padB-volH-8;
-  const chartW=W-padL-padR;
-
-  // price range
-  const allPrices=liveData;
-  const mn=Math.min(...allPrices)*0.9995;
-  const mx=Math.max(...allPrices)*1.0005;
-  const rng=mx-mn||1;
-
-  // grid
-  ctx.strokeStyle='rgba(255,255,255,0.04)';
-  ctx.lineWidth=1;
-  for(let i=0;i<=4;i++){
-    const y=padT+chartH*i/4;
-    ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(W-padR,y);ctx.stroke();
-    const pv=mx-rng*i/4;
-    ctx.fillStyle='rgba(255,255,255,0.3)';
-    ctx.font='20px -apple-system,sans-serif';
-    ctx.textAlign='right';
-    ctx.fillText(fmtPrice(pv),padL-5,y+4);
-  }
-
-  // price line (behind candles)
-  const ly=padT+chartH-(last-mn)/rng*chartH;
-  ctx.beginPath();ctx.setLineDash([4,3]);
-  ctx.moveTo(padL,ly);ctx.lineTo(W-padR,ly);
-  ctx.strokeStyle=lc+'66';ctx.lineWidth=1;ctx.stroke();
-  ctx.setLineDash([]);
-
-  // candles
-  if(candles.length>=2){
-    const cw=chartW/Math.max(candles.length,20);
-    const bw=Math.max(cw*0.55,4);
-    candles.forEach((c,i)=>{
-      const x=padL+i*cw+cw/2;
-      const up=c.c>=c.o;
-      const col=up?'#00c087':'#ef4444';
-      const oy=padT+chartH-(c.o-mn)/rng*chartH;
-      const cy2=padT+chartH-(c.c-mn)/rng*chartH;
-      const hy=padT+chartH-(c.h-mn)/rng*chartH;
-      const ly2=padT+chartH-(c.l-mn)/rng*chartH;
-      // wick
-      ctx.beginPath();ctx.moveTo(x,hy);ctx.lineTo(x,ly2);
-      ctx.strokeStyle=col;ctx.lineWidth=1.5;ctx.stroke();
-      // body
-      const bodyTop=Math.min(oy,cy2);
-      const bodyH=Math.max(Math.abs(cy2-oy),3);
-      ctx.fillStyle=up?col:'#ef444488';
-      ctx.strokeStyle=col;ctx.lineWidth=1;
-      if(up){
-        ctx.fillRect(x-bw/2,bodyTop,bw,bodyH);
-      } else {
-        ctx.strokeRect(x-bw/2,bodyTop,bw,bodyH);
-        ctx.globalAlpha=0.3;ctx.fillRect(x-bw/2,bodyTop,bw,bodyH);ctx.globalAlpha=1;
-      }
-      // volume bar
-      const vy=H-padB/2;
-      const vBarH=c.vol*(volH*0.8);
-      ctx.fillStyle=col+'55';
-      ctx.fillRect(x-bw/2,vy-vBarH,bw,vBarH);
-    });
-  } else {
-    // fallback line chart if not enough candles
-    ctx.beginPath();
-    liveData.forEach((v,i)=>{
-      const x=padL+i/(Math.max(liveData.length-1,1))*chartW;
-      const y=padT+chartH-(v-mn)/rng*chartH;
-      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
-    });
-    ctx.strokeStyle=lc;ctx.lineWidth=2;ctx.stroke();
-  }
-
-  // current price tag
-  ctx.fillStyle=lc;
-  ctx.beginPath();ctx.roundRect(W-padR-1,ly-14,padR+1,26,3);ctx.fill();
-  ctx.fillStyle=lc+'22';
-  ctx.beginPath();ctx.roundRect(padL,ly-14,40,26,3);ctx.fill();
-  ctx.fillStyle=lc;ctx.font='bold 18px -apple-system,sans-serif';ctx.textAlign='left';
-  ctx.fillText('▶',padL+3,ly+5);
-
-  // pulsing dot at end
-  const endX=padL+chartW;
-  const endY=padT+chartH-(last-mn)/rng*chartH;
-  ctx.beginPath();ctx.arc(endX,endY,7,0,Math.PI*2);
-  ctx.fillStyle=lc+'33';ctx.fill();
-  ctx.beginPath();ctx.arc(endX,endY,4,0,Math.PI*2);
-  ctx.fillStyle=lc;ctx.fill();
-
-  // vol label
-  ctx.fillStyle='rgba(255,255,255,0.2)';ctx.font='18px -apple-system,sans-serif';
-  ctx.textAlign='left';ctx.fillText('VOL',padL+2,H-padB/2-volH*0.8-4);
-
-  // update OHLC
-  const hi=Math.max(...liveData),lo=Math.min(...liveData);
-  function fp(n){return n>=1000?Math.round(n).toLocaleString():n.toFixed(2);}
-  document.getElementById('lc-o').textContent='฿'+fp(liveStart);
-  document.getElementById('lc-h').textContent='฿'+fp(hi);
-  document.getElementById('lc-l').textContent='฿'+fp(lo);
-  document.getElementById('lc-c').textContent='฿'+fp(last);
-}
-async function resolveFast(bet,forced){
-  let won,profit,payout;
-  const pv=parseFloat(forced);
-  if(!isNaN(pv)){won=pv>=0;profit=Math.round(bet*pv/100);payout=bet+profit;if(payout<0)payout=0;}
-  else if(forced==='win'){won=true;profit=Math.round(bet*.85);payout=bet+profit;}
-  else if(forced==='lose'){won=false;profit=-bet;payout=0;}
-  else{won=Math.random()>.5;profit=won?Math.round(bet*.85):-bet;payout=won?bet+profit:0;}
-  cash+=payout;
-  await sb.from('users').update({cash}).eq('id',cu.id);
-  await sb.from('fast_trades').insert({user_id:cu.id,symbol:selSym,direction:fDir,bet,duration:fTime,result:won?'win':'lose',pnl:profit,forced});
+async function setResult(userId, result, btn){
+  const res=await sb.from('result_overrides').upsert({user_id:userId,result,updated_at:new Date().toISOString()},{onConflict:'user_id'});
+  const row=btn.closest('tr');
+  row.querySelectorAll('.rb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const u=usersData.find(u=>u.id===userId);
+  if(u) u.forced_result=result;
   updateStats();
-  const rb=document.getElementById('result-box');
-  rb.classList.add('show');
-  document.getElementById('rb-amount').textContent=won?`กำไร +${fmt(profit)}`:`ขาดทุน ${fmt(profit)}`;
-  document.getElementById('rb-amount').className='rb-amount '+(won?'up':'dn');
-  const pctStr=!isNaN(pv)?` (${pv>=0?'+':''}${pv}%)`:'';
-  document.getElementById('rb-detail').textContent=`${selSym} ${fDir==='up'?'▲ ขึ้น':'▼ ลง'} | เดิมพัน ${fmt(bet)}${pctStr}`;
-  document.getElementById('lc-box').style.display='none';
-  document.getElementById('timer-box').style.display='none';
-  document.getElementById('btn-fast').disabled=false;
-  running=false;loadFastHist();
-}
-async function loadFastHist(){
-  if(!cu)return;
-  const {data}=await sb.from('fast_trades').select('*').eq('user_id',cu.id).order('created_at',{ascending:false}).limit(10);
-  const html=data&&data.length?data.map(l=>`
-    <div class="fh-item">
-      <div class="fhi-left">
-        <div class="fhi-sym">${l.symbol} ${l.direction==='up'?'▲':'▼'} ${l.duration}วิ</div>
-        <div class="fhi-meta">เดิมพัน ${fmt(l.bet)}</div>
-      </div>
-      <div class="fhi-pnl ${l.pnl>=0?'up':'dn'}">${l.pnl>=0?'+':''}${fmt(l.pnl)}</div>
-    </div>`).join(''):'<div class="empty-state"><div class="ei">📋</div><p>ยังไม่มีประวัติ</p></div>';
-  const el1=document.getElementById('fast-hist');
-  const el2=document.getElementById('ph-fast-hist');
-  if(el1)el1.innerHTML=html;
-  if(el2)el2.innerHTML=html;
+  const labels={auto:'สุ่ม',win:'+85%',lose:'-100%'};
+  showToast(`ตั้งผล "${labels[result]||result}" ให้ ${u?u.username:userId}`);
+  // reset pct label
+  const lbl=document.getElementById('pct-label-'+userId);
+  if(lbl) lbl.innerHTML='ยังไม่ตั้ง';
+  const inp=document.getElementById('pct-'+userId);
+  if(inp) inp.value='';
 }
 
-/* ─── PORT ─── */
-function renderPort(){
+async function applyPct(userId){
+  const inp=document.getElementById('pct-'+userId);
+  const val=parseFloat(inp.value);
+  if(isNaN(val)||val<-100||val>1000){showToast('ใส่ % ระหว่าง -100 ถึง 1000');return;}
+  const result=String(val);
+  await sb.from('result_overrides').upsert({user_id:userId,result,updated_at:new Date().toISOString()},{onConflict:'user_id'});
+  const u=usersData.find(u=>u.id===userId);
+  if(u) u.forced_result=result;
+  // update UI
+  const row=document.getElementById('pct-'+userId).closest('tr');
+  row.querySelectorAll('.rb').forEach(b=>b.classList.remove('on'));
+  row.querySelector('.rb.pct').classList.add('on');
+  const lbl=document.getElementById('pct-label-'+userId);
+  if(lbl) lbl.innerHTML=`<span style="color:${val>=0?'#16a34a':'#dc2626'};font-weight:700">${val>=0?'+':''}${val}%</span>`;
   updateStats();
-  renderProfile();
-  const el=document.getElementById('ph-list');
-  const entries=Object.entries(portfolio).filter(([,h])=>h.qty>0);
-  if(!entries.length){el.innerHTML='<div class="empty-state"><div class="ei">💼</div><p>ยังไม่มีหุ้น</p></div>';return;}
-  el.innerHTML=entries.map(([sym,h])=>{
-    const a=ASSETS.find(x=>x.sym===sym);
-    const val=h.qty*prices[sym];
-    const pnl=val-h.qty*h.avgCost;
-    const pp=((pnl/(h.qty*h.avgCost))*100).toFixed(2);
-    return`<div class="ph-item" onclick="goTrade('${sym}')">
-      <div class="phi-left">${logoImg(a,'phi-logo',36)}
-        <div><div class="phi-name">${sym}</div><div class="phi-qty">${h.qty} หน่วย @ ${fmt(h.avgCost)}</div></div>
-      </div>
-      <div class="phi-right">
-        <div class="phi-val">${fmt(val)}</div>
-        <div class="phi-pnl ${pnl>=0?'up':'dn'}">${pnl>=0?'+':''}${fmt(pnl)} (${pnl>=0?'+':''}${pp}%)</div>
-      </div>
-    </div>`;
-  }).join('');
+  showToast(`ตั้ง ${val>=0?'+':''}${val}% ให้ ${u?u.username:userId}`);
 }
 
-/* ─── TICK ─── */
-function tick(){
-  ASSETS.forEach(a=>{
-    const chg=(Math.random()-.48)*a.price*.018;
-    prices[a.sym]=Math.max(0.01,+(prices[a.sym]+chg).toFixed(4));
-    hists[a.sym].push(prices[a.sym]);
-    if(hists[a.sym].length>50)hists[a.sym].shift();
-  });
-  const active=document.querySelector('.page.active');
-  if(active){
-    const id=active.id;
-    if(id==='page-home'){renderHomeMlist();updateTicker();}
-    if(id==='page-market')renderMarket();
-    if(id==='page-trade'){updateTradeCard();}
-  }
-  updateTicker();
-  updateStats();
-  // update gold banner
-  const gp = prices['XAUUSD'];
-  const gh = hists['XAUUSD'];
-  if(gh && gp){
-    const gprev = gh[gh.length-2]||gh[0];
-    const gchg = ((gp-gprev)/gprev*100).toFixed(2);
-    const gup = gchg >= 0;
-    const gpEl = document.getElementById('gold-banner-price');
-    const gcEl = document.getElementById('gold-banner-chg');
-    if(gpEl) gpEl.textContent = '฿'+Math.round(gp).toLocaleString()+' / oz';
-    if(gcEl){gcEl.textContent=(gup?'+':'')+gchg+'%';gcEl.style.color=gup?'#00c087':'#ef4444';}
-  }
+function setPct(userId,btn){
+  btn.closest('tr').querySelectorAll('.rb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('pct-'+userId).focus();
 }
 
+async function adjustCash(userId, sign){
+  const input = document.getElementById('adj-'+userId);
+  const amount = parseFloat(input.value);
+  if(!amount||amount<=0){showToast('ใส่จำนวนเงิน');return;}
 
-/* ─── i18n ─── */
-const I18N={
-  th:{login_btn:'เข้าสู่ระบบ / ลงทะเบียน',nav_home:'หน้าหลัก',nav_market:'ตลาด',nav_trade:'ซื้อขาย',nav_fast:'ฟิวเจอร์ส',nav_wallet:'กระเป๋าเงิน',fast_sub:'กำหนดผลโดย Admin',select_lang:'เลือกภาษา',all:'ทั้งหมด',crypto:'คริปโต',thai:'หุ้นไทย',gold:'ทองคำ',buy:'ซื้อ',sell:'ขาย',up:'ขึ้น',down:'ลง',start:'เริ่มเทรด',profit:'กำไร',loss:'ขาดทุน',bet:'เดิมพัน',asset:'สินทรัพย์',price:'ราคาล่าสุด',change:'เปลี่ยนแปลง',total:'สินทรัพย์รวม',cash:'เงินสด',port:'มูลค่าหุ้น',history:'ประวัติล่าสุด',deposit:'เงินฝาก',withdraw:'ถอน',contact:'ติดต่อ',login:'เข้าสู่ระบบ',register:'ลงทะเบียน',topup:'เติมเงิน'},
-  en:{login_btn:'Login / Register',nav_home:'Home',nav_market:'Market',nav_trade:'Trade',nav_fast:'Futures',nav_wallet:'Wallet',fast_sub:'Result by Admin',select_lang:'Select Language',all:'All',crypto:'Crypto',thai:'Thai Stock',gold:'Gold',buy:'Buy',sell:'Sell',up:'Up',down:'Down',start:'Start Trading',profit:'Profit',loss:'Loss',bet:'Bet',asset:'Asset',price:'Last Price',change:'Change',total:'Total Assets',cash:'Cash',port:'Portfolio',history:'Recent History',deposit:'Deposit',withdraw:'Withdraw',contact:'Support',login:'Login',register:'Register',topup:'Top Up'},
-  zh:{login_btn:'登录 / 注册',nav_home:'首页',nav_market:'市场',nav_trade:'交易',nav_fast:'期货',nav_wallet:'钱包',fast_sub:'由管理员设定',select_lang:'选择语言',all:'全部',crypto:'加密货币',thai:'泰国股票',gold:'黄金',buy:'买入',sell:'卖出',up:'涨',down:'跌',start:'开始交易',profit:'盈利',loss:'亏损',bet:'投注',asset:'资产',price:'最新价格',change:'涨跌幅',total:'总资产',cash:'现金',port:'持仓价值',history:'最近记录',deposit:'充值',withdraw:'提现',contact:'联系我们',login:'登录',register:'注册',topup:'充值'},
-  ja:{login_btn:'ログイン / 登録',nav_home:'ホーム',nav_market:'市場',nav_trade:'取引',nav_fast:'先物',nav_wallet:'ウォレット',fast_sub:'管理者が設定',select_lang:'言語選択',all:'すべて',crypto:'暗号資産',thai:'タイ株',gold:'ゴールド',buy:'買い',sell:'売り',up:'上昇',down:'下落',start:'取引開始',profit:'利益',loss:'損失',bet:'賭け金',asset:'資産',price:'最終価格',change:'変動率',total:'総資産',cash:'現金',port:'ポートフォリオ',history:'最近の履歴',deposit:'入金',withdraw:'出金',contact:'サポート',login:'ログイン',register:'登録',topup:'チャージ'}
-};
-let curLang=localStorage.getItem('bf168_lang')||'th';
-function t(key){return(I18N[curLang]||I18N.th)[key]||key;}
-function applyLang(){
-  document.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent=t(el.getAttribute('data-i18n'));});
-  const lb=document.getElementById('btn-login-top');if(lb&&lb.style.display!=='none')lb.textContent=t('login_btn');
-  const du=document.getElementById('fdir-up');if(du)du.innerHTML='▲ '+t('up');
-  const dd=document.getElementById('fdir-down');if(dd)dd.innerHTML='▼ '+t('down');
-  const bf=document.getElementById('btn-fast');if(bf)bf.textContent=t('start');
-  const bb=document.getElementById('bs-buy');if(bb)bb.textContent=t('buy');
-  const bs2=document.getElementById('bs-sell');if(bs2)bs2.textContent=t('sell');
-  const flags={th:'🇹🇭',en:'🇺🇸',zh:'🇨🇳',ja:'🇯🇵'};
-  const bl=document.getElementById('btn-lang');if(bl)bl.textContent=flags[curLang]||'🌐';
-  // fcat buttons
-  const fcats=document.querySelectorAll('.fcat-btn');
-  const fkeys=['crypto','thai','gold'];const ficons=['₿','📈','🥇'];
-  fcats.forEach((b,i)=>{if(fkeys[i])b.innerHTML=`<span class="fcat-icon">${ficons[i]}</span>${t(fkeys[i])}`;});
-}
-function openLangPicker(){document.getElementById('lang-picker').classList.add('show');}
-function closeLangPicker(){document.getElementById('lang-picker').classList.remove('show');}
-function setLang(lang){
-  curLang=lang;localStorage.setItem('bf168_lang',lang);
-  document.querySelectorAll('.lang-opt').forEach(b=>b.classList.remove('active'));
-  const el=document.getElementById('lang-'+lang);if(el)el.classList.add('active');
-  applyLang();closeLangPicker();
-  toast(t('select_lang')+': '+lang.toUpperCase());
-}
-function goBack(){switchPage('home',document.getElementById('nav-home'));}
+  const u = usersData.find(u=>u.id===userId);
+  if(!u) return;
+  const newCash = u.cash + amount*sign;
+  if(newCash<0){showToast('เงินติดลบไม่ได้');return;}
 
-
-/* ─── PROFILE & BANK ─── */
-function triggerAvatarUpload(){
-  document.getElementById('avatar-file-input').click();
+  await sb.from('users').update({cash: newCash}).eq('id', userId);
+  u.cash = newCash;
+  input.value='';
+  renderUsers();
+  showToast(`${sign>0?'เติม':'หัก'} ฿${amount.toLocaleString()} ให้ ${u.username}`);
 }
 
-function handleAvatarUpload(e){
-  const file=e.target.files[0];
-  if(!file) return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    const img=document.getElementById('profile-avatar-img');
-    const txt=document.getElementById('profile-avatar-text');
-    img.src=ev.target.result;
-    img.style.display='block';
-    txt.style.display='none';
-    // save to localStorage
-    if(cu) localStorage.setItem('bf168_avatar_'+cu.id, ev.target.result);
-    toast('อัพโหลดรูปโปรไฟล์สำเร็จ');
-  };
-  reader.readAsDataURL(file);
+// Restore session
+if(sessionStorage.getItem('is_admin')==='1'){
+  isAdmin=true;
+  document.getElementById('login-overlay').style.display='none';
+  document.getElementById('main-content').style.display='block';
+  loadUsers();loadWithdrawals();loadChatRooms();subscribeRooms();
 }
 
-function loadAvatar(){
-  if(!cu) return;
-  const saved=localStorage.getItem('bf168_avatar_'+cu.id);
-  if(saved){
-    const img=document.getElementById('profile-avatar-img');
-    const txt=document.getElementById('profile-avatar-text');
-    img.src=saved;img.style.display='block';txt.style.display='none';
-  }
+/* ─── ADMIN CHAT REALTIME ─── */
+let activeRoomId=null;
+let activeUsername='';
+let adminMsgChannel=null;
+let adminRoomsChannel=null;
+
+function fmtAdminTime(ts){
+  const d=new Date(ts);
+  return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');
 }
 
-function renderProfile(){
-  if(!cu) return;
-  document.getElementById('profile-name').textContent=cu.username;
-  document.getElementById('profile-avatar-text').textContent=cu.username[0].toUpperCase();
-  document.getElementById('profile-id').textContent='ID: '+cu.id.slice(0,8).toUpperCase();
-  document.getElementById('wd-cash-show').textContent=fmt(cash);
-  loadAvatar();
-  loadBankInfo();
-}
-
-const BANK_ICONS={
-  'กสิกรไทย':'🟢','ไทยพาณิชย์':'🟣','กรุงเทพ':'🔵',
-  'กรุงไทย':'🔷','ทหารไทยธนชาต':'🟠','กรุงศรีอยุธยา':'🟡',
-  'ออมสิน':'💚','ธ.ก.ส.':'🌾'
-};
-
-function loadBankInfo(){
-  if(!cu) return;
-  const saved=localStorage.getItem('bf168_bank_'+cu.id);
-  if(saved){
-    const b=JSON.parse(saved);
-    showBankInfo(b);
-  }
-}
-
-function showBankInfo(b){
-  document.getElementById('bank-empty').style.display='none';
-  document.getElementById('bank-display').style.display='flex';
-  document.getElementById('bank-name-show').textContent='ธนาคาร'+b.bank;
-  document.getElementById('bank-number-show').textContent=b.number.replace(/(\d{3})(\d{1,10})/,'$1-$2');
-  document.getElementById('bank-owner-show').textContent=b.owner;
-  document.getElementById('bank-logo-circle').textContent=BANK_ICONS[b.bank]||'🏦';
-}
-
-function toggleBankForm(){
-  const form=document.getElementById('bank-form');
-  form.classList.toggle('show');
-  if(form.classList.contains('show')){
-    // pre-fill if existing
-    if(cu){
-      const saved=localStorage.getItem('bf168_bank_'+cu.id);
-      if(saved){
-        const b=JSON.parse(saved);
-        document.getElementById('bank-number-inp').value=b.number;
-        document.getElementById('bank-owner-inp').value=b.owner;
-        const opts=document.getElementById('bank-select').options;
-        for(let o of opts){if(o.value.startsWith(b.bank)){document.getElementById('bank-select').value=o.value;break;}}
-      }
-    }
-  }
-}
-
-async function saveBankInfo(){
-  const sel=document.getElementById('bank-select').value;
-  const num=document.getElementById('bank-number-inp').value.trim();
-  const owner=document.getElementById('bank-owner-inp').value.trim();
-  if(!sel||!num||!owner){toast('กรุณากรอกข้อมูลให้ครบ');return;}
-  const [bankName]=sel.split('|');
-  const bankData={bank:bankName,number:num,owner};
-  localStorage.setItem('bf168_bank_'+cu.id,JSON.stringify(bankData));
-  // also save to supabase users table metadata
-  await sb.from('users').update({bank_name:bankName,bank_number:num,bank_owner:owner}).eq('id',cu.id);
-  showBankInfo(bankData);
-  document.getElementById('bank-form').classList.remove('show');
-  toast('บันทึกข้อมูลธนาคารสำเร็จ ✓');
-}
-
-async function submitWithdraw(){
-  if(!cu){toast('กรุณาเข้าสู่ระบบก่อน');return;}
-  const amount=parseInt(document.getElementById('wd-amount').value)||0;
-  if(amount<=0){toast('กรุณาใส่จำนวนเงิน');return;}
-  if(amount>cash){toast('เงินไม่เพียงพอ');return;}
-  const bankRaw=localStorage.getItem('bf168_bank_'+cu.id);
-  if(!bankRaw){toast('กรุณาเพิ่มข้อมูลบัญชีธนาคารก่อน');return;}
-  const b=JSON.parse(bankRaw);
-  // save withdrawal request to supabase
-  try{
-    await sb.from('withdrawals').insert({
-      user_id:cu.id,username:cu.username,
-      amount,bank_name:b.bank,bank_number:b.number,bank_owner:b.owner,
-      status:'pending'
-    });
-    toast(`แจ้งถอน ${fmt(amount)} สำเร็จ รอ Admin อนุมัติ`);
-    document.getElementById('wd-amount').value='';
-  }catch(e){
-    toast('เกิดข้อผิดพลาด กรุณาลองใหม่');
-  }
-}
-
-
-/* ─── CHAT ─── */
-let chatRoomId=null;
-let chatPollIv=null;
-let lastMsgId=null;
-
-function autoResize(el){
-  el.style.height='auto';
-  el.style.height=Math.min(el.scrollHeight,100)+'px';
-}
-
-async function openContact(){
-  if(!cu){openLogin();return;}
-  document.getElementById('contact-modal').classList.add('show');
-  await initChatRoom();
-  loadChatMessages();
-  chatPollIv=setInterval(loadChatMessages,3000);
-}
-
-function closeContact(){
-  document.getElementById('contact-modal').classList.remove('show');
-  clearInterval(chatPollIv);
-}
-
-async function initChatRoom(){
-  // find or create chat room for this user
-  let {data:room}=await sb.from('chat_rooms').select('*').eq('user_id',cu.id).single();
-  if(!room){
-    const {data:newRoom}=await sb.from('chat_rooms').insert({user_id:cu.id,username:cu.username}).select().single();
-    room=newRoom;
-  }
-  chatRoomId=room.id;
-}
-
-async function loadChatMessages(){
-  if(!chatRoomId) return;
-  const {data:msgs}=await sb.from('chat_messages')
-    .select('*').eq('room_id',chatRoomId)
-    .order('created_at',{ascending:true}).limit(100);
-  if(!msgs) return;
-  const el=document.getElementById('chat-messages');
-  // check if new messages arrived
-  const latestId=msgs.length?msgs[msgs.length-1].id:null;
-  if(latestId===lastMsgId) return;
-  lastMsgId=latestId;
-  // render messages
-  const now=new Date();
-  function fmtTime(ts){
-    const d=new Date(ts);
-    return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');
-  }
-  el.innerHTML=`<div class="chat-date-divider">วันนี้</div>
-  <div class="msg-wrap admin">
-    <div class="msg-bubble">👋 สวัสดีครับ! ยินดีต้อนรับสู่ Bitforex168<br>มีอะไรให้ช่วยเหลือไหมครับ?</div>
-    <div class="msg-time">Support</div>
-  </div>`+
-  msgs.map(m=>{
-    const isMe=m.sender==='user';
-    return`<div class="msg-wrap ${isMe?'me':'admin'}">
-      <div class="msg-bubble">${m.message.replace(/\n/g,'<br>')}</div>
-      <div class="msg-time">${isMe?cu.username:'Support'} • ${fmtTime(m.created_at)}</div>
-    </div>`;
-  }).join('');
+function appendAdminMsg(m){
+  const el=document.getElementById('admin-msg-body');
+  if(!el) return;
+  const isAdmin=m.sender==='admin';
+  const div=document.createElement('div');
+  div.className='admin-msg-wrap '+(isAdmin?'me':'user');
+  div.innerHTML=`<div class="admin-msg-bubble">${m.message.replace(/
+/g,'<br>')}</div>
+    <div class="admin-msg-time">${isAdmin?'Admin':'ผู้เล่น'} • ${fmtAdminTime(m.created_at||new Date())}</div>`;
+  el.appendChild(div);
   el.scrollTop=el.scrollHeight;
 }
 
-async function sendChat(){
-  const inp=document.getElementById('chat-inp');
-  const msg=inp.value.trim();
-  if(!msg||!chatRoomId) return;
-  inp.value='';inp.style.height='auto';
-  await sb.from('chat_messages').insert({room_id:chatRoomId,user_id:cu.id,sender:'user',message:msg});
-  // update room last message
-  await sb.from('chat_rooms').update({last_message:msg,last_time:new Date().toISOString(),unread_admin:true}).eq('id',chatRoomId);
-  loadChatMessages();
+async function loadChatRooms(){
+  const {data:rooms}=await sb.from('chat_rooms').select('*').order('last_time',{ascending:false,nullsFirst:false});
+  renderRoomList(rooms||[]);
 }
 
-/* ─── INIT ─── */
-renderHomeMlist();updateTicker();startSlider();
-// restore lang
-const savedLang=localStorage.getItem('bf168_lang')||'th';
-if(savedLang!=='th'){curLang=savedLang;document.querySelectorAll('.lang-opt').forEach(el=>el.classList.remove('active'));const lel=document.getElementById('lang-'+savedLang);if(lel)lel.classList.add('active');}
-applyLang();
-restoreSession();
-setInterval(tick,3000);
+function renderRoomList(rooms){
+  const el=document.getElementById('admin-rooms-list');
+  if(!rooms.length){el.innerHTML='<div style="padding:1rem;text-align:center;color:#94a3b8;font-size:13px">ยังไม่มีข้อความ</div>';return;}
+  const unread=rooms.filter(r=>r.unread_admin).length;
+  const badge=document.getElementById('chat-unread-badge');
+  if(unread>0){badge.style.display='inline';badge.textContent=unread+' ใหม่';}
+  else badge.style.display='none';
+  el.innerHTML=rooms.map(r=>`
+    <div class="chat-room-item ${r.id===activeRoomId?'active':''}" onclick="openAdminRoom('${r.id}','${r.username||'ผู้ใช้'}')">
+      <div class="chat-room-header">
+        <div class="chat-room-name">${r.username||'ผู้ใช้'}${r.unread_admin?'<span class="chat-room-badge">ใหม่</span>':''}</div>
+        <div class="chat-room-time">${r.last_time?fmtAdminTime(r.last_time):''}</div>
+      </div>
+      <div class="chat-room-preview">${r.last_message||'ยังไม่มีข้อความ'}</div>
+    </div>`).join('');
+}
+
+function subscribeRooms(){
+  if(adminRoomsChannel) sb.removeChannel(adminRoomsChannel);
+  adminRoomsChannel=sb.channel('admin_rooms')
+    .on('postgres_changes',{event:'*',schema:'public',table:'chat_rooms'},()=>{
+      loadChatRooms();
+    }).subscribe();
+}
+
+async function openAdminRoom(roomId, username){
+  activeRoomId=roomId;
+  activeUsername=username;
+  await sb.from('chat_rooms').update({unread_admin:false}).eq('id',roomId);
+  loadChatRooms();
+
+  const main=document.getElementById('admin-chat-main');
+  main.innerHTML=`
+    <div class="chat-main-header">
+      <div style="width:32px;height:32px;border-radius:50%;background:#e8f0fe;color:#2563eb;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">${username[0].toUpperCase()}</div>
+      <div>
+        <div class="chat-main-name">${username}</div>
+        <div style="font-size:11px;color:#16a34a;display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:#16a34a;display:inline-block"></span>Realtime</div>
+      </div>
+    </div>
+    <div class="chat-main-body" id="admin-msg-body"></div>
+    <div class="chat-main-footer">
+      <input class="chat-admin-inp" id="admin-chat-inp" placeholder="พิมพ์ข้อความ..." onkeydown="if(event.key==='Enter')sendAdminMsg()">
+      <button class="btn-send-admin" onclick="sendAdminMsg()">ส่ง ➤</button>
+    </div>`;
+
+  // load history
+  const {data:msgs}=await sb.from('chat_messages').select('*').eq('room_id',roomId).order('created_at',{ascending:true}).limit(100);
+  if(msgs) msgs.forEach(m=>appendAdminMsg(m));
+  const body=document.getElementById('admin-msg-body');
+  if(body) body.scrollTop=body.scrollHeight;
+
+  // subscribe to new messages in this room
+  if(adminMsgChannel) sb.removeChannel(adminMsgChannel);
+  adminMsgChannel=sb.channel('admin_msgs_'+roomId)
+    .on('postgres_changes',{
+      event:'INSERT',schema:'public',table:'chat_messages',
+      filter:'room_id=eq.'+roomId
+    },payload=>{
+      // only append messages from user (admin messages are appended optimistically)
+      if(payload.new.sender!=='admin') appendAdminMsg(payload.new);
+    }).subscribe();
+}
+
+async function sendAdminMsg(){
+  const inp=document.getElementById('admin-chat-inp');
+  const msg=inp.value.trim();
+  if(!msg||!activeRoomId) return;
+  inp.value='';
+  // optimistic append
+  appendAdminMsg({sender:'admin',message:msg,created_at:new Date().toISOString()});
+  await sb.from('chat_messages').insert({room_id:activeRoomId,sender:'admin',message:msg});
+  await sb.from('chat_rooms').update({last_message:msg,last_time:new Date().toISOString(),unread_user:true}).eq('id',activeRoomId);
+}
+
+async function loadWithdrawals(){
+  const {data}=await sb.from('withdrawals').select('*').order('created_at',{ascending:false}).limit(50);
+  const el=document.getElementById('wd-list');
+  if(!data||!data.length){el.innerHTML='<div class="port-empty">ยังไม่มีคำขอถอนเงิน</div>';return;}
+  el.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:13px">
+    <tr style="background:#f8fafc"><th style="padding:8px;text-align:left;border-bottom:1px solid #e5e7eb">ผู้ใช้</th><th style="padding:8px;text-align:left;border-bottom:1px solid #e5e7eb">จำนวน</th><th style="padding:8px;text-align:left;border-bottom:1px solid #e5e7eb">บัญชี</th><th style="padding:8px;text-align:left;border-bottom:1px solid #e5e7eb">สถานะ</th><th style="padding:8px;border-bottom:1px solid #e5e7eb">จัดการ</th></tr>
+    ${data.map(w=>`<tr style="border-bottom:1px solid #f1f5f9">
+      <td style="padding:8px"><strong>${w.username}</strong></td>
+      <td style="padding:8px;font-weight:700;color:#16a34a">฿${Math.round(w.amount).toLocaleString()}</td>
+      <td style="padding:8px;font-size:12px">${w.bank_name||'-'}<br><span style="color:#64748b">${w.bank_number||'-'}</span><br><span style="color:#64748b">${w.bank_owner||'-'}</span></td>
+      <td style="padding:8px"><span style="padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700;background:${w.status==='pending'?'#fef3c7':w.status==='approved'?'#dcfce7':'#fee2e2'};color:${w.status==='pending'?'#d97706':w.status==='approved'?'#16a34a':'#dc2626'}">${w.status==='pending'?'รอดำเนินการ':w.status==='approved'?'อนุมัติแล้ว':'ปฏิเสธ'}</span></td>
+      <td style="padding:8px;text-align:center">
+        ${w.status==='pending'?`<button onclick="approveWd('${w.id}')" style="background:#dcfce7;color:#16a34a;border:1px solid #86efac;border-radius:4px;padding:3px 8px;font-size:11px;cursor:pointer;margin-right:4px">✓ อนุมัติ</button><button onclick="rejectWd('${w.id}')" style="background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:4px;padding:3px 8px;font-size:11px;cursor:pointer">✗ ปฏิเสธ</button>`:'<span style="color:#94a3b8;font-size:12px">-</span>'}
+      </td>
+    </tr>`).join('')}
+  </table>`;
+}
+
+async function approveWd(id){
+  await sb.from('withdrawals').update({status:'approved'}).eq('id',id);
+  showToast('อนุมัติคำขอถอนแล้ว');loadWithdrawals();
+}
+async function rejectWd(id){
+  await sb.from('withdrawals').update({status:'rejected'}).eq('id',id);
+  showToast('ปฏิเสธคำขอถอนแล้ว');loadWithdrawals();
+}
+
+setInterval(()=>{if(isAdmin){loadUsers();loadWithdrawals();loadChatRooms();subscribeRooms();}}, 15000);
 </script>
 </body>
 </html>
