@@ -861,18 +861,36 @@ function drawLiveChart(){
 }
 
 async function resolveFast(sym,bet,duration,forced){
-  let won;
-  if(forced==='win') won=true;
-  else if(forced==='lose') won=false;
-  else won=Math.random()>.5;
-  const profit=won?Math.round(bet*.85):-bet;
-  if(won) cash+=bet+Math.round(bet*.85);
+  let won, profit, payout;
+  // forced อาจเป็น 'auto','win','lose' หรือตัวเลข % เช่น '85' หรือ '-50'
+  const pctVal = parseFloat(forced);
+  if(!isNaN(pctVal)){
+    // กำหนดเป็น % เช่น 85 = กำไร 85%, -50 = ขาดทุน 50%
+    won = pctVal >= 0;
+    profit = Math.round(bet * pctVal / 100);
+    payout = bet + profit; // ถ้าขาดทุน payout = bet - ขาดทุน
+    if(payout < 0) payout = 0;
+  } else if(forced==='win'){
+    won=true;
+    profit=Math.round(bet*.85);
+    payout=bet+profit;
+  } else if(forced==='lose'){
+    won=false;
+    profit=-bet;
+    payout=0;
+  } else {
+    won=Math.random()>.5;
+    profit=won?Math.round(bet*.85):-bet;
+    payout=won?bet+Math.round(bet*.85):0;
+  }
+  cash+=payout;
   await sb.from('users').update({cash}).eq('id',currentUser.id);
   await sb.from('fast_trades').insert({user_id:currentUser.id,symbol:sym,direction:fastDir,bet,duration,result:won?'win':'lose',pnl:profit,forced});
   updateStats();
   const popup=document.getElementById('result-popup');
   popup.classList.add('show');
-  document.getElementById('r-title').textContent=won?`กำไร +${fmt(Math.round(bet*.85))}`:`ขาดทุน -${fmt(bet)}`;
+  const pctStr = !isNaN(pctVal) ? ` (${pctVal>=0?'+':''}${pctVal}%)` : '';
+  document.getElementById('r-title').textContent=won?`กำไร +${fmt(profit)}${pctStr}`:`ขาดทุน ${fmt(profit)}${pctStr}`;
   document.getElementById('r-title').className='r-title '+(won?'up':'dn');
   document.getElementById('r-sub').textContent=`${sym} ${fastDir==='up'?'▲ ขึ้น':'▼ ลง'} | เดิมพัน ${fmt(bet)}`;
   document.getElementById('timer-wrap').style.display='none';
