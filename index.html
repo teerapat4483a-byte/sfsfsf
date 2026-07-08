@@ -327,6 +327,62 @@ canvas#lc{width:100%;display:block}
 .dot-anim span:nth-child(3){animation-delay:.3s}
 @keyframes dotBounce{0%,80%,100%{transform:scale(.6)}40%{transform:scale(1)}}
 
+/* Order Confirm Modal */
+.order-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;align-items:flex-end;justify-content:center}
+.order-modal-overlay.show{display:flex}
+.order-modal{background:#1a1d2e;border-radius:20px 20px 0 0;padding:1.25rem;width:100%;max-width:480px;padding-bottom:2rem}
+.om-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
+.om-sym{font-size:16px;font-weight:800;color:var(--text)}
+.om-close{background:none;border:none;color:var(--sub);font-size:22px;cursor:pointer;line-height:1}
+.om-section-label{font-size:13px;color:var(--sub);margin-bottom:.625rem;font-weight:600}
+.om-time-btns{display:flex;gap:8px;margin-bottom:1.25rem}
+.om-time-btn{flex:1;padding:10px;background:var(--green);color:#000;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;opacity:.5;transition:opacity .15s}
+.om-time-btn.active{opacity:1}
+.om-amt-btns{display:flex;gap:8px;margin-bottom:1rem}
+.om-amt-btn{flex:1;padding:10px;background:var(--card2);border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;color:var(--text);text-align:center;transition:all .15s}
+.om-amt-btn.active{background:var(--green);color:#000;border-color:var(--green)}
+.om-sep{height:1px;background:var(--border);margin:.875rem 0}
+.om-custom-label{font-size:13px;color:var(--sub);margin-bottom:.5rem}
+.om-custom-inp{width:100%;padding:12px;background:var(--card2);border:1px solid var(--border);border-radius:10px;font-size:15px;color:var(--text);outline:none;margin-bottom:.625rem}
+.om-custom-inp:focus{border-color:var(--yellow)}
+.om-balance{font-size:13px;color:var(--sub);margin-bottom:1.25rem}
+.om-table{width:100%;border-collapse:collapse;margin-bottom:1.25rem}
+.om-table th{font-size:11px;color:var(--sub);font-weight:600;padding:6px 0;border-bottom:1px solid var(--border);text-align:left}
+.om-table td{font-size:13px;padding:8px 0;border-bottom:1px solid var(--border2,#1e2235)}
+.om-table td:first-child{color:var(--sub)}
+.om-dir-up{color:var(--green);font-weight:700}
+.om-dir-dn{color:var(--red);font-weight:700}
+.btn-confirm{width:100%;padding:14px;border:none;border-radius:12px;background:var(--green);color:#000;font-size:16px;font-weight:800;cursor:pointer;letter-spacing:.3px}
+.btn-confirm.sell{background:var(--red);color:#fff}
+
+.toast{position:fixed;top:70px;left:50%.toast{position:fixed;top:70px;left:50%/* Order Confirm Modal */
+.order-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;align-items:flex-end;justify-content:center}
+.order-modal-overlay.show{display:flex}
+.order-modal{background:#1a1d2e;border-radius:20px 20px 0 0;padding:1.25rem;width:100%;max-width:480px;padding-bottom:2rem}
+.om-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
+.om-sym{font-size:16px;font-weight:800;color:var(--text)}
+.om-close{background:none;border:none;color:var(--sub);font-size:22px;cursor:pointer;line-height:1}
+.om-section-label{font-size:13px;color:var(--sub);margin-bottom:.625rem;font-weight:600}
+.om-time-btns{display:flex;gap:8px;margin-bottom:1.25rem}
+.om-time-btn{flex:1;padding:10px;background:var(--green);color:#000;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;opacity:.5;transition:opacity .15s}
+.om-time-btn.active{opacity:1}
+.om-amt-btns{display:flex;gap:8px;margin-bottom:1rem}
+.om-amt-btn{flex:1;padding:10px;background:var(--card2);border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;color:var(--text);text-align:center;transition:all .15s}
+.om-amt-btn.active{background:var(--green);color:#000;border-color:var(--green)}
+.om-sep{height:1px;background:var(--border);margin:.875rem 0}
+.om-custom-label{font-size:13px;color:var(--sub);margin-bottom:.5rem}
+.om-custom-inp{width:100%;padding:12px;background:var(--card2);border:1px solid var(--border);border-radius:10px;font-size:15px;color:var(--text);outline:none;margin-bottom:.625rem}
+.om-custom-inp:focus{border-color:var(--yellow)}
+.om-balance{font-size:13px;color:var(--sub);margin-bottom:1.25rem}
+.om-table{width:100%;border-collapse:collapse;margin-bottom:1.25rem}
+.om-table th{font-size:11px;color:var(--sub);font-weight:600;padding:6px 0;border-bottom:1px solid var(--border);text-align:left}
+.om-table td{font-size:13px;padding:8px 0;border-bottom:1px solid var(--border2,#1e2235)}
+.om-table td:first-child{color:var(--sub)}
+.om-dir-up{color:var(--green);font-weight:700}
+.om-dir-dn{color:var(--red);font-weight:700}
+.btn-confirm{width:100%;padding:14px;border:none;border-radius:12px;background:var(--green);color:#000;font-size:16px;font-weight:800;cursor:pointer;letter-spacing:.3px}
+.btn-confirm.sell{background:var(--red);color:#fff}
+
 .toast{position:fixed;top:70px;left:50%.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:.625rem 1.25rem;font-size:13px;color:var(--text);opacity:0;transition:opacity .25s;pointer-events:none;z-index:9999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.3)}
 .toast.show{opacity:1}
 .lang-picker{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:998;display:none;align-items:flex-end;justify-content:center}
@@ -748,7 +804,7 @@ canvas#lc{width:100%;display:block}
           <span>มูลค่ารวม</span><strong id="t-total">฿0</strong>
         </div>
       </div>
-      <button class="btn-order buy" id="btn-order" onclick="doTrade()">ซื้อ</button>
+      <button class="btn-order buy" id="btn-order" onclick="openOrderModal()">ซื้อ</button>
     </div>
   </div>
 
@@ -982,6 +1038,51 @@ canvas#lc{width:100%;display:block}
 </div>
 
 <!-- CHAT PAGE (full page, not overlay) -->
+
+<!-- ORDER CONFIRM MODAL -->
+<div class="order-modal-overlay" id="order-modal" onclick="if(event.target===this)closeOrderModal()">
+  <div class="order-modal">
+    <div class="om-header">
+      <div class="om-sym" id="om-sym">BTC/THB</div>
+      <button class="om-close" onclick="closeOrderModal()">×</button>
+    </div>
+
+    <div class="om-section-label">ระยะเวลาการคัดเลือก</div>
+    <div class="om-time-btns">
+      <button class="om-time-btn active" onclick="setOmTime(180,this)">180 S</button>
+      <button class="om-time-btn" onclick="setOmTime(300,this)">300 S</button>
+      <button class="om-time-btn" onclick="setOmTime(600,this)">600 S</button>
+    </div>
+
+    <div class="om-sep"></div>
+    <div class="om-section-label">เลือกจำนวนเงิน</div>
+    <div class="om-amt-btns">
+      <button class="om-amt-btn active" onclick="setOmAmt(1000,this)"><div>1000</div><div style="font-size:10px">฿</div></button>
+      <button class="om-amt-btn" onclick="setOmAmt(3000,this)"><div>3000</div><div style="font-size:10px">฿</div></button>
+      <button class="om-amt-btn" onclick="setOmAmt(5000,this)"><div>5000</div><div style="font-size:10px">฿</div></button>
+    </div>
+
+    <div class="om-sep"></div>
+    <div class="om-custom-label">จำนวนเงินที่กำหนดเอง</div>
+    <input class="om-custom-inp" id="om-custom" type="number" placeholder="กรุณาระบุจำนวนเงิน" min="1" oninput="onOmCustom()">
+    <div class="om-balance">สมดุล: <span id="om-balance">0.00000000</span> ฿</div>
+
+    <table class="om-table">
+      <tr>
+        <th>เครื่องหมาย</th><th>ทิศทาง</th><th>ราคา</th><th>เงินทุน</th><th>คาดการณ์กำไร</th>
+      </tr>
+      <tr>
+        <td id="om-sym2">BTC/THB</td>
+        <td><span id="om-dir-label" class="om-dir-up">ซื้อ</span></td>
+        <td id="om-price-show" style="color:var(--red);font-weight:700">฿0</td>
+        <td id="om-amt-show">0 ฿</td>
+        <td id="om-profit-show" style="color:var(--green)">0 ฿</td>
+      </tr>
+    </table>
+
+    <button class="btn-confirm" id="btn-confirm" onclick="confirmOrder()">ยืนยันรายการ</button>
+  </div>
+</div>
 
 <!-- LANG PICKER -->
 <div class="lang-picker" id="lang-picker" onclick="if(event.target===this)closeLangPicker()">
@@ -1363,6 +1464,8 @@ function setBuySell(v){
   document.getElementById('bs-sell').classList.toggle('active',v==='sell');
   document.getElementById('btn-order').className='btn-order '+v;
   document.getElementById('btn-order').textContent=v==='buy'?'ซื้อ':'ขาย';
+  const bc=document.getElementById('btn-confirm');
+  if(bc){bc.className='btn-confirm '+(v==='sell'?'sell':'');bc.style.background=v==='buy'?'var(--green)':'var(--red)';}
   updTradeTotal();
 }
 let inputMode='coin'; // 'coin' or 'thb'
@@ -2288,6 +2391,88 @@ async function sendChat(){
   inp.value='';inp.style.height='auto';
   await sb.from('chat_messages').insert({room_id:chatRoomId,user_id:cu.id,sender:'user',message:msg});
   await sb.from('chat_rooms').update({last_message:msg,last_time:new Date().toISOString(),unread_admin:true}).eq('id',chatRoomId);
+}
+
+
+/* ─── ORDER CONFIRM MODAL ─── */
+let omTime=180;
+let omAmt=1000;
+
+function openOrderModal(){
+  if(!requireLogin())return;
+  const price=prices[selSym];
+  document.getElementById('om-sym').textContent=selSym+'/THB';
+  document.getElementById('om-sym2').textContent=selSym+'/THB';
+  document.getElementById('om-balance').textContent=cash.toFixed(8);
+  document.getElementById('om-price-show').textContent='฿'+Math.round(price).toLocaleString();
+  document.getElementById('om-dir-label').textContent=buySell==='buy'?'ซื้อ':'ขาย';
+  document.getElementById('om-dir-label').className=buySell==='buy'?'om-dir-up':'om-dir-dn';
+  const bc=document.getElementById('btn-confirm');
+  if(bc){bc.textContent='ยืนยัน'+( buySell==='buy'?'ซื้อ':'ขาย');bc.className='btn-confirm '+(buySell==='sell'?'sell':'');}
+  updateOmSummary();
+  document.getElementById('order-modal').classList.add('show');
+}
+
+function closeOrderModal(){
+  document.getElementById('order-modal').classList.remove('show');
+}
+
+function setOmTime(sec,el){
+  omTime=sec;
+  document.querySelectorAll('.om-time-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function setOmAmt(amt,el){
+  omAmt=amt;
+  document.getElementById('om-custom').value='';
+  document.querySelectorAll('.om-amt-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  updateOmSummary();
+}
+
+function onOmCustom(){
+  const v=parseFloat(document.getElementById('om-custom').value)||0;
+  if(v>0){
+    omAmt=v;
+    document.querySelectorAll('.om-amt-btn').forEach(b=>b.classList.remove('active'));
+  }
+  updateOmSummary();
+}
+
+function updateOmSummary(){
+  const price=prices[selSym]||1;
+  const qty=(omAmt/price);
+  const profit=Math.round(omAmt*0.85);
+  document.getElementById('om-amt-show').textContent=omAmt.toLocaleString()+' ฿';
+  document.getElementById('om-profit-show').textContent=profit.toLocaleString()+' ฿';
+  document.getElementById('om-balance').textContent=cash.toFixed(8);
+}
+
+async function confirmOrder(){
+  const price=prices[selSym];
+  const qty=omAmt/price;
+  if(omAmt<=0){toast('ใส่จำนวนเงิน');return;}
+  if(buySell==='buy'&&omAmt>cash){toast('เงินไม่พอ!');return;}
+  if(buySell==='sell'){
+    if(!portfolio[selSym]||portfolio[selSym].qty<qty){toast('หน่วยไม่พอ!');return;}
+  }
+  // execute trade
+  if(buySell==='buy'){
+    cash-=omAmt;
+    if(!portfolio[selSym])portfolio[selSym]={qty:0,avgCost:0};
+    const h=portfolio[selSym];
+    h.avgCost=(h.avgCost*h.qty+price*qty)/(h.qty+qty);
+    h.qty+=qty;
+    toast(`ซื้อ ${selSym} ${qty.toFixed(4)} หน่วย สำเร็จ ✓`);
+  } else {
+    cash+=omAmt;
+    portfolio[selSym].qty-=qty;
+    toast(`ขาย ${selSym} ${qty.toFixed(4)} หน่วย สำเร็จ ✓`);
+  }
+  await sb.from('users').update({cash}).eq('id',cu.id);
+  closeOrderModal();
+  updateStats();updateTradeCard();
 }
 
 /* ─── INIT ─── */
