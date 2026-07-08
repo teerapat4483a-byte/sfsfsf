@@ -274,7 +274,7 @@ canvas#lc{width:100%;display:block}
 .bnav-icon{font-size:22px;line-height:1}
 
 /* POPUP */
-.popup-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;align-items:center;justify-content:center}
+.popup-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9997;align-items:center;justify-content:center}
 .popup-overlay.show{display:flex}
 .popup-box{background:var(--card);border-radius:16px;padding:2rem 1.5rem;width:300px;text-align:center}
 .popup-emoji{font-size:52px;margin-bottom:.75rem}
@@ -328,7 +328,7 @@ canvas#lc{width:100%;display:block}
 @keyframes dotBounce{0%,80%,100%{transform:scale(.6)}40%{transform:scale(1)}}
 
 /* Order Confirm Modal */
-.order-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;align-items:flex-end;justify-content:center}
+.order-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9998;align-items:flex-end;justify-content:center}
 .order-modal-overlay.show{display:flex}
 .order-modal{background:#1a1d2e;border-radius:20px 20px 0 0;padding:1.25rem;width:100%;max-width:480px;padding-bottom:2rem}
 .om-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
@@ -356,7 +356,7 @@ canvas#lc{width:100%;display:block}
 .btn-confirm.sell{background:var(--red);color:#fff}
 
 .toast{position:fixed;top:70px;left:50%.toast{position:fixed;top:70px;left:50%/* Order Confirm Modal */
-.order-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;align-items:flex-end;justify-content:center}
+.order-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9998;align-items:flex-end;justify-content:center}
 .order-modal-overlay.show{display:flex}
 .order-modal{background:#1a1d2e;border-radius:20px 20px 0 0;padding:1.25rem;width:100%;max-width:480px;padding-bottom:2rem}
 .om-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
@@ -385,7 +385,7 @@ canvas#lc{width:100%;display:block}
 
 .toast{position:fixed;top:70px;left:50%.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:.625rem 1.25rem;font-size:13px;color:var(--text);opacity:0;transition:opacity .25s;pointer-events:none;z-index:9999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.3)}
 .toast.show{opacity:1}
-.lang-picker{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:998;display:none;align-items:flex-end;justify-content:center}
+.lang-picker{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:none;align-items:flex-end;justify-content:center}
 .lang-picker.show{display:flex}
 .lang-sheet{background:var(--card);border-radius:20px 20px 0 0;padding:1.25rem;width:100%;max-width:480px}
 .lang-sheet-title{font-size:15px;font-weight:700;margin-bottom:1rem;text-align:center;color:var(--sub)}
@@ -1085,33 +1085,7 @@ canvas#lc{width:100%;display:block}
 </div>
 
 <!-- LANG PICKER -->
-<div class="lang-picker" id="lang-picker" onclick="if(event.target===this)closeLangPicker()">
-  <div class="lang-sheet">
-    <div class="lang-sheet-title" data-i18n="select_lang">เลือกภาษา / Select Language</div>
-    <div class="lang-grid">
-      <div class="lang-opt active" id="lang-th" onclick="setLang('th')">
-        <span class="lang-flag">🇹🇭</span>
-        <div class="lang-name">ภาษาไทย</div>
-        <div class="lang-native">Thai</div>
-      </div>
-      <div class="lang-opt" id="lang-en" onclick="setLang('en')">
-        <span class="lang-flag">🇺🇸</span>
-        <div class="lang-name">English</div>
-        <div class="lang-native">English</div>
-      </div>
-      <div class="lang-opt" id="lang-zh" onclick="setLang('zh')">
-        <span class="lang-flag">🇨🇳</span>
-        <div class="lang-name">中文</div>
-        <div class="lang-native">Chinese</div>
-      </div>
-      <div class="lang-opt" id="lang-ja" onclick="setLang('ja')">
-        <span class="lang-flag">🇯🇵</span>
-        <div class="lang-name">日本語</div>
-        <div class="lang-native">Japanese</div>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- lang-picker moved to bottom -->
 
 <!-- POPUPS -->
 <div class="popup-overlay" id="reg-popup">
@@ -2484,5 +2458,32 @@ applyLang();
 restoreSession();
 setInterval(tick,3000);
 </script>
+<div class="lang-picker" id="lang-picker" onclick="if(event.target===this)closeLangPicker()">
+  <div class="lang-sheet">
+    <div class="lang-sheet-title" data-i18n="select_lang">เลือกภาษา / Select Language</div>
+    <div class="lang-grid">
+      <div class="lang-opt active" id="lang-th" onclick="setLang('th')">
+        <span class="lang-flag">🇹🇭</span>
+        <div class="lang-name">ภาษาไทย</div>
+        <div class="lang-native">Thai</div>
+      </div>
+      <div class="lang-opt" id="lang-en" onclick="setLang('en')">
+        <span class="lang-flag">🇺🇸</span>
+        <div class="lang-name">English</div>
+        <div class="lang-native">English</div>
+      </div>
+      <div class="lang-opt" id="lang-zh" onclick="setLang('zh')">
+        <span class="lang-flag">🇨🇳</span>
+        <div class="lang-name">中文</div>
+        <div class="lang-native">Chinese</div>
+      </div>
+      <div class="lang-opt" id="lang-ja" onclick="setLang('ja')">
+        <span class="lang-flag">🇯🇵</span>
+        <div class="lang-name">日本語</div>
+        <div class="lang-native">Japanese</div>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
