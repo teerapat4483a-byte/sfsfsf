@@ -1161,46 +1161,61 @@ canvas#lc{width:100%;display:block}
 
 <!-- ORDER CONFIRM MODAL -->
 <div class="order-modal-overlay" id="order-modal" onclick="if(event.target===this)closeOrderModal()">
-  <div class="order-modal">
-    <div class="om-header">
-      <div class="om-sym" id="om-sym">BTC/THB</div>
-      <button class="om-close" onclick="closeOrderModal()">×</button>
+  <div class="order-modal" style="background:#1a1d2e;border-radius:20px 20px 0 0;padding:1.25rem 1.25rem 2rem;width:100%;max-width:480px">
+    <!-- Header -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+      <div style="font-size:17px;font-weight:800;color:#fff" id="om-sym">BTC/THB</div>
+      <button onclick="closeOrderModal()" style="background:rgba(255,255,255,.1);border:none;border-radius:50%;width:28px;height:28px;color:#aaa;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">×</button>
+    </div>
+    <div style="height:1px;background:rgba(255,255,255,.08);margin-bottom:1.25rem"></div>
+
+    <!-- Time selection -->
+    <div style="font-size:12px;color:#6b7280;font-weight:600;letter-spacing:.5px;margin-bottom:.75rem">ระยะเวลาการคัดเลือก</div>
+    <div style="display:flex;gap:8px;margin-bottom:1.25rem">
+      <button class="om-time-btn active" onclick="setOmTime(180,this)" style="flex:1;padding:12px;background:var(--green);color:#000;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer">180 S</button>
+      <button class="om-time-btn" onclick="setOmTime(300,this)" style="flex:1;padding:12px;background:rgba(0,192,135,.3);color:var(--green);border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer">300 S</button>
+      <button class="om-time-btn" onclick="setOmTime(600,this)" style="flex:1;padding:12px;background:rgba(0,192,135,.3);color:var(--green);border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer">600 S</button>
+    </div>
+    <div style="height:1px;background:rgba(255,255,255,.08);margin-bottom:1.25rem"></div>
+
+    <!-- Amount presets -->
+    <div style="font-size:12px;color:#6b7280;font-weight:600;letter-spacing:.5px;margin-bottom:.75rem">เลือกจำนวนเงิน</div>
+    <div style="display:flex;gap:8px;margin-bottom:.875rem">
+      <button class="om-amt-btn active" onclick="setOmAmt(1000,this)" style="flex:1;padding:12px 4px;background:var(--green);color:#000;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;text-align:center"><div>1000</div><div style="font-size:10px;opacity:.7">฿</div></button>
+      <button class="om-amt-btn" onclick="setOmAmt(3000,this)" style="flex:1;padding:12px 4px;background:var(--card2);color:#fff;border:1px solid var(--border);border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;text-align:center"><div>3000</div><div style="font-size:10px;opacity:.5">฿</div></button>
+      <button class="om-amt-btn" onclick="setOmAmt(5000,this)" style="flex:1;padding:12px 4px;background:var(--card2);color:#fff;border:1px solid var(--border);border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;text-align:center"><div>5000</div><div style="font-size:10px;opacity:.5">฿</div></button>
+    </div>
+    <div style="height:1px;background:rgba(255,255,255,.08);margin-bottom:1rem"></div>
+
+    <!-- Custom amount -->
+    <div style="font-size:12px;color:#6b7280;margin-bottom:.5rem">จำนวนเงินที่กำหนดเอง</div>
+    <input id="om-custom" type="number" placeholder="กรุณาระบุจำนวนเงิน" min="1" oninput="onOmCustom()"
+      style="width:100%;padding:12px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;font-size:15px;color:#fff;outline:none;margin-bottom:.625rem">
+    <div style="font-size:12px;color:#6b7280;margin-bottom:1.25rem">สมดุล: <span id="om-balance" style="color:var(--green);font-weight:700">0.00000000</span> ฿</div>
+
+    <!-- Summary table -->
+    <div style="background:rgba(255,255,255,.04);border-radius:10px;overflow:hidden;margin-bottom:1.25rem">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;padding:.625rem .875rem;border-bottom:1px solid rgba(255,255,255,.06)">
+        <div style="font-size:10px;color:#6b7280">เครื่องหมาย</div>
+        <div style="font-size:10px;color:#6b7280">ทิศทาง</div>
+        <div style="font-size:10px;color:#6b7280">ราคา</div>
+        <div style="font-size:10px;color:#6b7280">เงินทุน</div>
+        <div style="font-size:10px;color:#6b7280">คาดการณ์กำไร</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;padding:.75rem .875rem;align-items:center">
+        <div style="font-size:12px;color:#fff;font-weight:600" id="om-sym2">BTC/THB</div>
+        <div><span id="om-dir-label" style="color:var(--green);font-size:12px;font-weight:700">ซื้อ</span></div>
+        <div style="color:var(--red);font-size:12px;font-weight:700" id="om-price-show">฿0</div>
+        <div style="color:#fff;font-size:12px;font-weight:700" id="om-amt-show">10 ฿</div>
+        <div style="color:var(--green);font-size:12px;font-weight:700" id="om-profit-show">0 ฿</div>
+      </div>
     </div>
 
-    <div class="om-section-label">ระยะเวลาการคัดเลือก</div>
-    <div class="om-time-btns">
-      <button class="om-time-btn active" onclick="setOmTime(180,this)">180 S</button>
-      <button class="om-time-btn" onclick="setOmTime(300,this)">300 S</button>
-      <button class="om-time-btn" onclick="setOmTime(600,this)">600 S</button>
-    </div>
-
-    <div class="om-sep"></div>
-    <div class="om-section-label">เลือกจำนวนเงิน</div>
-    <div class="om-amt-btns">
-      <button class="om-amt-btn active" onclick="setOmAmt(1000,this)"><div>1000</div><div style="font-size:10px">฿</div></button>
-      <button class="om-amt-btn" onclick="setOmAmt(3000,this)"><div>3000</div><div style="font-size:10px">฿</div></button>
-      <button class="om-amt-btn" onclick="setOmAmt(5000,this)"><div>5000</div><div style="font-size:10px">฿</div></button>
-    </div>
-
-    <div class="om-sep"></div>
-    <div class="om-custom-label">จำนวนเงินที่กำหนดเอง</div>
-    <input class="om-custom-inp" id="om-custom" type="number" placeholder="กรุณาระบุจำนวนเงิน" min="1" oninput="onOmCustom()">
-    <div class="om-balance">สมดุล: <span id="om-balance">0.00000000</span> ฿</div>
-
-    <table class="om-table">
-      <tr>
-        <th>เครื่องหมาย</th><th>ทิศทาง</th><th>ราคา</th><th>เงินทุน</th><th>คาดการณ์กำไร</th>
-      </tr>
-      <tr>
-        <td id="om-sym2">BTC/THB</td>
-        <td><span id="om-dir-label" class="om-dir-up">ซื้อ</span></td>
-        <td id="om-price-show" style="color:var(--red);font-weight:700">฿0</td>
-        <td id="om-amt-show">0 ฿</td>
-        <td id="om-profit-show" style="color:var(--green)">0 ฿</td>
-      </tr>
-    </table>
-
-    <button class="btn-confirm" id="btn-confirm" onclick="confirmOrder()">ยืนยันรายการ</button>
+    <!-- Confirm button -->
+    <button id="btn-confirm" onclick="confirmOrder()"
+      style="width:100%;padding:15px;border:none;border-radius:12px;background:var(--green);color:#000;font-size:16px;font-weight:800;cursor:pointer;letter-spacing:.3px">
+      ยืนยันรายการ
+    </button>
   </div>
 </div>
 
@@ -1889,14 +1904,34 @@ function openOrderModal(){
   document.getElementById('om-sym2').textContent=selSym+'/THB';
   document.getElementById('om-balance').textContent=cash.toFixed(8);
   document.getElementById('om-price-show').textContent='฿'+Math.round(price).toLocaleString();
-  document.getElementById('om-dir-label').textContent=buySell==='buy'?'ซื้อ':'ขาย';
-  document.getElementById('om-dir-label').className=buySell==='buy'?'om-dir-up':'om-dir-dn';
-  const bc=document.getElementById('btn-confirm');if(bc){bc.textContent='ยืนยัน'+(buySell==='buy'?'ซื้อ':'ขาย');bc.className='btn-confirm '+(buySell==='sell'?'sell':'');}
+  const dirEl=document.getElementById('om-dir-label');
+  dirEl.textContent=buySell==='buy'?'ซื้อ':'ขาย';
+  dirEl.style.color=buySell==='buy'?'var(--green)':'var(--red)';
+  const bc=document.getElementById('btn-confirm');
+  if(bc){
+    bc.textContent='ยืนยัน'+(buySell==='buy'?'ซื้อ':'ขาย');
+    bc.style.background=buySell==='buy'?'var(--green)':'var(--red)';
+    bc.style.color=buySell==='buy'?'#000':'#fff';
+  }
   updateOmSummary();document.getElementById('order-modal').classList.add('show');
 }
 function closeOrderModal(){document.getElementById('order-modal').classList.remove('show');}
-function setOmTime(sec,el){omTime=sec;document.querySelectorAll('.om-time-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');}
-function setOmAmt(amt,el){omAmt=amt;document.getElementById('om-custom').value='';document.querySelectorAll('.om-amt-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');updateOmSummary();}
+function setOmTime(sec,el){
+  omTime=sec;
+  document.querySelectorAll('.om-time-btn').forEach(b=>{
+    b.style.background='rgba(0,192,135,.3)';b.style.color='var(--green)';
+  });
+  el.style.background='var(--green)';el.style.color='#000';
+}
+function setOmAmt(amt,el){
+  omAmt=amt;
+  document.getElementById('om-custom').value='';
+  document.querySelectorAll('.om-amt-btn').forEach(b=>{
+    b.style.background='var(--card2)';b.style.color='#fff';b.style.borderColor='var(--border)';
+  });
+  el.style.background='var(--green)';el.style.color='#000';el.style.borderColor='var(--green)';
+  updateOmSummary();
+}
 function onOmCustom(){const v=parseFloat(document.getElementById('om-custom').value)||0;if(v>0){omAmt=v;document.querySelectorAll('.om-amt-btn').forEach(b=>b.classList.remove('active'));}updateOmSummary();}
 function updateOmSummary(){document.getElementById('om-amt-show').textContent=omAmt.toLocaleString()+' ฿';document.getElementById('om-profit-show').textContent=Math.round(omAmt*0.85).toLocaleString()+' ฿';document.getElementById('om-balance').textContent=cash.toFixed(8);}
 async function confirmOrder(){
