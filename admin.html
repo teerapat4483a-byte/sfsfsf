@@ -152,6 +152,21 @@ tr:hover td{background:#fafafa}
 <div class="toast" id="toast"></div>
 
 <script>
+// Early definitions for HTML onclick handlers
+window.doAdminLogin=function(){
+  const u=document.getElementById('a-user').value;
+  const p=document.getElementById('a-pass').value;
+  if(u===ADMIN_USER && p===ADMIN_PASS){
+    isAdmin=true;
+    sessionStorage.setItem('is_admin','1');
+    document.getElementById('login-overlay').style.display='none';
+    document.getElementById('main-content').style.display='block';
+    loadUsers();loadWithdrawals();loadChatRooms();subscribeRooms();
+  } else {
+    document.getElementById('a-err').textContent='รหัสผ่านไม่ถูกต้อง';
+  }
+}
+
 const SUPABASE_URL = 'https://myjawbecdfwwndyrjttx.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15amF3YmVjZGZ3d25keXJqdHR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0OTMxNzksImV4cCI6MjA5OTA2OTE3OX0.CdysmTFeVMErbKd4OqCRoFLdRKenqfvKkoXw4ISIoOs';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -325,8 +340,7 @@ function appendAdminMsg(m){
   const isAdmin=m.sender==='admin';
   const div=document.createElement('div');
   div.className='admin-msg-wrap '+(isAdmin?'me':'user');
-  div.innerHTML=`<div class="admin-msg-bubble">${m.message.replace(/
-/g,'<br>')}</div>
+  div.innerHTML=`<div class="admin-msg-bubble">${(m.message||'').split('\n').join('<br>')}</div>
     <div class="admin-msg-time">${isAdmin?'Admin':'ผู้เล่น'} • ${fmtAdminTime(m.created_at||new Date())}</div>`;
   el.appendChild(div);
   el.scrollTop=el.scrollHeight;
