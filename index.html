@@ -196,8 +196,11 @@ canvas#live-canvas{width:100%;height:100px;border-radius:6px;display:block}
 <body>
 
 <!-- LOGIN -->
-<div class="login-screen" id="login-screen">
+<div class="login-screen" id="login-screen" onclick="if(event.target===this)closeLogin()">
   <div class="login-card">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:.5rem">
+      <button onclick="closeLogin()" style="background:none;border:none;color:var(--sub);font-size:22px;cursor:pointer;line-height:1">×</button>
+    </div>
     <div class="logo-wrap">
       <div class="logo-icon">📈</div>
       <div class="logo-name">TradeX</div>
@@ -219,7 +222,7 @@ canvas#live-canvas{width:100%;height:100px;border-radius:6px;display:block}
       <div class="auth-msg" id="r-msg"></div>
       <button class="btn-auth" onclick="doRegister()">สมัครสมาชิก</button>
     </div>
-    <div class="admin-link"><a href="admin.html">เข้าหน้า Admin</a></div>
+
   </div>
 </div>
 
@@ -536,6 +539,10 @@ function doLogout(){
   document.getElementById('topbar-user').style.display='none';
   document.getElementById('home-username').textContent='ผู้เยี่ยมชม';
   updateStats();
+}
+
+function closeLogin(){
+  document.getElementById('login-screen').style.display='none';
 }
 
 function requireLogin(){
