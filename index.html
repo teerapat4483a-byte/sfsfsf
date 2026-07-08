@@ -1728,7 +1728,14 @@ function renderMarket(){
   const data=mktCat==='all'?ASSETS:ASSETS.filter(a=>a.cat===mktCat);
   el.innerHTML=mlistHTML(data);
 }
-function goTrade(sym){selSym=sym;switchPage('trade',document.getElementById('nav-trade'));}
+function goTrade(sym){
+  if(sym!==selSym){
+    selSym=sym;
+    if(tfHists[sym]) delete tfHists[sym];
+    curTF='1d';
+  }
+  switchPage('trade',document.getElementById('nav-trade'));
+}
 function updateTicker(){
   const ids=[['BTC','mt-btc','mt-btc-chg'],['ETH','mt-eth','mt-eth-chg'],['BNB','mt-bnb','mt-bnb-chg']];
   ids.forEach(([s,pid,cid])=>{
@@ -1746,7 +1753,15 @@ function renderSymScroll(){
   const el=document.getElementById('sym-scroll');if(!el)return;
   el.innerHTML=ASSETS.map(a=>`<button class="sym-btn ${a.sym===selSym?'active':''}" onclick="selSymbol('${a.sym}')">${a.sym}/THB</button>`).join('');
 }
-function selSymbol(sym){selSym=sym;renderSymScroll();updateTradeCard();}
+function selSymbol(sym){
+  if(sym!==selSym){
+    selSym=sym;
+    // Reset TF data for new symbol so it regenerates fresh
+    if(tfHists[sym]) delete tfHists[sym];
+    curTF='1d';
+  }
+  renderSymScroll();updateTradeCard();
+}
 function setBuySell(v){
   buySell=v;
   document.getElementById('bs-buy').classList.toggle('active',v==='buy');
@@ -1799,6 +1814,14 @@ function updTradeTotal(){
   }
 }
 function updateTradeCard(){
+  // Reset to 1D and sync button when switching symbol or entering trade page
+  if(curTF==='1d'||!tfHists[selSym]){
+    curTF='1d';
+    document.querySelectorAll('.tf-btn').forEach(b=>{
+      const isd=b.onclick&&b.onclick.toString().includes("'1d'");
+      b.classList.toggle('active', b.textContent.trim()==='1D');
+    });
+  }
   const hist=hists[selSym],prev=hist[hist.length-2]||hist[0],cur=prices[selSym],chg=pct(cur,prev),up=chg>=0;
   const ul=document.getElementById('coin-unit-label');if(ul)ul.textContent=selSym;
   const sp=document.getElementById('tpc-sym');if(sp)sp.textContent=selSym+'/THB';
@@ -1812,54 +1835,36 @@ function updateTradeCard(){
 
 // CHART
 // Generate realistic OHLC candles directly (not price array)
-function genOHLCCandles(base, count, vol, trend){
+function genOHLCCandles(base, count, vol){
   const candles = [];
-  let price = base * (0.65 + Math.random()*0.5);
-  let momentum = 0;
-  const trendStr = trend||0; // positive = uptrend
+  // Start close to base ±8% only
+  let price = base * (0.92 + Math.random()*0.16);
+  let mom = 0;
+
   for(let i=0;i<count;i++){
-    const progress = i/count;
-    // momentum-based random walk
-    // Damped random walk - prevents runaway trends
-    momentum = momentum*0.6 + (Math.random()-0.5)*0.35 + trendStr*0.05;
-    momentum = Math.max(-1, Math.min(1, momentum)); // clamp
-    const change = momentum * vol;
+    // Mean-revert toward base
+    const pull = (base - price) / base * 0.12;
+    mom = mom*0.55 + (Math.random()-0.5)*0.3 + pull;
+    mom = Math.max(-0.3, Math.min(0.3, mom));
+
     const o = price;
-    const c = Math.max(0.01, price*(1+change));
+    const c = Math.max(base*0.4, Math.min(base*2.8, o*(1 + mom*vol)));
     const body = Math.abs(c-o);
-    const minBody = price*vol*0.3;
-    const effectBody = Math.max(body, minBody);
-    // wicks: upper and lower, scaled to body
-    const upperWick = effectBody * (0.2 + Math.random()*0.8);
-    const lowerWick = effectBody * (0.2 + Math.random()*0.8);
-    const h = Math.max(o,c) + upperWick;
-    const l = Math.min(o,c) - lowerWick;
+    const minB = o*vol*0.2;
+    const eb = Math.max(body, minB);
+    const uw = eb*(0.1 + Math.random()*0.5);
+    const lw = eb*(0.1 + Math.random()*0.5);
+    const dp = o>1000?0:o>10?2:4;
     candles.push({
-      o: +o.toFixed(o>1000?0:4),
-      h: +h.toFixed(h>1000?0:4),
-      l: +Math.max(0.01,l).toFixed(l>1000?0:4),
-      c: +c.toFixed(c>1000?0:4),
-      vol: 0.15 + Math.random()*0.85
+      o:+o.toFixed(dp), c:+c.toFixed(dp),
+      h:+(Math.max(o,c)+uw).toFixed(dp),
+      l:+(Math.max(0.01,Math.min(o,c)-lw)).toFixed(dp),
+      vol:0.2+Math.random()*0.8
     });
     price = c;
   }
-  // Last few candles gradually approach base price naturally
-  const len = candles.length;
-  if(len > 5){
-    const endPrice = candles[len-1].c;
-    const diff = base - endPrice;
-    // Smooth approach over last 10 candles
-    for(let i=Math.max(0,len-10);i<len;i++){
-      const ratio = (i-(len-10))/(10);
-      const adj = diff * ratio * 0.3;
-      candles[i].o = +(candles[i].o + adj).toFixed(4);
-      candles[i].c = +(candles[i].c + adj).toFixed(4);
-      candles[i].h = +(candles[i].h + adj).toFixed(4);
-      candles[i].l = +(candles[i].l + adj).toFixed(4);
-    }
-    // Set very last candle close to base
-    candles[len-1].c = base;
-  }
+  // Don't force last candle - let it end naturally near base
+  // The mean-reversion already keeps prices close to base
   return candles;
 }
 
@@ -1872,12 +1877,12 @@ function genSmoothData(base,points,vol){
   return genTFData(base, points, Math.max(vol,0.012));
 }
 const TF_CONFIG={
-  '1m': {vol:0.008, count:60, trend:0.005, label:'min', interval:1},
-  '10m':{vol:0.012, count:60, trend:0.006, label:'min', interval:10},
-  '1h': {vol:0.018, count:60, trend:0.007, label:'h',   interval:1},
-  '1d': {vol:0.025, count:90, trend:0.008, label:'D',   interval:1},
-  '1mo':{vol:0.04,  count:30, trend:0.01,  label:'Mo',  interval:1},
-  '1y': {vol:0.055, count:30, trend:0.012, label:'Y',   interval:1},
+  '1m': {vol:0.006, count:60, label:'min'},
+  '10m':{vol:0.010, count:60, label:'min'},
+  '1h': {vol:0.015, count:60, label:'h'},
+  '1d': {vol:0.022, count:90, label:'D'},
+  '1mo':{vol:0.035, count:30, label:'Mo'},
+  '1y': {vol:0.05,  count:30, label:'Y'},
 };
 
 function ensureTFData(sym){
@@ -1886,7 +1891,7 @@ function ensureTFData(sym){
   Object.keys(TF_CONFIG).forEach(tf=>{
     if(!tfHists[sym][tf]){
       const cfg=TF_CONFIG[tf];
-      tfHists[sym][tf]=genOHLCCandles(b,cfg.count,cfg.vol,cfg.trend);
+      tfHists[sym][tf]=genOHLCCandles(b,cfg.count,cfg.vol,0);
     }
   });
 }
@@ -1940,7 +1945,8 @@ function drawTradeChart(){
   const padL=90,padR=70,padT=20,padB=30,chartW=W-padL-padR,chartH=H-padT-padB;
   const cP=candles.flatMap(c=>[c.h,c.l]);
   const rawMn=Math.min(...cP),rawMx=Math.max(...cP);
-  const padding=(rawMx-rawMn)*0.08; // 8% padding top/bottom
+  const rngSize=rawMx-rawMn||rawMx*0.1;
+  const padding=rngSize*0.1;
   const mn=rawMn-padding,mx=rawMx+padding,rng=mx-mn||1;
   function py(v){return padT+chartH-(v-mn)/rng*chartH;}
   function px(i){return padL+(i+0.5)/candles.length*chartW;}
