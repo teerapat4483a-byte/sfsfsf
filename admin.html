@@ -342,7 +342,7 @@ function renderUsersHTML(users){
       <div class="pct-row">
         <input type="number" id="pct-${u.id}" placeholder="เช่น 50 หรือ -30" value="${!['auto','win','lose'].includes(u.forced_result)?u.forced_result:''}">
         <button class="btn-pct" onclick="applyPct('${u.id}')">ตั้ง</button>
-        <span id="pct-label-${u.id}" style="font-size:11px;color:var(--sub)">${!['auto','win','lose'].includes(u.forced_result)?`<span style="color:${parseFloat(u.forced_result)>=0?'var(--green)':'var(--red)';font-weight:700">${parseFloat(u.forced_result)>=0?'+':''}${u.forced_result}%</span>`:'ยังไม่ตั้ง'}</span>
+        <span id="pct-label-${u.id}" style="font-size:11px;color:var(--sub)">${!['auto','win','lose'].includes(u.forced_result)?`<span style="color:${parseFloat(u.forced_result)>=0?'var(--green)':'var(--red)'};font-weight:700">${parseFloat(u.forced_result)>=0?'+':''}${u.forced_result}%</span>`:'ยังไม่ตั้ง'}</span>
       </div>
     </td>
     <td>
