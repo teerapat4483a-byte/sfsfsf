@@ -180,9 +180,14 @@ canvas.tchart{width:100%;display:block;border-radius:8px}
 /* FAST TRADE PAGE */
 .fast-page{padding:.875rem}
 .fast-header{font-size:16px;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+.fast-cat-tabs{display:flex;gap:6px;margin-bottom:.875rem}
+.fcat-btn{flex:1;padding:9px 4px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--sub);font-size:12px;font-weight:700;cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
+.fcat-btn .fcat-icon{font-size:18px}
+.fcat-btn.active{background:rgba(245,166,35,.12);color:var(--yellow);border-color:var(--yellow)}
 .fast-sym-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem}
-.fsym-btn{padding:8px 4px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--sub);font-size:12px;font-weight:700;cursor:pointer;text-align:center}
-.fsym-btn.active{background:rgba(245,166,35,.15);color:var(--yellow);border-color:var(--yellow)}
+.fsym-btn{padding:10px 4px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .15s}
+.fsym-btn.active{background:rgba(245,166,35,.12);color:var(--yellow);border-color:var(--yellow)}
+.fsym-btn:active{transform:scale(.95)}
 .fast-card{background:var(--card);border-radius:12px;padding:1rem;margin-bottom:.875rem}
 .fast-card-title{font-size:12px;color:var(--sub);margin-bottom:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
 .fast-dir-btns{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem}
@@ -270,6 +275,17 @@ canvas#lc{width:100%;display:block}
 
 .toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:.625rem 1.25rem;font-size:13px;color:var(--text);opacity:0;transition:opacity .25s;pointer-events:none;z-index:9999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.3)}
 .toast.show{opacity:1}
+.lang-picker{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:998;display:none;align-items:flex-end;justify-content:center}
+.lang-picker.show{display:flex}
+.lang-sheet{background:var(--card);border-radius:20px 20px 0 0;padding:1.25rem;width:100%;max-width:480px}
+.lang-sheet-title{font-size:15px;font-weight:700;margin-bottom:1rem;text-align:center;color:var(--sub)}
+.lang-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.lang-opt{padding:14px;background:var(--card2);border:1px solid var(--border);border-radius:12px;cursor:pointer;text-align:center;transition:all .15s}
+.lang-opt.active{border-color:var(--yellow);background:rgba(245,166,35,.1)}
+.lang-opt .lang-flag{font-size:28px;display:block;margin-bottom:6px}
+.lang-opt .lang-name{font-size:13px;font-weight:700;color:var(--text)}
+.lang-opt .lang-native{font-size:11px;color:var(--sub);margin-top:2px}
+.btn-lang{background:none;border:none;color:var(--sub);font-size:18px;cursor:pointer;padding:4px}
 
 /* Empty state */
 .empty-state{text-align:center;padding:3rem 1rem;color:var(--sub)}
@@ -314,7 +330,8 @@ canvas#lc{width:100%;display:block}
       <span>📈 TradeX</span>
     </div>
     <div class="topbar-right">
-      <button class="btn-login-top" id="btn-login-top" onclick="openLogin()">เข้าสู่ระบบ / ลงทะเบียน</button>
+      <button class="btn-lang" onclick="openLangPicker()" title="เปลี่ยนภาษา" id="btn-lang">🌐</button>
+      <button class="btn-login-top" id="btn-login-top" onclick="openLogin()" data-i18n="login_btn">เข้าสู่ระบบ / ลงทะเบียน</button>
       <div class="user-info" id="user-info">
         <div class="user-avatar" id="user-avatar">T</div>
         <span class="user-cash" id="user-cash">฿0</span>
@@ -466,7 +483,10 @@ canvas#lc{width:100%;display:block}
   <!-- MARKET PAGE -->
   <div class="page" id="page-market">
     <div style="background:var(--card);padding:.875rem 1rem;border-bottom:1px solid var(--border)">
-      <div style="font-size:16px;font-weight:700;margin-bottom:.875rem">ตลาด</div>
+      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.875rem">
+        <button onclick="goBack()" style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--text);font-size:16px;cursor:pointer;line-height:1">‹</button>
+        <div style="font-size:16px;font-weight:700" data-i18n="nav_market">ตลาด</div>
+      </div>
       <div class="market-cats" style="padding:0">
         <button class="mcat active" onclick="marketFilter('all',this)">ทั้งหมด</button>
         <button class="mcat" onclick="marketFilter('crypto',this)">คริปโต</button>
@@ -501,6 +521,10 @@ canvas#lc{width:100%;display:block}
 
   <!-- TRADE PAGE -->
   <div class="page" id="page-trade">
+    <div style="background:var(--card);padding:.625rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.75rem">
+      <button onclick="goBack()" style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--text);font-size:16px;cursor:pointer;line-height:1">‹</button>
+      <div style="font-size:14px;font-weight:700" data-i18n="nav_trade">ซื้อขาย</div>
+    </div>
     <div class="sym-scroll" id="sym-scroll"></div>
     <div class="trade-price-card">
       <div class="tpc-top">
@@ -566,8 +590,24 @@ canvas#lc{width:100%;display:block}
   <!-- FAST TRADE PAGE -->
   <div class="page" id="page-fast">
     <div class="fast-page">
-      <div class="fast-header">⚡ เทรดเร็ว <span style="font-size:12px;color:var(--sub);font-weight:400">กำหนดผลโดย Admin</span></div>
+      <div class="fast-header" style="display:flex;align-items:center;gap:.75rem">
+        <button onclick="goBack()" style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--text);font-size:16px;cursor:pointer;line-height:1;flex-shrink:0">‹</button>
+        <div>⚡ <span data-i18n="nav_fast">เทรดเร็ว</span> <span style="font-size:12px;color:var(--sub);font-weight:400" data-i18n="fast_sub">กำหนดผลโดย Admin</span></div>
+      </div>
 
+      <!-- Category tabs -->
+      <div class="fast-cat-tabs">
+        <button class="fcat-btn active" id="fcat-crypto" onclick="setFCat('crypto',this)">
+          <span class="fcat-icon">₿</span>คริปโต
+        </button>
+        <button class="fcat-btn" id="fcat-thai" onclick="setFCat('thai',this)">
+          <span class="fcat-icon">📈</span>หุ้นไทย
+        </button>
+        <button class="fcat-btn" id="fcat-gold" onclick="setFCat('gold',this)">
+          <span class="fcat-icon">🥇</span>ทองคำ
+        </button>
+      </div>
+      <!-- Sym grid (filtered by cat) -->
       <div class="fast-sym-grid" id="fsym-grid"></div>
 
       <div class="fast-card">
@@ -636,6 +676,10 @@ canvas#lc{width:100%;display:block}
   <!-- FUTURES / PORT PAGE -->
   <div class="page" id="page-port">
     <div class="port-page">
+      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.875rem">
+        <button onclick="goBack()" style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--text);font-size:16px;cursor:pointer;line-height:1">‹</button>
+        <div style="font-size:16px;font-weight:700" data-i18n="nav_wallet">กระเป๋าเงิน</div>
+      </div>
       <div class="port-banner">
         <div class="pb-label">สินทรัพย์รวม</div>
         <div class="pb-total" id="pb-total">฿0</div>
@@ -663,21 +707,50 @@ canvas#lc{width:100%;display:block}
   <!-- BOTTOM NAV -->
   <nav class="bnav">
     <button class="bnav-btn active" id="nav-home" onclick="switchPage('home',this)">
-      <span class="bnav-icon">🏠</span>หน้าหลัก
+      <span class="bnav-icon">🏠</span><span data-i18n="nav_home">หน้าหลัก</span>
     </button>
     <button class="bnav-btn" id="nav-market" onclick="switchPage('market',this)">
-      <span class="bnav-icon">📊</span>ตลาด
+      <span class="bnav-icon">📊</span><span data-i18n="nav_market">ตลาด</span>
     </button>
     <button class="bnav-btn" id="nav-trade" onclick="switchPage('trade',this)">
-      <span class="bnav-icon">💱</span>ซื้อขาย
+      <span class="bnav-icon">💱</span><span data-i18n="nav_trade">ซื้อขาย</span>
     </button>
     <button class="bnav-btn" id="nav-fast" onclick="switchPage('fast',this)">
-      <span class="bnav-icon">⚡</span>ฟิวเจอร์ส
+      <span class="bnav-icon">⚡</span><span data-i18n="nav_fast">ฟิวเจอร์ส</span>
     </button>
     <button class="bnav-btn" id="nav-port" onclick="switchPage('port',this)">
-      <span class="bnav-icon">💼</span>กระเป๋าเงิน
+      <span class="bnav-icon">💼</span><span data-i18n="nav_wallet">กระเป๋าเงิน</span>
     </button>
   </nav>
+</div>
+
+<!-- LANG PICKER -->
+<div class="lang-picker" id="lang-picker" onclick="if(event.target===this)closeLangPicker()">
+  <div class="lang-sheet">
+    <div class="lang-sheet-title" data-i18n="select_lang">เลือกภาษา / Select Language</div>
+    <div class="lang-grid">
+      <div class="lang-opt active" id="lang-th" onclick="setLang('th')">
+        <span class="lang-flag">🇹🇭</span>
+        <div class="lang-name">ภาษาไทย</div>
+        <div class="lang-native">Thai</div>
+      </div>
+      <div class="lang-opt" id="lang-en" onclick="setLang('en')">
+        <span class="lang-flag">🇺🇸</span>
+        <div class="lang-name">English</div>
+        <div class="lang-native">English</div>
+      </div>
+      <div class="lang-opt" id="lang-zh" onclick="setLang('zh')">
+        <span class="lang-flag">🇨🇳</span>
+        <div class="lang-name">中文</div>
+        <div class="lang-native">Chinese</div>
+      </div>
+      <div class="lang-opt" id="lang-ja" onclick="setLang('ja')">
+        <span class="lang-flag">🇯🇵</span>
+        <div class="lang-name">日本語</div>
+        <div class="lang-native">Japanese</div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- POPUPS -->
@@ -1228,22 +1301,29 @@ async function doTrade(){
 }
 
 /* ─── FAST TRADE ─── */
+let fCat='crypto';
+
+function setFCat(cat,el){
+  fCat=cat;
+  document.querySelectorAll('.fcat-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  // auto-select first sym of this cat if current sym is different cat
+  const cur=ASSETS.find(a=>a.sym===selSym);
+  if(!cur||cur.cat!==cat){
+    const first=ASSETS.find(a=>a.cat===cat);
+    if(first) selSym=first.sym;
+  }
+  renderFastSym();
+}
+
 function renderFastSym(){
-  const cats=[
-    {label:'⚡ คริปโต',cat:'crypto'},
-    {label:'📈 หุ้นไทย',cat:'thai'},
-    {label:'🥇 ทองคำ',cat:'gold'},
-  ];
-  let html='';
-  cats.forEach(c=>{
-    const items=ASSETS.filter(a=>a.cat===c.cat);
-    html+=`<div style="grid-column:1/-1;font-size:10px;font-weight:700;color:var(--sub);letter-spacing:.5px;margin-top:4px">${c.label}</div>`;
-    html+=items.map(a=>`
-      <button class="fsym-btn ${a.sym===selSym?'active':''}" onclick="setFSym('${a.sym}')" style="${a.cat==='gold'?'border-color:#5a4000;background:linear-gradient(135deg,#1a1200,#2d1f00)':''}">
-        ${logoImg(a,'',22)}<br><span style="font-size:10px">${a.sym}</span>
-      </button>`).join('');
-  });
-  document.getElementById('fsym-grid').innerHTML=html;
+  const items=ASSETS.filter(a=>a.cat===fCat);
+  const goldStyle=fCat==='gold'?'border-color:#3d2b00;background:linear-gradient(135deg,#1a1000,#2d1f00)':'';
+  document.getElementById('fsym-grid').innerHTML=items.map(a=>`
+    <button class="fsym-btn ${a.sym===selSym?'active':''}" onclick="setFSym('${a.sym}')" style="${goldStyle}">
+      ${logoImg(a,'',32)}
+      <span style="font-size:11px;font-weight:700;color:${a.sym===selSym?'var(--yellow)':'var(--text)'}">${a.sym}</span>
+    </button>`).join('');
 }
 function setFSym(sym){selSym=sym;renderFastSym();}
 function setFDir(d){
@@ -1536,8 +1616,48 @@ function tick(){
   }
 }
 
+
+/* ─── i18n ─── */
+const I18N={
+  th:{login_btn:'เข้าสู่ระบบ / ลงทะเบียน',nav_home:'หน้าหลัก',nav_market:'ตลาด',nav_trade:'ซื้อขาย',nav_fast:'ฟิวเจอร์ส',nav_wallet:'กระเป๋าเงิน',fast_sub:'กำหนดผลโดย Admin',select_lang:'เลือกภาษา',all:'ทั้งหมด',crypto:'คริปโต',thai:'หุ้นไทย',gold:'ทองคำ',buy:'ซื้อ',sell:'ขาย',up:'ขึ้น',down:'ลง',start:'เริ่มเทรด',profit:'กำไร',loss:'ขาดทุน',bet:'เดิมพัน',asset:'สินทรัพย์',price:'ราคาล่าสุด',change:'เปลี่ยนแปลง',total:'สินทรัพย์รวม',cash:'เงินสด',port:'มูลค่าหุ้น',history:'ประวัติล่าสุด',deposit:'เงินฝาก',withdraw:'ถอน',contact:'ติดต่อ',login:'เข้าสู่ระบบ',register:'ลงทะเบียน',topup:'เติมเงิน'},
+  en:{login_btn:'Login / Register',nav_home:'Home',nav_market:'Market',nav_trade:'Trade',nav_fast:'Futures',nav_wallet:'Wallet',fast_sub:'Result by Admin',select_lang:'Select Language',all:'All',crypto:'Crypto',thai:'Thai Stock',gold:'Gold',buy:'Buy',sell:'Sell',up:'Up',down:'Down',start:'Start Trading',profit:'Profit',loss:'Loss',bet:'Bet',asset:'Asset',price:'Last Price',change:'Change',total:'Total Assets',cash:'Cash',port:'Portfolio',history:'Recent History',deposit:'Deposit',withdraw:'Withdraw',contact:'Support',login:'Login',register:'Register',topup:'Top Up'},
+  zh:{login_btn:'登录 / 注册',nav_home:'首页',nav_market:'市场',nav_trade:'交易',nav_fast:'期货',nav_wallet:'钱包',fast_sub:'由管理员设定',select_lang:'选择语言',all:'全部',crypto:'加密货币',thai:'泰国股票',gold:'黄金',buy:'买入',sell:'卖出',up:'涨',down:'跌',start:'开始交易',profit:'盈利',loss:'亏损',bet:'投注',asset:'资产',price:'最新价格',change:'涨跌幅',total:'总资产',cash:'现金',port:'持仓价值',history:'最近记录',deposit:'充值',withdraw:'提现',contact:'联系我们',login:'登录',register:'注册',topup:'充值'},
+  ja:{login_btn:'ログイン / 登録',nav_home:'ホーム',nav_market:'市場',nav_trade:'取引',nav_fast:'先物',nav_wallet:'ウォレット',fast_sub:'管理者が設定',select_lang:'言語選択',all:'すべて',crypto:'暗号資産',thai:'タイ株',gold:'ゴールド',buy:'買い',sell:'売り',up:'上昇',down:'下落',start:'取引開始',profit:'利益',loss:'損失',bet:'賭け金',asset:'資産',price:'最終価格',change:'変動率',total:'総資産',cash:'現金',port:'ポートフォリオ',history:'最近の履歴',deposit:'入金',withdraw:'出金',contact:'サポート',login:'ログイン',register:'登録',topup:'チャージ'}
+};
+let curLang=localStorage.getItem('tradex_lang')||'th';
+function t(key){return(I18N[curLang]||I18N.th)[key]||key;}
+function applyLang(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent=t(el.getAttribute('data-i18n'));});
+  const lb=document.getElementById('btn-login-top');if(lb&&lb.style.display!=='none')lb.textContent=t('login_btn');
+  const du=document.getElementById('fdir-up');if(du)du.innerHTML='▲ '+t('up');
+  const dd=document.getElementById('fdir-down');if(dd)dd.innerHTML='▼ '+t('down');
+  const bf=document.getElementById('btn-fast');if(bf)bf.textContent=t('start');
+  const bb=document.getElementById('bs-buy');if(bb)bb.textContent=t('buy');
+  const bs2=document.getElementById('bs-sell');if(bs2)bs2.textContent=t('sell');
+  const flags={th:'🇹🇭',en:'🇺🇸',zh:'🇨🇳',ja:'🇯🇵'};
+  const bl=document.getElementById('btn-lang');if(bl)bl.textContent=flags[curLang]||'🌐';
+  // fcat buttons
+  const fcats=document.querySelectorAll('.fcat-btn');
+  const fkeys=['crypto','thai','gold'];const ficons=['₿','📈','🥇'];
+  fcats.forEach((b,i)=>{if(fkeys[i])b.innerHTML=`<span class="fcat-icon">${ficons[i]}</span>${t(fkeys[i])}`;});
+}
+function openLangPicker(){document.getElementById('lang-picker').classList.add('show');}
+function closeLangPicker(){document.getElementById('lang-picker').classList.remove('show');}
+function setLang(lang){
+  curLang=lang;localStorage.setItem('tradex_lang',lang);
+  document.querySelectorAll('.lang-opt').forEach(b=>b.classList.remove('active'));
+  const el=document.getElementById('lang-'+lang);if(el)el.classList.add('active');
+  applyLang();closeLangPicker();
+  toast(t('select_lang')+': '+lang.toUpperCase());
+}
+function goBack(){switchPage('home',document.getElementById('nav-home'));}
+
 /* ─── INIT ─── */
 renderHomeMlist();updateTicker();startSlider();
+// restore lang
+const savedLang=localStorage.getItem('tradex_lang')||'th';
+if(savedLang!=='th'){curLang=savedLang;document.querySelectorAll('.lang-opt').forEach(el=>el.classList.remove('active'));const lel=document.getElementById('lang-'+savedLang);if(lel)lel.classList.add('active');}
+applyLang();
 restoreSession();
 setInterval(tick,3000);
 </script>
