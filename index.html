@@ -291,6 +291,53 @@ canvas#lc{width:100%;display:block}
 .empty-state{text-align:center;padding:3rem 1rem;color:var(--sub)}
 .empty-state .ei{font-size:48px;margin-bottom:.75rem}
 .empty-state p{font-size:14px}
+
+/* Profile */
+.profile-card{background:linear-gradient(135deg,#1a1d2e,#0d1020);border-radius:16px;padding:1.25rem;margin-bottom:.875rem;border:1px solid var(--border);position:relative;overflow:hidden}
+.profile-card::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:var(--yellow);opacity:.04}
+.profile-avatar-wrap{display:flex;align-items:center;gap:1rem;margin-bottom:1rem}
+.profile-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--yellow),#e8860a);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#000;flex-shrink:0;border:2px solid rgba(245,166,35,.4);cursor:pointer;position:relative;overflow:hidden}
+.profile-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.profile-avatar .avatar-edit{position:absolute;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;font-size:18px}
+.profile-avatar:hover .avatar-edit{display:flex}
+.profile-info{}
+.profile-name{font-size:18px;font-weight:800;color:var(--text)}
+.profile-id{font-size:11px;color:var(--sub);margin-top:2px}
+.profile-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(245,166,35,.15);border:1px solid rgba(245,166,35,.3);border-radius:99px;padding:3px 10px;font-size:11px;color:var(--yellow);font-weight:700;margin-top:6px}
+.profile-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pstat{background:var(--bg);border-radius:10px;padding:.75rem;text-align:center}
+.pstat-val{font-size:15px;font-weight:800;color:var(--text)}
+.pstat-label{font-size:10px;color:var(--sub);margin-top:2px}
+
+/* Bank section */
+.bank-card{background:var(--card);border-radius:14px;padding:1rem;margin-bottom:.875rem;border:1px solid var(--border)}
+.bank-card-title{font-size:13px;font-weight:700;color:var(--sub);letter-spacing:.5px;text-transform:uppercase;margin-bottom:.875rem;display:flex;justify-content:space-between;align-items:center}
+.bank-edit-btn{background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.3);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--yellow);cursor:pointer;font-weight:700}
+.bank-display{display:flex;align-items:center;gap:.875rem}
+.bank-logo-circle{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.bank-info .bank-name{font-size:14px;font-weight:700}
+.bank-info .bank-number{font-size:13px;color:var(--sub);margin-top:2px;letter-spacing:1px}
+.bank-info .bank-owner{font-size:12px;color:var(--sub);margin-top:2px}
+.bank-empty{text-align:center;padding:1.25rem;color:var(--sub);font-size:13px}
+.bank-form{display:none}
+.bank-form.show{display:block}
+.bfinp{width:100%;padding:11px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);outline:none;margin-bottom:.75rem}
+.bfinp:focus{border-color:var(--yellow)}
+.bank-select{width:100%;padding:11px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);outline:none;margin-bottom:.75rem;cursor:pointer}
+.bank-select:focus{border-color:var(--yellow)}
+.btn-save-bank{width:100%;padding:12px;border:none;border-radius:10px;background:var(--yellow);color:#000;font-size:14px;font-weight:700;cursor:pointer}
+.withdraw-card{background:var(--card);border-radius:14px;padding:1rem;margin-bottom:.875rem;border:1px solid var(--border)}
+.withdraw-form{display:flex;gap:8px;margin-top:.875rem}
+.withdraw-inp{flex:1;padding:11px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);outline:none}
+.withdraw-inp:focus{border-color:var(--yellow)}
+.btn-withdraw{padding:11px 16px;background:#ef4444;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap}
+.menu-item{display:flex;align-items:center;justify-content:space-between;padding:.875rem 0;border-bottom:1px solid var(--border);cursor:pointer}
+.menu-item:last-child{border-bottom:none}
+.menu-item-left{display:flex;align-items:center;gap:.75rem}
+.menu-item-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.menu-item-label{font-size:14px;font-weight:600}
+.menu-item-sub{font-size:11px;color:var(--sub);margin-top:1px}
+.menu-arrow{color:var(--sub);font-size:18px}
 </style>
 </head>
 <body>
@@ -676,27 +723,95 @@ canvas#lc{width:100%;display:block}
   <!-- FUTURES / PORT PAGE -->
   <div class="page" id="page-port">
     <div class="port-page">
+      <!-- Header -->
       <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.875rem">
         <button onclick="goBack()" style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--text);font-size:16px;cursor:pointer;line-height:1">‹</button>
         <div style="font-size:16px;font-weight:700" data-i18n="nav_wallet">กระเป๋าเงิน</div>
       </div>
-      <div class="port-banner">
-        <div class="pb-label">สินทรัพย์รวม</div>
-        <div class="pb-total" id="pb-total">฿0</div>
-        <div class="pb-pnl up" id="pb-pnl">กำไร/ขาดทุน ฿0</div>
-        <div class="pb-row">
-          <div class="pb-stat">
-            <div class="pb-stat-label">เงินสด</div>
-            <div class="pb-stat-val" id="pb-cash">฿0</div>
+
+      <!-- Profile Card -->
+      <div class="profile-card">
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar" id="profile-avatar-wrap" onclick="triggerAvatarUpload()">
+            <span id="profile-avatar-text">A</span>
+            <img id="profile-avatar-img" src="" style="display:none">
+            <div class="avatar-edit">✏️</div>
           </div>
-          <div class="pb-stat">
-            <div class="pb-stat-label">มูลค่าหุ้น</div>
-            <div class="pb-stat-val" id="pb-port">฿0</div>
+          <input type="file" id="avatar-file-input" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)">
+          <div class="profile-info">
+            <div class="profile-name" id="profile-name">-</div>
+            <div class="profile-id" id="profile-id">ID: -</div>
+            <div class="profile-badge">⭐ สมาชิก VIP</div>
+          </div>
+        </div>
+        <div class="profile-stats">
+          <div class="pstat">
+            <div class="pstat-val up" id="pb-total">฿0</div>
+            <div class="pstat-label">สินทรัพย์รวม</div>
+          </div>
+          <div class="pstat">
+            <div class="pstat-val" id="pb-cash">฿0</div>
+            <div class="pstat-label">เงินสด</div>
+          </div>
+          <div class="pstat">
+            <div class="pstat-val" id="pb-pnl">฿0</div>
+            <div class="pstat-label">กำไร/ขาดทุน</div>
           </div>
         </div>
       </div>
+
+      <!-- Bank Account -->
+      <div class="bank-card">
+        <div class="bank-card-title">
+          <span>🏦 บัญชีธนาคาร</span>
+          <button class="bank-edit-btn" onclick="toggleBankForm()">✏️ แก้ไข</button>
+        </div>
+        <div id="bank-display-wrap">
+          <div class="bank-empty" id="bank-empty">ยังไม่มีข้อมูลบัญชีธนาคาร<br><span style="font-size:11px">กดแก้ไขเพื่อเพิ่ม</span></div>
+          <div class="bank-display" id="bank-display" style="display:none">
+            <div class="bank-logo-circle" id="bank-logo-circle">🏦</div>
+            <div class="bank-info">
+              <div class="bank-name" id="bank-name-show">-</div>
+              <div class="bank-number" id="bank-number-show">-</div>
+              <div class="bank-owner" id="bank-owner-show">-</div>
+            </div>
+          </div>
+        </div>
+        <div class="bank-form" id="bank-form">
+          <div style="height:.875rem"></div>
+          <select class="bank-select" id="bank-select">
+            <option value="">-- เลือกธนาคาร --</option>
+            <option value="กสิกรไทย|🟢">ธนาคารกสิกรไทย (KBANK)</option>
+            <option value="ไทยพาณิชย์|🟣">ธนาคารไทยพาณิชย์ (SCB)</option>
+            <option value="กรุงเทพ|🔵">ธนาคารกรุงเทพ (BBL)</option>
+            <option value="กรุงไทย|🔷">ธนาคารกรุงไทย (KTB)</option>
+            <option value="ทหารไทยธนชาต|🟠">ธนาคารทหารไทยธนชาต (TTB)</option>
+            <option value="กรุงศรีอยุธยา|🟡">ธนาคารกรุงศรีอยุธยา (BAY)</option>
+            <option value="ออมสิน|💚">ธนาคารออมสิน (GSB)</option>
+            <option value="ธ.ก.ส.|🌾">ธนาคาร ธ.ก.ส.</option>
+          </select>
+          <input class="bfinp" id="bank-number-inp" type="text" placeholder="เลขบัญชี (ไม่มีขีด)" maxlength="15">
+          <input class="bfinp" id="bank-owner-inp" type="text" placeholder="ชื่อ-นามสกุลเจ้าของบัญชี">
+          <button class="btn-save-bank" onclick="saveBankInfo()">💾 บันทึกข้อมูลบัญชี</button>
+        </div>
+      </div>
+
+      <!-- Withdraw -->
+      <div class="withdraw-card">
+        <div style="font-size:13px;font-weight:700;color:var(--sub);letter-spacing:.5px;text-transform:uppercase;margin-bottom:.5rem">💸 แจ้งถอนเงิน</div>
+        <div style="font-size:12px;color:var(--sub)">เงินสดคงเหลือ: <span style="color:var(--green);font-weight:700" id="wd-cash-show">฿0</span></div>
+        <div class="withdraw-form">
+          <input class="withdraw-inp" id="wd-amount" type="number" placeholder="จำนวนที่ต้องการถอน (฿)" min="1">
+          <button class="btn-withdraw" onclick="submitWithdraw()">แจ้งถอน</button>
+        </div>
+        <div style="font-size:11px;color:var(--sub);margin-top:.5rem">* Admin จะโอนไปที่บัญชีที่ลงทะเบียนไว้</div>
+      </div>
+
+      <!-- Holdings -->
       <div class="port-section-title">หุ้นที่ถืออยู่</div>
       <div id="ph-list"></div>
+
+      <!-- Fast History -->
       <div style="margin-top:1.25rem">
         <div class="port-section-title">ประวัติเทรดเร็ว</div>
         <div id="ph-fast-hist"></div>
@@ -1007,8 +1122,10 @@ function updateStats(){
   document.getElementById('pb-cash').textContent=fmt(cash);
   document.getElementById('pb-port').textContent=fmt(pv);
   const pEl=document.getElementById('pb-pnl');
-  pEl.textContent='กำไร/ขาดทุน '+(pnl>=0?'+':'')+fmt(pnl);
-  pEl.className='pb-pnl '+(pnl>=0?'up':'dn');
+  pEl.textContent=(pnl>=0?'+':'')+fmt(pnl);
+  pEl.className='pstat-val '+(pnl>=0?'up':'dn');
+  const wdEl=document.getElementById('wd-cash-show');
+  if(wdEl) wdEl.textContent=fmt(cash);
 }
 
 /* ─── MARKET LIST ─── */
@@ -1565,6 +1682,7 @@ async function loadFastHist(){
 /* ─── PORT ─── */
 function renderPort(){
   updateStats();
+  renderProfile();
   const el=document.getElementById('ph-list');
   const entries=Object.entries(portfolio).filter(([,h])=>h.qty>0);
   if(!entries.length){el.innerHTML='<div class="empty-state"><div class="ei">💼</div><p>ยังไม่มีหุ้น</p></div>';return;}
@@ -1651,6 +1769,128 @@ function setLang(lang){
   toast(t('select_lang')+': '+lang.toUpperCase());
 }
 function goBack(){switchPage('home',document.getElementById('nav-home'));}
+
+
+/* ─── PROFILE & BANK ─── */
+function triggerAvatarUpload(){
+  document.getElementById('avatar-file-input').click();
+}
+
+function handleAvatarUpload(e){
+  const file=e.target.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const img=document.getElementById('profile-avatar-img');
+    const txt=document.getElementById('profile-avatar-text');
+    img.src=ev.target.result;
+    img.style.display='block';
+    txt.style.display='none';
+    // save to localStorage
+    if(cu) localStorage.setItem('bf168_avatar_'+cu.id, ev.target.result);
+    toast('อัพโหลดรูปโปรไฟล์สำเร็จ');
+  };
+  reader.readAsDataURL(file);
+}
+
+function loadAvatar(){
+  if(!cu) return;
+  const saved=localStorage.getItem('bf168_avatar_'+cu.id);
+  if(saved){
+    const img=document.getElementById('profile-avatar-img');
+    const txt=document.getElementById('profile-avatar-text');
+    img.src=saved;img.style.display='block';txt.style.display='none';
+  }
+}
+
+function renderProfile(){
+  if(!cu) return;
+  document.getElementById('profile-name').textContent=cu.username;
+  document.getElementById('profile-avatar-text').textContent=cu.username[0].toUpperCase();
+  document.getElementById('profile-id').textContent='ID: '+cu.id.slice(0,8).toUpperCase();
+  document.getElementById('wd-cash-show').textContent=fmt(cash);
+  loadAvatar();
+  loadBankInfo();
+}
+
+const BANK_ICONS={
+  'กสิกรไทย':'🟢','ไทยพาณิชย์':'🟣','กรุงเทพ':'🔵',
+  'กรุงไทย':'🔷','ทหารไทยธนชาต':'🟠','กรุงศรีอยุธยา':'🟡',
+  'ออมสิน':'💚','ธ.ก.ส.':'🌾'
+};
+
+function loadBankInfo(){
+  if(!cu) return;
+  const saved=localStorage.getItem('bf168_bank_'+cu.id);
+  if(saved){
+    const b=JSON.parse(saved);
+    showBankInfo(b);
+  }
+}
+
+function showBankInfo(b){
+  document.getElementById('bank-empty').style.display='none';
+  document.getElementById('bank-display').style.display='flex';
+  document.getElementById('bank-name-show').textContent='ธนาคาร'+b.bank;
+  document.getElementById('bank-number-show').textContent=b.number.replace(/(\d{3})(\d{1,10})/,'$1-$2');
+  document.getElementById('bank-owner-show').textContent=b.owner;
+  document.getElementById('bank-logo-circle').textContent=BANK_ICONS[b.bank]||'🏦';
+}
+
+function toggleBankForm(){
+  const form=document.getElementById('bank-form');
+  form.classList.toggle('show');
+  if(form.classList.contains('show')){
+    // pre-fill if existing
+    if(cu){
+      const saved=localStorage.getItem('bf168_bank_'+cu.id);
+      if(saved){
+        const b=JSON.parse(saved);
+        document.getElementById('bank-number-inp').value=b.number;
+        document.getElementById('bank-owner-inp').value=b.owner;
+        const opts=document.getElementById('bank-select').options;
+        for(let o of opts){if(o.value.startsWith(b.bank)){document.getElementById('bank-select').value=o.value;break;}}
+      }
+    }
+  }
+}
+
+async function saveBankInfo(){
+  const sel=document.getElementById('bank-select').value;
+  const num=document.getElementById('bank-number-inp').value.trim();
+  const owner=document.getElementById('bank-owner-inp').value.trim();
+  if(!sel||!num||!owner){toast('กรุณากรอกข้อมูลให้ครบ');return;}
+  const [bankName]=sel.split('|');
+  const bankData={bank:bankName,number:num,owner};
+  localStorage.setItem('bf168_bank_'+cu.id,JSON.stringify(bankData));
+  // also save to supabase users table metadata
+  await sb.from('users').update({bank_name:bankName,bank_number:num,bank_owner:owner}).eq('id',cu.id);
+  showBankInfo(bankData);
+  document.getElementById('bank-form').classList.remove('show');
+  toast('บันทึกข้อมูลธนาคารสำเร็จ ✓');
+}
+
+async function submitWithdraw(){
+  if(!cu){toast('กรุณาเข้าสู่ระบบก่อน');return;}
+  const amount=parseInt(document.getElementById('wd-amount').value)||0;
+  if(amount<=0){toast('กรุณาใส่จำนวนเงิน');return;}
+  if(amount>cash){toast('เงินไม่เพียงพอ');return;}
+  const bankRaw=localStorage.getItem('bf168_bank_'+cu.id);
+  if(!bankRaw){toast('กรุณาเพิ่มข้อมูลบัญชีธนาคารก่อน');return;}
+  const b=JSON.parse(bankRaw);
+  // save withdrawal request to supabase
+  try{
+    await sb.from('withdrawals').insert({
+      user_id:cu.id,username:cu.username,
+      amount,bank_name:b.bank,bank_number:b.number,bank_owner:b.owner,
+      status:'pending'
+    });
+    toast(`แจ้งถอน ${fmt(amount)} สำเร็จ รอ Admin อนุมัติ`);
+    document.getElementById('wd-amount').value='';
+  }catch(e){
+    toast('เกิดข้อผิดพลาด กรุณาลองใหม่');
+  }
+}
 
 /* ─── INIT ─── */
 renderHomeMlist();updateTicker();startSlider();
