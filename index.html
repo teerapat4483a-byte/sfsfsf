@@ -58,7 +58,7 @@ body{max-width:480px;margin:0 auto;position:relative;overflow-x:hidden}
 .up{color:var(--green)}.dn{color:var(--red)}
 
 /* PAGES */
-.page{display:none;padding:0}.page.active{display:block}
+.page{display:none;padding:0}.page.active{display:block}#page-chat.active{display:flex!important}
 
 /* HOME */
 /* Slider */
@@ -994,7 +994,7 @@ canvas#lc{width:100%;display:block}
   </div>
 
   <!-- CHAT PAGE -->
-  <div class="page" id="page-chat" style="display:flex;flex-direction:column;height:calc(100vh - 65px);padding:0">
+  <div class="page" id="page-chat" style="flex-direction:column;height:calc(100vh - 65px);padding:0">
     <div class="chat-header" style="flex-shrink:0">
       <button onclick="goBack()" style="background:none;border:none;color:var(--sub);font-size:22px;cursor:pointer;margin-right:.5rem;line-height:1">‹</button>
       <div class="chat-header-avatar">B</div>
