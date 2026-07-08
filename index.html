@@ -146,6 +146,16 @@ body{max-width:480px;margin:0 auto;position:relative;overflow-x:hidden}
 
 .chart-wrap{background:var(--card);padding:.875rem 1rem;margin-bottom:8px}
 canvas.tchart{width:100%;display:block;border-radius:8px}
+.tf-bar{display:flex;gap:0;margin-bottom:.75rem;background:var(--card2);border-radius:8px;padding:3px;overflow-x:auto}
+.tf-btn{flex:1;padding:6px 8px;border:none;background:transparent;color:var(--sub);font-size:12px;font-weight:600;cursor:pointer;border-radius:6px;white-space:nowrap;min-width:36px;text-align:center}
+.tf-btn.active{background:var(--card);color:var(--yellow);box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.chart-info-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;font-size:11px;color:var(--sub)}
+.chart-ohlc{display:flex;gap:.75rem}
+.chart-ohlc span{display:flex;flex-direction:column;align-items:center;gap:1px}
+.chart-ohlc span em{font-style:normal;font-size:10px;color:var(--sub)}
+.chart-ohlc span strong{font-size:11px;color:var(--text)}
+.crosshair-info{position:absolute;top:4px;left:8px;font-size:11px;color:var(--sub);pointer-events:none;display:none}
+.chart-container{position:relative}
 
 .order-card{background:var(--card);padding:1rem;margin-bottom:8px}
 .bs-tabs{display:flex;border-radius:10px;overflow:hidden;margin-bottom:1rem;border:1px solid var(--border)}
@@ -466,7 +476,28 @@ canvas#lc{width:100%;display:block;border-radius:6px}
       </div>
     </div>
     <div class="chart-wrap">
-      <canvas class="tchart" id="tchart" height="120"></canvas>
+      <div class="tf-bar">
+        <button class="tf-btn" onclick="setTF('1m',this)">1นา</button>
+        <button class="tf-btn" onclick="setTF('5m',this)">5นา</button>
+        <button class="tf-btn" onclick="setTF('15m',this)">15นา</button>
+        <button class="tf-btn" onclick="setTF('1h',this)">1ชม</button>
+        <button class="tf-btn active" onclick="setTF('1d',this)">1วัน</button>
+        <button class="tf-btn" onclick="setTF('1w',this)">1สัปดาห์</button>
+        <button class="tf-btn" onclick="setTF('1M',this)">1เดือน</button>
+        <button class="tf-btn" onclick="setTF('1Y',this)">1ปี</button>
+      </div>
+      <div class="chart-info-row">
+        <div class="chart-ohlc" id="chart-ohlc">
+          <span><em>O</em><strong id="ohlc-o">-</strong></span>
+          <span><em>H</em><strong id="ohlc-h" class="up">-</strong></span>
+          <span><em>L</em><strong id="ohlc-l" class="dn">-</strong></span>
+          <span><em>C</em><strong id="ohlc-c">-</strong></span>
+        </div>
+        <div id="chart-vol" style="color:var(--sub);font-size:11px">VOL -</div>
+      </div>
+      <div class="chart-container">
+        <canvas class="tchart" id="tchart" height="160"></canvas>
+      </div>
     </div>
     <div class="order-card">
       <div class="bs-tabs">
@@ -881,30 +912,160 @@ function updateTradeCard(){
   document.getElementById('t-avg-cost').textContent=portfolio[selSym]?fmt(portfolio[selSym].avgCost):'฿0';
   drawTradeChart();updTradeTotal();
 }
+let curTF='1d';
+const TF_POINTS={'1m':30,'5m':48,'15m':48,'1h':48,'1d':30,'1w':24,'1M':12,'1Y':12};
+const TF_LABELS={'1m':'นาที','5m':'5นาที','15m':'15นาที','1h':'ชั่วโมง','1d':'วัน','1w':'สัปดาห์','1M':'เดือน','1Y':'ปี'};
+let tfHists={};
+
+function genTFData(basePrice, points, volatility){
+  const data=[];
+  let v=basePrice*(0.85+Math.random()*.3);
+  for(let i=0;i<points;i++){
+    v=Math.max(0.01,v*(1+(Math.random()-.48)*volatility));
+    data.push(+v.toFixed(4));
+  }
+  data.push(basePrice);
+  return data;
+}
+
+function ensureTFData(sym){
+  if(!tfHists[sym]) tfHists[sym]={};
+  const base=prices[sym];
+  if(!tfHists[sym]['1m']) tfHists[sym]['1m']=genTFData(base,30,0.008);
+  if(!tfHists[sym]['5m']) tfHists[sym]['5m']=genTFData(base,48,0.015);
+  if(!tfHists[sym]['15m']) tfHists[sym]['15m']=genTFData(base,48,0.025);
+  if(!tfHists[sym]['1h']) tfHists[sym]['1h']=genTFData(base,48,0.04);
+  if(!tfHists[sym]['1d']) tfHists[sym]['1d']=hists[sym].slice(-30);
+  if(!tfHists[sym]['1w']) tfHists[sym]['1w']=genTFData(base,24,0.12);
+  if(!tfHists[sym]['1M']) tfHists[sym]['1M']=genTFData(base,12,0.25);
+  if(!tfHists[sym]['1Y']) tfHists[sym]['1Y']=genTFData(base,12,0.6);
+}
+
+function setTF(tf,el){
+  curTF=tf;
+  document.querySelectorAll('.tf-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  tfHists[selSym]=null;
+  drawTradeChart();
+}
+
+function fmtPrice(n){
+  if(n>=1000000)return (n/1000000).toFixed(2)+'M';
+  if(n>=1000)return Math.round(n).toLocaleString();
+  return n.toFixed(2);
+}
+
 function drawTradeChart(){
   const cv=document.getElementById('tchart');
   if(!cv)return;
+  ensureTFData(selSym);
+  const data=tfHists[selSym][curTF];
   const ctx=cv.getContext('2d');
-  const data=hists[selSym];
-  const w=cv.width=cv.offsetWidth*2;
-  const h=cv.height=240;
-  ctx.clearRect(0,0,w,h);
-  const mn=Math.min(...data),mx=Math.max(...data),rng=mx-mn||1;
-  const pad=8;
-  const last=data[data.length-1],first=data[0];
+  const W=cv.width=cv.offsetWidth*2;
+  const H=cv.height=320;
+  ctx.clearRect(0,0,W,H);
+
+  const padL=60,padR=16,padT=16,padB=40;
+  const chartW=W-padL-padR;
+  const chartH=H-padT-padB;
+
+  const mn=Math.min(...data)*0.999;
+  const mx=Math.max(...data)*1.001;
+  const rng=mx-mn||1;
+
+  const first=data[0],last=data[data.length-1];
   const isUp=last>=first;
   const lc=isUp?'#00c087':'#ef4444';
-  const gr=ctx.createLinearGradient(0,0,0,h);
-  gr.addColorStop(0,isUp?'rgba(0,192,135,.3)':'rgba(239,68,68,.3)');
+
+  // grid lines horizontal
+  ctx.strokeStyle='rgba(255,255,255,0.05)';
+  ctx.lineWidth=1;
+  const gridCount=5;
+  for(let i=0;i<=gridCount;i++){
+    const y=padT+chartH*(i/gridCount);
+    ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(W-padR,y);ctx.stroke();
+    // price label
+    const pVal=mx-(rng*(i/gridCount));
+    ctx.fillStyle='rgba(255,255,255,0.35)';
+    ctx.font=`${22}px -apple-system,sans-serif`;
+    ctx.textAlign='right';
+    ctx.fillText(fmtPrice(pVal),padL-6,y+4);
+  }
+
+  // grid lines vertical
+  const vCount=Math.min(6,data.length-1);
+  for(let i=0;i<=vCount;i++){
+    const x=padL+chartW*(i/vCount);
+    ctx.beginPath();ctx.moveTo(x,padT);ctx.lineTo(x,H-padB);ctx.stroke();
+  }
+
+  // x-axis labels
+  ctx.fillStyle='rgba(255,255,255,0.35)';
+  ctx.font='22px -apple-system,sans-serif';
+  ctx.textAlign='center';
+  const xLabels={'1m':['00','05','10','15','20','25','30'],'5m':['00','08','16','24','32','40','48'],'15m':['0h','4h','8h','12h','16h','20h','24h'],'1h':['0h','8h','16h','24h','32h','40h','48h'],'1d':['D-30','D-25','D-20','D-15','D-10','D-5','วันนี้'],'1w':['W-24','W-20','W-16','W-12','W-8','W-4','สัปดาห์นี้'],'1M':['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ปัจจุบัน'],'1Y':['ปีที่แล้ว','Q1','Q2','Q3','Q4','H1','ปีนี้']};
+  const xl=xLabels[curTF]||[];
+  for(let i=0;i<=vCount;i++){
+    const x=padL+chartW*(i/vCount);
+    if(xl[i]) ctx.fillText(xl[i],x,H-8);
+  }
+
+  // gradient fill
+  const gr=ctx.createLinearGradient(0,padT,0,H-padB);
+  gr.addColorStop(0,isUp?'rgba(0,192,135,.25)':'rgba(239,68,68,.25)');
   gr.addColorStop(1,'rgba(0,0,0,0)');
   ctx.beginPath();
-  data.forEach((v,i)=>{const x=i/(data.length-1)*(w-pad*2)+pad;const y=h-pad-(v-mn)/rng*(h-pad*2);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
-  const lx=(data.length-1)/(data.length-1)*(w-pad*2)+pad;
-  ctx.lineTo(lx,h-pad);ctx.lineTo(pad,h-pad);
+  data.forEach((v,i)=>{
+    const x=padL+i/(data.length-1)*chartW;
+    const y=padT+chartH-(v-mn)/rng*chartH;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  const lx=padL+chartW;
+  ctx.lineTo(lx,H-padB);ctx.lineTo(padL,H-padB);
   ctx.closePath();ctx.fillStyle=gr;ctx.fill();
+
+  // line
   ctx.beginPath();
-  data.forEach((v,i)=>{const x=i/(data.length-1)*(w-pad*2)+pad;const y=h-pad-(v-mn)/rng*(h-pad*2);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
-  ctx.strokeStyle=lc;ctx.lineWidth=2;ctx.stroke();
+  data.forEach((v,i)=>{
+    const x=padL+i/(data.length-1)*chartW;
+    const y=padT+chartH-(v-mn)/rng*chartH;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle=lc;ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.stroke();
+
+  // last price line
+  const ly=padT+chartH-(last-mn)/rng*chartH;
+  ctx.beginPath();ctx.setLineDash([6,4]);
+  ctx.moveTo(padL,ly);ctx.lineTo(W-padR,ly);
+  ctx.strokeStyle=lc+'88';ctx.lineWidth=1;ctx.stroke();
+  ctx.setLineDash([]);
+
+  // price tag on right
+  ctx.fillStyle=lc;
+  ctx.beginPath();
+  ctx.roundRect(W-padR-2,ly-12,padR+2,24,4);
+  ctx.fill();
+  ctx.fillStyle='#000';
+  ctx.font='bold 20px -apple-system,sans-serif';
+  ctx.textAlign='left';
+  ctx.fillText('◂',W-padR,ly+5);
+
+  // dot at end
+  ctx.beginPath();
+  ctx.arc(padL+chartW,padT+chartH-(last-mn)/rng*chartH,5,0,Math.PI*2);
+  ctx.fillStyle=lc;ctx.fill();
+  ctx.beginPath();
+  ctx.arc(padL+chartW,padT+chartH-(last-mn)/rng*chartH,9,0,Math.PI*2);
+  ctx.strokeStyle=lc+'55';ctx.lineWidth=2;ctx.stroke();
+
+  // OHLC info
+  const hi=Math.max(...data),lo=Math.min(...data);
+  const vol=Math.floor(Math.random()*9000+1000);
+  document.getElementById('ohlc-o').textContent='฿'+fmtPrice(first);
+  document.getElementById('ohlc-h').textContent='฿'+fmtPrice(hi);
+  document.getElementById('ohlc-l').textContent='฿'+fmtPrice(lo);
+  document.getElementById('ohlc-c').textContent='฿'+fmtPrice(last);
+  document.getElementById('chart-vol').textContent='VOL '+vol.toLocaleString();
 }
 async function doTrade(){
   if(!requireLogin())return;
