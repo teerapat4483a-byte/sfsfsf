@@ -1663,7 +1663,7 @@ function switchPage(page,el){
   if(page==='trade'){renderSymScroll();updateTradeCard();}
   if(page==='fast'){renderFastSym();loadFastHist();}
   if(page==='port'){renderPort();loadFastHist();}
-  if(page==='history'){loadTradeHistory();renderTH();}
+  if(page==='history'){loadTradeHistory();}
   if(page==='market')renderMarket();
   if(page==='chat'){if(chatChannel)sb.removeChannel(chatChannel);chatChannel=null;initChatRoom();}
 }
@@ -2313,7 +2313,6 @@ function closeSuccessPopup(){
 function viewContract(){
   closeSuccessPopup();
   switchPage('history',document.getElementById('nav-port'));
-  setTimeout(()=>renderTH(),100);
 }
 
 // TRADE HISTORY
@@ -2322,15 +2321,67 @@ function recordTrade(type,sym,dir,qty,price,total,pnl){
   tradeHistory.unshift(entry);if(tradeHistory.length>200)tradeHistory=tradeHistory.slice(0,200);
   if(cu)localStorage.setItem('bf168_hist_'+cu.id,JSON.stringify(tradeHistory.slice(0,200)));
 }
-function loadTradeHistory(){if(!cu)return;const saved=localStorage.getItem('bf168_hist_'+cu.id);if(saved)try{tradeHistory=JSON.parse(saved);}catch(e){}}
+async function loadTradeHistory(){
+  if(!cu)return;
+  // Load from localStorage first (buy/sell trades)
+  const saved=localStorage.getItem('bf168_hist_'+cu.id);
+  let localTrades=[];
+  if(saved)try{localTrades=JSON.parse(saved);}catch(e){}
+  // Also fetch fast_trades from Supabase
+  try{
+    const {data:fastData}=await sb.from('fast_trades').select('*').eq('user_id',cu.id).order('created_at',{ascending:false}).limit(100);
+    const fastTrades=(fastData||[]).map(f=>({
+      id:'fast_'+f.id,
+      type:'fast',
+      sym:f.symbol,
+      dir:f.direction,
+      qty:f.bet/(f.bet||1),
+      price:0,
+      total:f.bet,
+      pnl:f.pnl||0,
+      duration:f.duration,
+      time:new Date(f.created_at)
+    }));
+    // Merge: local trades + fast trades, remove duplicates, sort by time
+    const allIds=new Set(localTrades.map(t=>t.id));
+    const merged=[...localTrades,...fastTrades.filter(t=>!allIds.has(t.id))];
+    merged.sort((a,b)=>new Date(b.time)-new Date(a.time));
+    tradeHistory=merged;
+  }catch(e){
+    tradeHistory=localTrades;
+  }
+  renderTH();
+}
 function filterTH(f,el){thFilter=f;document.querySelectorAll('.th-fbtn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderTH();}
 function renderTH(){
   const el=document.getElementById('th-list');if(!el)return;
   let list=thFilter==='all'?tradeHistory:thFilter==='fast'?tradeHistory.filter(t=>t.type==='fast'):tradeHistory.filter(t=>t.type===thFilter);
   if(!list.length){el.innerHTML='<div class="th-empty">📭 ยังไม่มีรายการ</div>';return;}
   function fmtDate(d){const dt=new Date(d);return(dt.getMonth()+1).toString().padStart(2,'0')+'-'+dt.getDate().toString().padStart(2,'0')+' '+dt.getHours().toString().padStart(2,'0')+':'+dt.getMinutes().toString().padStart(2,'0');}
-  el.innerHTML=list.map(t=>{const isBuy=t.dir==='buy'||t.type==='buy',isFast=t.type==='fast';
-    return`<div class="th-item"><div class="th-item-top"><div class="th-sym">${isFast?'⚡':''}${t.sym}/THB <span class="${isBuy?'th-dir-buy':'th-dir-sell'}">${isBuy?'ซื้อ':'ขาย'}</span></div><span style="font-size:11px;color:var(--sub)">${fmtDate(t.time)}</span></div><div class="th-item-bot"><div><div class="th-bot-label">จำนวนเงินที่ป้อน</div><div class="th-bot-val">${Math.round(t.total).toLocaleString()}.00</div></div><div><div class="th-bot-label">ราคาเปิดต่อหน่วย</div><div class="th-bot-val">${t.price.toFixed(4)}</div></div><div><div class="th-bot-label">${isFast?'กำไร/ขาดทุน':'เวลาเปิด'}</div><div class="th-bot-val ${isFast?(t.pnl>=0?'up':'dn'):''}">${isFast?(t.pnl>=0?'+':'')+Math.round(t.pnl).toLocaleString():fmtDate(t.time)}</div></div></div></div>`;
+  el.innerHTML=list.map((t,idx)=>{
+    const isBuy=t.dir==='buy'||t.type==='buy',isFast=t.type==='fast';
+    const pnl=t.pnl||0;
+    const priceStr=t.price>0?t.price.toFixed(4):'-';
+    return`<div class="th-item" onclick="openContractDetail(${idx})" style="cursor:pointer">
+      <div class="th-item-top">
+        <div class="th-sym">
+          ${isFast?'⚡':''}${t.sym}/THB
+          <span class="${isBuy?'th-dir-buy':'th-dir-sell'}">${isBuy?'ซื้อ':'ขาย'}</span>
+          ${isFast?`<span style="font-size:10px;color:var(--sub)">${t.duration||''}วิ</span>`:''}
+        </div>
+        <div style="display:flex;align-items:center;gap:4px">
+          <span style="font-size:11px;color:var(--sub)">${fmtDate(t.time)}</span>
+          <span style="color:var(--sub)">›</span>
+        </div>
+      </div>
+      <div class="th-item-bot">
+        <div><div class="th-bot-label">เงินทุน</div><div class="th-bot-val">${Math.round(t.total).toLocaleString()}</div></div>
+        <div><div class="th-bot-label">ราคาเปิด</div><div class="th-bot-val">${priceStr}</div></div>
+        <div><div class="th-bot-label">${isFast?'กำไร/ขาดทุน':'สถานะ'}</div>
+          <div class="th-bot-val ${isFast?(pnl>=0?'up':'dn'):''}">${isFast?(pnl>=0?'+':'')+Math.round(pnl).toLocaleString():fmtDate(t.time)}</div>
+        </div>
+      </div>
+    </div>`;
   }).join('');
 }
 
