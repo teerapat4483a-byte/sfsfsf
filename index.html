@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>bitforex168</title>
+<title>TradeX</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -617,14 +617,36 @@ const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 const sb=supabase.createClient(SB_URL,SB_KEY);
 
 const ASSETS=[
-  {sym:'BTC',name:'Bitcoin',cat:'crypto',price:2100000,color:'#f0b90b',logo:'https://cdn.jsdelivr.net/gh/spothq/cryptocurrency-icons/128/color/btc.png'},
-  {sym:'ETH',name:'Ethereum',cat:'crypto',price:62000,color:'#627eea',logo:'https://cdn.jsdelivr.net/gh/spothq/cryptocurrency-icons/128/color/eth.png'},
-  {sym:'BNB',name:'BNB',cat:'crypto',price:15000,color:'#f3ba2f',logo:'https://cdn.jsdelivr.net/gh/spothq/cryptocurrency-icons/128/color/bnb.png'},
-  {sym:'SOL',name:'Solana',cat:'crypto',price:5200,color:'#9945ff',logo:'https://cdn.jsdelivr.net/gh/spothq/cryptocurrency-icons/128/color/sol.png'},
-  {sym:'PTT',name:'PTT',cat:'thai',price:35,color:'#00c087',logo:'https://upload.wikimedia.org/wikipedia/th/thumb/5/5f/PTT_Logo.svg/200px-PTT_Logo.svg.png'},
-  {sym:'CPALL',name:'CP ALL',cat:'thai',price:58,color:'#1890ff',logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/7-eleven_logo.svg/200px-7-eleven_logo.svg.png'},
-  {sym:'AOT',name:'AOT',cat:'thai',price:72,color:'#ef4444',logo:'https://seeklogo.com/images/A/airports-of-thailand-aot-logo-562C6AC3E1-seeklogo.com.png'},
-  {sym:'KBANK',name:'กสิกรไทย',cat:'thai',price:145,color:'#1ba345',logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/KBANK_logo_2019.svg/200px-KBANK_logo_2019.svg.png'},
+  // คริปโต
+  {sym:'BTC',name:'Bitcoin',cat:'crypto',price:2100000,color:'#f7931a',logo:'https://assets.coingecko.com/coins/images/1/small/bitcoin.png'},
+  {sym:'ETH',name:'Ethereum',cat:'crypto',price:62000,color:'#627eea',logo:'https://assets.coingecko.com/coins/images/279/small/ethereum.png'},
+  {sym:'BNB',name:'BNB',cat:'crypto',price:15000,color:'#f3ba2f',logo:'https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png'},
+  {sym:'SOL',name:'Solana',cat:'crypto',price:5200,color:'#9945ff',logo:'https://assets.coingecko.com/coins/images/4128/small/solana.png'},
+  {sym:'XRP',name:'Ripple',cat:'crypto',price:680,color:'#00aae4',logo:'https://assets.coingecko.com/coins/images/44/small/xrp-symbol-white-128.png'},
+  {sym:'ADA',name:'Cardano',cat:'crypto',price:520,color:'#0033ad',logo:'https://assets.coingecko.com/coins/images/975/small/cardano.png'},
+  {sym:'DOGE',name:'Dogecoin',cat:'crypto',price:185,color:'#c2a633',logo:'https://assets.coingecko.com/coins/images/5/small/dogecoin.png'},
+  {sym:'DOT',name:'Polkadot',cat:'crypto',price:920,color:'#e6007a',logo:'https://assets.coingecko.com/coins/images/12171/small/polkadot.png'},
+  {sym:'AVAX',name:'Avalanche',cat:'crypto',price:1250,color:'#e84142',logo:'https://assets.coingecko.com/coins/images/12559/small/Avalanche_Circle_RedWhite_Trans.png'},
+  {sym:'MATIC',name:'Polygon',cat:'crypto',price:42,color:'#8247e5',logo:'https://assets.coingecko.com/coins/images/4713/small/matic-token-icon.png'},
+  {sym:'LINK',name:'Chainlink',cat:'crypto',price:780,color:'#375bd2',logo:'https://assets.coingecko.com/coins/images/877/small/chainlink-new-logo.png'},
+  {sym:'UNI',name:'Uniswap',cat:'crypto',price:480,color:'#ff007a',logo:'https://assets.coingecko.com/coins/images/12504/small/uni.jpg'},
+  {sym:'LTC',name:'Litecoin',cat:'crypto',price:3200,color:'#bfbbbb',logo:'https://assets.coingecko.com/coins/images/2/small/litecoin.png'},
+  {sym:'ATOM',name:'Cosmos',cat:'crypto',price:680,color:'#6f4e37',logo:'https://assets.coingecko.com/coins/images/1481/small/cosmos_hub.png'},
+  // หุ้นไทย
+  {sym:'PTT',name:'ปตท.',cat:'thai',price:35,color:'#00a651',emoji:'🛢️'},
+  {sym:'CPALL',name:'ซีพี ออลล์',cat:'thai',price:58,color:'#e31837',emoji:'🏪'},
+  {sym:'AOT',name:'ท่าอากาศยาน',cat:'thai',price:72,color:'#003087',emoji:'✈️'},
+  {sym:'KBANK',name:'กสิกรไทย',cat:'thai',price:145,color:'#138f2d',emoji:'🏦'},
+  {sym:'SCB',name:'ไทยพาณิชย์',cat:'thai',price:112,color:'#4b0082',emoji:'🏦'},
+  {sym:'BBL',name:'กรุงเทพ',cat:'thai',price:168,color:'#003087',emoji:'🏦'},
+  {sym:'KTB',name:'กรุงไทย',cat:'thai',price:22,color:'#0072bc',emoji:'🏦'},
+  {sym:'ADVANC',name:'แอดวานซ์',cat:'thai',price:210,color:'#005bac',emoji:'📱'},
+  {sym:'TRUE',name:'ทรู คอร์ป',cat:'thai',price:8.5,color:'#e4002b',emoji:'📱'},
+  {sym:'GULF',name:'กัลฟ์',cat:'thai',price:45,color:'#00a651',emoji:'⚡'},
+  {sym:'BH',name:'บำรุงราษฎร์',cat:'thai',price:195,color:'#0099cc',emoji:'🏥'},
+  {sym:'SCC',name:'ปูนซิเมนต์ไทย',cat:'thai',price:285,color:'#cc0000',emoji:'🏗️'},
+  {sym:'MINT',name:'ไมเนอร์ อินเตอร์',cat:'thai',price:32,color:'#ff6600',emoji:'🍽️'},
+  {sym:'CPN',name:'เซ็นทรัลพัฒนา',cat:'thai',price:68,color:'#cc0000',emoji:'🏬'},
 ];
 
 let cu=null,cash=0,portfolio={};
@@ -660,7 +682,12 @@ function authMsg(id,msg,err){
   el.textContent=msg;el.className='auth-msg '+(err?'err':'ok');
 }
 function logoImg(a,cls,size=32){
-  return `<img src="${a.logo}" class="${cls}" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:contain;padding:3px;background:${a.color}22" onerror="this.style.display='none';this.nextSibling.style.display='flex'"><span style="display:none;width:${size}px;height:${size}px;border-radius:50%;background:${a.color}22;color:${a.color};align-items:center;justify-content:center;font-size:${size*0.4}px;font-weight:700;flex-shrink:0">${a.sym[0]}</span>`;
+  if(a.emoji){
+    // หุ้นไทย ใช้ emoji
+    return `<span style="width:${size}px;height:${size}px;border-radius:50%;background:${a.color}22;display:inline-flex;align-items:center;justify-content:center;font-size:${size*0.5}px;flex-shrink:0">${a.emoji}</span>`;
+  }
+  // คริปโต ใช้รูปจาก coingecko
+  return `<img src="${a.logo}" class="${cls}" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:contain;padding:3px;background:${a.color}22;flex-shrink:0" onerror="this.outerHTML='<span style=width:${size}px;height:${size}px;border-radius:50%;background:${a.color}22;display:inline-flex;align-items:center;justify-content:center;font-size:${size*0.4}px;font-weight:700;color:${a.color};flex-shrink:0>${a.sym[0]}</span>'">`;
 }
 
 /* ─── AUTH ─── */
