@@ -58,7 +58,7 @@ body{max-width:480px;margin:0 auto;position:relative;overflow-x:hidden}
 .up{color:var(--green)}.dn{color:var(--red)}
 
 /* PAGES */
-.page{display:none;padding:0}.page.active{display:block}#page-chat.active{display:flex!important}
+.page{display:none;padding:0}.page.active{display:block}#page-chat.active{display:flex!important;flex-direction:column;height:calc(100vh - 65px)}
 
 /* HOME */
 /* Slider */
@@ -1332,7 +1332,7 @@ canvas#lc{width:100%;display:block}
   </div>
 
   <!-- CHAT PAGE -->
-  <div class="page" id="page-chat" style="flex-direction:column;height:calc(100vh - 65px);padding:0">
+  <div class="page" id="page-chat" style="flex-direction:column;height:calc(100vh - 65px);padding:0;padding-bottom:0">
     <div class="chat-header" style="flex-shrink:0">
       <button onclick="goBack()" style="background:none;border:none;color:var(--sub);font-size:22px;cursor:pointer;margin-right:.5rem;line-height:1">‹</button>
       <div class="chat-header-avatar">B</div>
@@ -2137,21 +2137,49 @@ function appendMsg(m){
 function openContact(){switchPage('chat',document.getElementById('nav-port'));}
 function closeContact(){goBack();if(chatChannel){sb.removeChannel(chatChannel);chatChannel=null;}}
 async function initChatRoom(){
-  let {data:room}=await sb.from('chat_rooms').select('*').eq('user_id',cu.id).single();
-  if(!room){const {data:nr}=await sb.from('chat_rooms').insert({user_id:cu.id,username:cu.username}).select().single();room=nr;}
-  chatRoomId=room.id;
-  const {data:msgs}=await sb.from('chat_messages').select('*').eq('room_id',chatRoomId).order('created_at',{ascending:true}).limit(100);
+  if(!cu){toast('กรุณาเข้าสู่ระบบก่อน');return;}
   const el=document.getElementById('chat-messages');
-  el.innerHTML='<div class="chat-date-divider">วันนี้</div><div class="msg-wrap admin"><div class="msg-bubble">👋 สวัสดีครับ! ยินดีต้อนรับสู่ Bitforex168<br>มีอะไรให้ช่วยเหลือไหมครับ?</div><div class="msg-time">Support</div></div>';
-  if(msgs)msgs.forEach(m=>appendMsg(m));el.scrollTop=el.scrollHeight;
-  if(chatChannel)sb.removeChannel(chatChannel);
-  chatChannel=sb.channel('chat_room_'+chatRoomId).on('postgres_changes',{event:'INSERT',schema:'public',table:'chat_messages',filter:'room_id=eq.'+chatRoomId},p=>{appendMsg(p.new);}).subscribe();
+  if(el){
+    el.innerHTML='<div class="chat-date-divider">วันนี้</div><div class="msg-wrap admin"><div class="msg-bubble">👋 สวัสดีครับ! ยินดีต้อนรับสู่ Bitforex168<br>มีอะไรให้ช่วยเหลือไหมครับ?</div><div class="msg-time">Support</div></div><div style="text-align:center;color:var(--sub);font-size:12px;padding:1rem">กำลังโหลด...</div>';
+  }
+  try{
+    let {data:room}=await sb.from('chat_rooms').select('*').eq('user_id',cu.id).single();
+    if(!room){
+      const {data:nr,error:ne}=await sb.from('chat_rooms').insert({user_id:cu.id,username:cu.username}).select().single();
+      if(ne){console.error('Chat room create error:',ne);if(el)el.innerHTML='<div style="text-align:center;color:var(--sub);padding:2rem;font-size:13px">❌ ไม่สามารถเชื่อมต่อได้<br><span style="font-size:11px">กรุณาสร้างตาราง chat_rooms ใน Supabase</span></div>';return;}
+      room=nr;
+    }
+    chatRoomId=room.id;
+    const {data:msgs}=await sb.from('chat_messages').select('*').eq('room_id',chatRoomId).order('created_at',{ascending:true}).limit(100);
+    if(el){
+      el.innerHTML='<div class="chat-date-divider">วันนี้</div><div class="msg-wrap admin"><div class="msg-bubble">👋 สวัสดีครับ! ยินดีต้อนรับสู่ Bitforex168<br>มีอะไรให้ช่วยเหลือไหมครับ?</div><div class="msg-time">Support</div></div>';
+      if(msgs)msgs.forEach(m=>appendMsg(m));
+      el.scrollTop=el.scrollHeight;
+    }
+    // enable input
+    const inp=document.getElementById('chat-inp');
+    if(inp){inp.disabled=false;inp.placeholder='พิมพ์ข้อความ...';}
+    if(chatChannel)sb.removeChannel(chatChannel);
+    chatChannel=sb.channel('chat_room_'+chatRoomId)
+      .on('postgres_changes',{event:'INSERT',schema:'public',table:'chat_messages',filter:'room_id=eq.'+chatRoomId},p=>{appendMsg(p.new);})
+      .subscribe();
+  }catch(e){
+    console.error('Chat error:',e);
+    if(el)el.innerHTML='<div style="text-align:center;color:var(--sub);padding:2rem;font-size:13px">❌ เกิดข้อผิดพลาด<br><span style="font-size:11px">'+e.message+'</span></div>';
+  }
 }
 async function sendChat(){
-  const inp=document.getElementById('chat-inp');const msg=inp.value.trim();if(!msg||!chatRoomId)return;
+  const inp=document.getElementById('chat-inp');
+  const msg=inp.value.trim();
+  if(!msg)return;
+  if(!chatRoomId){toast('กำลังเชื่อมต่อ กรุณารอสักครู่...');return;}
   inp.value='';inp.style.height='auto';
-  await sb.from('chat_messages').insert({room_id:chatRoomId,user_id:cu.id,sender:'user',message:msg});
-  await sb.from('chat_rooms').update({last_message:msg,last_time:new Date().toISOString(),unread_admin:true}).eq('id',chatRoomId);
+  // Optimistic append
+  appendMsg({sender:'user',message:msg,created_at:new Date().toISOString()});
+  try{
+    await sb.from('chat_messages').insert({room_id:chatRoomId,user_id:cu.id,sender:'user',message:msg});
+    await sb.from('chat_rooms').update({last_message:msg,last_time:new Date().toISOString(),unread_admin:true}).eq('id',chatRoomId);
+  }catch(e){toast('ส่งไม่สำเร็จ: '+e.message);}
 }
 
 // ORDER MODAL
