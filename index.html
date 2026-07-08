@@ -882,7 +882,7 @@ canvas#lc{width:100%;display:block}
         <div class="qm-icon" style="background:rgba(0,192,135,.1)">💰</div>
         <div class="qm-label">เงินฝาก</div>
       </div>
-      <div class="qm-item" onclick="requireLogin()">
+      <div class="qm-item" onclick="goWithdraw()">
         <div class="qm-icon" style="background:rgba(239,68,68,.1)">💸</div>
         <div class="qm-label">ถอน</div>
       </div>
@@ -2194,6 +2194,18 @@ function showBankSection(){
   s.style.display=s.style.display==='none'?'block':'none';
   document.getElementById('withdraw-section-port').style.display='none';
 }
+function goWithdraw(){
+  if(!requireLogin())return;
+  switchPage('port',document.getElementById('nav-port'));
+  setTimeout(()=>{
+    const s=document.getElementById('withdraw-section-port');
+    if(s){s.style.display='block';s.scrollIntoView({behavior:'smooth',block:'center'});}
+    const b=document.getElementById('bank-section');
+    if(b)b.style.display='none';
+    const el=document.getElementById('wd-cash-show2');
+    if(el)el.textContent=fmt(cash);
+  },200);
+}
 function showWithdrawSection(){
   const s=document.getElementById('withdraw-section-port');
   s.style.display=s.style.display==='none'?'block':'none';
@@ -2234,14 +2246,45 @@ async function saveBankInfo(){
   showBankInfo(bankData);document.getElementById('bank-form').classList.remove('show');
   toast('บันทึกข้อมูลธนาคารสำเร็จ ✓');
 }
+let pendingWdAmount=0;
 async function submitWithdraw(){
-  if(!cu)return;const amount=parseInt(document.getElementById('wd-amount').value)||0;
+  if(!cu)return;
+  const amount=parseInt(document.getElementById('wd-amount').value)||0;
   if(amount<=0){toast('กรุณาใส่จำนวนเงิน');return;}
   if(amount>cash){toast('เงินไม่เพียงพอ');return;}
-  const bankRaw=localStorage.getItem('bf168_bank_'+cu.id);if(!bankRaw){toast('กรุณาเพิ่มข้อมูลบัญชีธนาคารก่อน');return;}
+  const bankRaw=localStorage.getItem('bf168_bank_'+cu.id);
+  if(!bankRaw){toast('กรุณาเพิ่มข้อมูลบัญชีธนาคารก่อน');return;}
+  // Open password confirm popup
+  pendingWdAmount=amount;
+  document.getElementById('wd-confirm-amount').textContent=fmt(amount);
+  document.getElementById('wd-pass-inp').value='';
+  document.getElementById('wd-pass-err').textContent='';
+  document.getElementById('wd-confirm-popup').classList.add('show');
+}
+
+async function confirmWithdraw(){
+  const pass=document.getElementById('wd-pass-inp').value;
+  if(!pass){document.getElementById('wd-pass-err').textContent='กรุณากรอกรหัสผ่าน';return;}
+  // Verify password
+  if(pass!==cu.password){
+    document.getElementById('wd-pass-err').textContent='รหัสผ่านไม่ถูกต้อง';
+    return;
+  }
+  const amount=pendingWdAmount;
+  const bankRaw=localStorage.getItem('bf168_bank_'+cu.id);
   const b=JSON.parse(bankRaw);
-  try{await sb.from('withdrawals').insert({user_id:cu.id,username:cu.username,amount,bank_name:b.bank,bank_number:b.number,bank_owner:b.owner,status:'pending'});toast(`แจ้งถอน ${fmt(amount)} สำเร็จ รอ Admin อนุมัติ`);document.getElementById('wd-amount').value='';}
-  catch(e){toast('เกิดข้อผิดพลาด');}
+  try{
+    await sb.from('withdrawals').insert({user_id:cu.id,username:cu.username,amount,bank_name:b.bank,bank_number:b.number,bank_owner:b.owner,status:'pending'});
+    closeWdConfirm();
+    toast(`แจ้งถอน ${fmt(amount)} สำเร็จ รอ Admin อนุมัติ`);
+    document.getElementById('wd-amount').value='';
+  }catch(e){
+    document.getElementById('wd-pass-err').textContent='เกิดข้อผิดพลาด กรุณาลองใหม่';
+  }
+}
+
+function closeWdConfirm(){
+  document.getElementById('wd-confirm-popup').classList.remove('show');
 }
 
 // CHAT
@@ -2774,6 +2817,22 @@ setInterval(tick,3000);
     <div class="sp-btns">
       <button class="sp-btn-view" onclick="viewContract()">📋 ดูบันทึกสัญญา</button>
       <button class="sp-btn-close" onclick="closeSuccessPopup()">ปิด</button>
+    </div>
+  </div>
+</div>
+<!-- WITHDRAW PASSWORD CONFIRM POPUP -->
+<div class="success-popup-overlay" id="wd-confirm-popup" onclick="if(event.target===this)closeWdConfirm()">
+  <div class="success-popup" style="width:320px">
+    <div class="sp-icon" style="background:rgba(239,68,68,.15);border:2px solid rgba(239,68,68,.4)">🔐</div>
+    <div class="sp-title" style="color:var(--text)">ยืนยันการถอนเงิน</div>
+    <div class="sp-sub">กรุณากรอกรหัสผ่านเพื่อยืนยัน</div>
+    <div style="font-size:24px;font-weight:800;color:var(--red);margin-bottom:1.25rem" id="wd-confirm-amount">฿0</div>
+    <input type="password" id="wd-pass-inp" placeholder="รหัสผ่านของคุณ" onkeydown="if(event.key==='Enter')confirmWithdraw()"
+      style="width:100%;padding:12px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:15px;color:#fff;outline:none;margin-bottom:.5rem;text-align:center">
+    <div id="wd-pass-err" style="color:var(--red);font-size:12px;margin-bottom:1rem;min-height:16px"></div>
+    <div class="sp-btns">
+      <button class="sp-btn-view" style="background:var(--red);color:#fff" onclick="confirmWithdraw()">✓ ยืนยันถอนเงิน</button>
+      <button class="sp-btn-close" onclick="closeWdConfirm()">ยกเลิก</button>
     </div>
   </div>
 </div>
