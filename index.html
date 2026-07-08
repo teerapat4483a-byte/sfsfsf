@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TradeX</title>
+<title>Bitforex168</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -327,7 +327,7 @@ canvas#lc{width:100%;display:block}
   <!-- TOPBAR -->
   <div class="topbar">
     <div class="topbar-logo">
-      <span>📈 TradeX</span>
+      <span>📈 Bitforex168</span>
     </div>
     <div class="topbar-right">
       <button class="btn-lang" onclick="openLangPicker()" title="เปลี่ยนภาษา" id="btn-lang">🌐</button>
@@ -439,7 +439,7 @@ canvas#lc{width:100%;display:block}
     <div class="announce-bar">
       <div class="announce-icon">📢</div>
       <div class="announce-scroll">
-        <div class="announce-text" id="announce-text">TradeX ยินดีต้อนรับ! เทรดคริปโตและหุ้นไทยด้วยเงินจำลอง • BTC/THB ราคาอัพเดตเรียลไทม์ • เติมเงินจำลองได้ที่แอดมิน</div>
+        <div class="announce-text" id="announce-text">Bitforex168 ยินดีต้อนรับ! เทรดคริปโตและหุ้นไทยด้วยเงินจำลอง • BTC/THB ราคาอัพเดตเรียลไทม์ • เติมเงินจำลองได้ที่แอดมิน</div>
       </div>
       <div class="announce-menu">☰</div>
     </div>
@@ -949,11 +949,11 @@ async function doLogin(){
   const {data:user}=await sb.from('users').select('*').eq('username',u).eq('password',p).single();
   if(!user){authMsg('l-msg','ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง',true);return;}
   cu=user;cash=user.cash;
-  localStorage.setItem('tradex_uid',user.id);
+  localStorage.setItem('bf168_uid',user.id);
   closeLogin();showUser();toast('เข้าสู่ระบบสำเร็จ');
 }
 async function restoreSession(){
-  const uid=localStorage.getItem('tradex_uid');
+  const uid=localStorage.getItem('bf168_uid');
   if(!uid)return;
   const {data:u}=await sb.from('users').select('*').eq('id',uid).single();
   if(u){cu=u;cash=u.cash;showUser();}
@@ -966,7 +966,7 @@ function showUser(){
   updateStats();
 }
 function doLogout(){
-  localStorage.removeItem('tradex_uid');
+  localStorage.removeItem('bf168_uid');
   cu=null;cash=0;portfolio={};
   document.getElementById('btn-login-top').style.display='block';
   document.getElementById('user-info').style.display='none';
@@ -1624,7 +1624,7 @@ const I18N={
   zh:{login_btn:'登录 / 注册',nav_home:'首页',nav_market:'市场',nav_trade:'交易',nav_fast:'期货',nav_wallet:'钱包',fast_sub:'由管理员设定',select_lang:'选择语言',all:'全部',crypto:'加密货币',thai:'泰国股票',gold:'黄金',buy:'买入',sell:'卖出',up:'涨',down:'跌',start:'开始交易',profit:'盈利',loss:'亏损',bet:'投注',asset:'资产',price:'最新价格',change:'涨跌幅',total:'总资产',cash:'现金',port:'持仓价值',history:'最近记录',deposit:'充值',withdraw:'提现',contact:'联系我们',login:'登录',register:'注册',topup:'充值'},
   ja:{login_btn:'ログイン / 登録',nav_home:'ホーム',nav_market:'市場',nav_trade:'取引',nav_fast:'先物',nav_wallet:'ウォレット',fast_sub:'管理者が設定',select_lang:'言語選択',all:'すべて',crypto:'暗号資産',thai:'タイ株',gold:'ゴールド',buy:'買い',sell:'売り',up:'上昇',down:'下落',start:'取引開始',profit:'利益',loss:'損失',bet:'賭け金',asset:'資産',price:'最終価格',change:'変動率',total:'総資産',cash:'現金',port:'ポートフォリオ',history:'最近の履歴',deposit:'入金',withdraw:'出金',contact:'サポート',login:'ログイン',register:'登録',topup:'チャージ'}
 };
-let curLang=localStorage.getItem('tradex_lang')||'th';
+let curLang=localStorage.getItem('bf168_lang')||'th';
 function t(key){return(I18N[curLang]||I18N.th)[key]||key;}
 function applyLang(){
   document.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent=t(el.getAttribute('data-i18n'));});
@@ -1644,7 +1644,7 @@ function applyLang(){
 function openLangPicker(){document.getElementById('lang-picker').classList.add('show');}
 function closeLangPicker(){document.getElementById('lang-picker').classList.remove('show');}
 function setLang(lang){
-  curLang=lang;localStorage.setItem('tradex_lang',lang);
+  curLang=lang;localStorage.setItem('bf168_lang',lang);
   document.querySelectorAll('.lang-opt').forEach(b=>b.classList.remove('active'));
   const el=document.getElementById('lang-'+lang);if(el)el.classList.add('active');
   applyLang();closeLangPicker();
@@ -1655,7 +1655,7 @@ function goBack(){switchPage('home',document.getElementById('nav-home'));}
 /* ─── INIT ─── */
 renderHomeMlist();updateTicker();startSlider();
 // restore lang
-const savedLang=localStorage.getItem('tradex_lang')||'th';
+const savedLang=localStorage.getItem('bf168_lang')||'th';
 if(savedLang!=='th'){curLang=savedLang;document.querySelectorAll('.lang-opt').forEach(el=>el.classList.remove('active'));const lel=document.getElementById('lang-'+savedLang);if(lel)lel.classList.add('active');}
 applyLang();
 restoreSession();
