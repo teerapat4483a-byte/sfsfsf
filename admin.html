@@ -49,6 +49,10 @@ tr:hover td{background:#fafafa}
 .rb.auto.on{background:#e8f0fe;color:#2563eb;border-color:#93c5fd}
 .rb.win.on{background:#dcfce7;color:#16a34a;border-color:#86efac}
 .rb.lose.on{background:#fee2e2;color:#dc2626;border-color:#fca5a5}
+.rb.pct.on{background:#fef3c7;color:#d97706;border-color:#fcd34d}
+.pct-row{display:flex;gap:5px;align-items:center;margin-top:6px}
+.pct-row input{width:70px;padding:4px 7px;font-size:12px;border:1px solid #d1d5db;border-radius:6px;text-align:center}
+.btn-pct{background:#fef3c7;color:#d97706;border:1px solid #fcd34d;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-weight:700}
 
 .adj-row{display:flex;gap:5px;align-items:center}
 .adj-row input{width:85px;padding:4px 7px;font-size:12px;border:1px solid #d1d5db;border-radius:6px}
@@ -162,8 +166,8 @@ async function loadUsers(){
   });
 
   document.getElementById('stat-total').textContent = usersData.length;
-  document.getElementById('stat-win').textContent = usersData.filter(u=>u.forced_result==='win').length;
-  document.getElementById('stat-lose').textContent = usersData.filter(u=>u.forced_result==='lose').length;
+  document.getElementById('stat-win').textContent = usersData.filter(u=>!isNaN(parseFloat(u.forced_result))?parseFloat(u.forced_result)>0:u.forced_result==='win').length;
+  document.getElementById('stat-lose').textContent = usersData.filter(u=>!isNaN(parseFloat(u.forced_result))?parseFloat(u.forced_result)<0:u.forced_result==='lose').length;
 
   renderUsers();
 }
@@ -181,8 +185,14 @@ function renderUsers(){
       <td>
         <div class="result-btns">
           <button class="rb auto ${u.forced_result==='auto'?'on':''}" onclick="setResult('${u.id}','auto',this)">สุ่ม</button>
-          <button class="rb win ${u.forced_result==='win'?'on':''}" onclick="setResult('${u.id}','win',this)">กำไร</button>
-          <button class="rb lose ${u.forced_result==='lose'?'on':''}" onclick="setResult('${u.id}','lose',this)">ขาดทุน</button>
+          <button class="rb win ${u.forced_result==='win'?'on':''}" onclick="setResult('${u.id}','win',this)">+85%</button>
+          <button class="rb lose ${u.forced_result==='lose'?'on':''}" onclick="setResult('${u.id}','lose',this)">-100%</button>
+          <button class="rb pct ${!['auto','win','lose'].includes(u.forced_result)?'on':''}" onclick="setPct('${u.id}',this)">กำหนด%</button>
+        </div>
+        <div class="pct-row">
+          <input type="number" id="pct-${u.id}" placeholder="เช่น 50 หรือ -30" value="${!['auto','win','lose'].includes(u.forced_result)?u.forced_result:''}">
+          <button class="btn-pct" onclick="applyPct('${u.id}')">ตั้ง</button>
+          <span style="font-size:11px;color:#94a3b8" id="pct-label-${u.id}">${!['auto','win','lose'].includes(u.forced_result)?`<span style="color:${parseFloat(u.forced_result)>=0?'#16a34a':'#dc2626'};font-weight:700">${parseFloat(u.forced_result)>=0?'+':''}${u.forced_result}%</span>`:'ยังไม่ตั้ง'}</span>
         </div>
       </td>
       <td>
@@ -197,26 +207,44 @@ function renderUsers(){
 }
 
 async function setResult(userId, result, btn){
-  await sb.from('result_overrides').upsert({
-    user_id: userId,
-    result,
-    updated_at: new Date().toISOString()
-  }, {onConflict:'user_id'});
-
-  const row = btn.closest('tr');
-  row.querySelectorAll('.rb').forEach(b=>{
-    b.classList.remove('on');
-  });
+  const res=await sb.from('result_overrides').upsert({user_id:userId,result,updated_at:new Date().toISOString()},{onConflict:'user_id'});
+  const row=btn.closest('tr');
+  row.querySelectorAll('.rb').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
+  const u=usersData.find(u=>u.id===userId);
+  if(u) u.forced_result=result;
+  updateStats();
+  const labels={auto:'สุ่ม',win:'+85%',lose:'-100%'};
+  showToast(`ตั้งผล "${labels[result]||result}" ให้ ${u?u.username:userId}`);
+  // reset pct label
+  const lbl=document.getElementById('pct-label-'+userId);
+  if(lbl) lbl.innerHTML='ยังไม่ตั้ง';
+  const inp=document.getElementById('pct-'+userId);
+  if(inp) inp.value='';
+}
 
-  const u = usersData.find(u=>u.id===userId);
-  if(u) u.forced_result = result;
+async function applyPct(userId){
+  const inp=document.getElementById('pct-'+userId);
+  const val=parseFloat(inp.value);
+  if(isNaN(val)||val<-100||val>1000){showToast('ใส่ % ระหว่าง -100 ถึง 1000');return;}
+  const result=String(val);
+  await sb.from('result_overrides').upsert({user_id:userId,result,updated_at:new Date().toISOString()},{onConflict:'user_id'});
+  const u=usersData.find(u=>u.id===userId);
+  if(u) u.forced_result=result;
+  // update UI
+  const row=document.getElementById('pct-'+userId).closest('tr');
+  row.querySelectorAll('.rb').forEach(b=>b.classList.remove('on'));
+  row.querySelector('.rb.pct').classList.add('on');
+  const lbl=document.getElementById('pct-label-'+userId);
+  if(lbl) lbl.innerHTML=`<span style="color:${val>=0?'#16a34a':'#dc2626'};font-weight:700">${val>=0?'+':''}${val}%</span>`;
+  updateStats();
+  showToast(`ตั้ง ${val>=0?'+':''}${val}% ให้ ${u?u.username:userId}`);
+}
 
-  document.getElementById('stat-win').textContent = usersData.filter(u=>u.forced_result==='win').length;
-  document.getElementById('stat-lose').textContent = usersData.filter(u=>u.forced_result==='lose').length;
-
-  const labels = {auto:'สุ่ม', win:'กำไร', lose:'ขาดทุน'};
-  showToast(`ตั้งผล "${labels[result]}" ให้ ${u?u.username:userId}`);
+function setPct(userId,btn){
+  btn.closest('tr').querySelectorAll('.rb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('pct-'+userId).focus();
 }
 
 async function adjustCash(userId, sign){
