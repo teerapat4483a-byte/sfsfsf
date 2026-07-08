@@ -1884,8 +1884,8 @@ const TF_CONFIG={
   '10m':{vol:0.010, count:80, label:'min'},
   '1h': {vol:0.015, count:80, label:'h'},
   '1d': {vol:0.022, count:80, label:'D'},
-  '1mo':{vol:0.035, count:80, label:'Mo'},
-  '1y': {vol:0.05,  count:80, label:'Y'},
+  '1mo':{vol:0.035, count:52, label:'W'},
+  '1y': {vol:0.05,  count:104, label:'W'},
 };
 
 function ensureTFData(sym){
@@ -2561,8 +2561,8 @@ const GOLD_STOOQ={
 
 let binanceWS=null;
 let usdThb=34.5; // will be updated from API
-const TF_TO_INTERVAL={'1m':'1m','10m':'15m','1h':'1h','1d':'1d','1mo':'1M','1y':'1M'};
-const TF_TO_LIMIT={'1m':80,'10m':80,'1h':80,'1d':80,'1mo':36,'1y':24};
+const TF_TO_INTERVAL={'1m':'1m','10m':'15m','1h':'1h','1d':'1d','1mo':'1w','1y':'1w'};
+const TF_TO_LIMIT={'1m':80,'10m':80,'1h':80,'1d':90,'1mo':52,'1y':104};
 
 // ── Fetch USD/THB rate ──
 async function fetchUSDTHB(){
