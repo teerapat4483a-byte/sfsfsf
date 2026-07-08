@@ -378,6 +378,24 @@ canvas#lc{width:100%;display:block}
 .th-bot-val{font-size:12px;font-weight:600;color:var(--text)}
 .th-empty{text-align:center;padding:3rem 1rem;color:var(--sub);font-size:13px}
 
+/* Active Contract Countdown */
+.contract-active-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.85);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(6px)}
+.contract-active-overlay.show{top:0!important}
+.contract-active-box{background:#1a1d2e;border-radius:20px;padding:2rem 1.5rem;width:320px;text-align:center;border:1px solid var(--border);box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.ca-sym{font-size:16px;font-weight:800;margin-bottom:.25rem}
+.ca-dir{display:inline-block;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:700;margin-bottom:1.25rem}
+.ca-dir.up{background:rgba(0,192,135,.15);color:var(--green)}
+.ca-dir.down{background:rgba(239,68,68,.15);color:var(--red)}
+.ca-timer{font-size:56px;font-weight:900;font-variant-numeric:tabular-nums;margin-bottom:.5rem;letter-spacing:2px}
+.ca-timer-label{font-size:12px;color:var(--sub);margin-bottom:1.5rem}
+.ca-price-live{font-size:28px;font-weight:800;margin-bottom:.25rem;font-variant-numeric:tabular-nums}
+.ca-price-change{font-size:14px;font-weight:700;margin-bottom:1.5rem}
+.ca-progress{width:100%;height:6px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;margin-bottom:1.25rem}
+.ca-progress-fill{height:100%;background:var(--yellow);border-radius:99px;transition:width 1s linear}
+.ca-info{display:flex;justify-content:space-between;padding:.5rem 0;font-size:13px;border-top:1px solid var(--border)}
+.ca-info-label{color:var(--sub)}
+.ca-info-val{font-weight:600}
+
 /* Success Popup */
 .success-popup-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.7);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(4px)}
 .success-popup-overlay.show{top:0!important}
@@ -405,7 +423,25 @@ canvas#lc{width:100%;display:block}
 .cd-value.profit{color:var(--green);font-weight:800}
 .cd-value.loss{color:var(--red);font-weight:800}
 
-.toast{position:fixed;top:70px;left:50%/* Success Popup */
+.toast{position:fixed;top:70px;left:50%/* Active Contract Countdown */
+.contract-active-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.85);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(6px)}
+.contract-active-overlay.show{top:0!important}
+.contract-active-box{background:#1a1d2e;border-radius:20px;padding:2rem 1.5rem;width:320px;text-align:center;border:1px solid var(--border);box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.ca-sym{font-size:16px;font-weight:800;margin-bottom:.25rem}
+.ca-dir{display:inline-block;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:700;margin-bottom:1.25rem}
+.ca-dir.up{background:rgba(0,192,135,.15);color:var(--green)}
+.ca-dir.down{background:rgba(239,68,68,.15);color:var(--red)}
+.ca-timer{font-size:56px;font-weight:900;font-variant-numeric:tabular-nums;margin-bottom:.5rem;letter-spacing:2px}
+.ca-timer-label{font-size:12px;color:var(--sub);margin-bottom:1.5rem}
+.ca-price-live{font-size:28px;font-weight:800;margin-bottom:.25rem;font-variant-numeric:tabular-nums}
+.ca-price-change{font-size:14px;font-weight:700;margin-bottom:1.5rem}
+.ca-progress{width:100%;height:6px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;margin-bottom:1.25rem}
+.ca-progress-fill{height:100%;background:var(--yellow);border-radius:99px;transition:width 1s linear}
+.ca-info{display:flex;justify-content:space-between;padding:.5rem 0;font-size:13px;border-top:1px solid var(--border)}
+.ca-info-label{color:var(--sub)}
+.ca-info-val{font-weight:600}
+
+/* Success Popup */
 .success-popup-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.7);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(4px)}
 .success-popup-overlay.show{top:0!important}
 .success-popup{background:#1a1d2e;border-radius:20px;padding:2rem 1.5rem;width:300px;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 20px 60px rgba(0,0,0,.5)}
@@ -455,6 +491,24 @@ canvas#lc{width:100%;display:block}
 .th-bot-val{font-size:12px;font-weight:600;color:var(--text)}
 .th-empty{text-align:center;padding:3rem 1rem;color:var(--sub);font-size:13px}
 
+/* Active Contract Countdown */
+.contract-active-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.85);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(6px)}
+.contract-active-overlay.show{top:0!important}
+.contract-active-box{background:#1a1d2e;border-radius:20px;padding:2rem 1.5rem;width:320px;text-align:center;border:1px solid var(--border);box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.ca-sym{font-size:16px;font-weight:800;margin-bottom:.25rem}
+.ca-dir{display:inline-block;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:700;margin-bottom:1.25rem}
+.ca-dir.up{background:rgba(0,192,135,.15);color:var(--green)}
+.ca-dir.down{background:rgba(239,68,68,.15);color:var(--red)}
+.ca-timer{font-size:56px;font-weight:900;font-variant-numeric:tabular-nums;margin-bottom:.5rem;letter-spacing:2px}
+.ca-timer-label{font-size:12px;color:var(--sub);margin-bottom:1.5rem}
+.ca-price-live{font-size:28px;font-weight:800;margin-bottom:.25rem;font-variant-numeric:tabular-nums}
+.ca-price-change{font-size:14px;font-weight:700;margin-bottom:1.5rem}
+.ca-progress{width:100%;height:6px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;margin-bottom:1.25rem}
+.ca-progress-fill{height:100%;background:var(--yellow);border-radius:99px;transition:width 1s linear}
+.ca-info{display:flex;justify-content:space-between;padding:.5rem 0;font-size:13px;border-top:1px solid var(--border)}
+.ca-info-label{color:var(--sub)}
+.ca-info-val{font-weight:600}
+
 /* Success Popup */
 .success-popup-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.7);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(4px)}
 .success-popup-overlay.show{top:0!important}
@@ -482,7 +536,25 @@ canvas#lc{width:100%;display:block}
 .cd-value.profit{color:var(--green);font-weight:800}
 .cd-value.loss{color:var(--red);font-weight:800}
 
-.toast{position:fixed;top:70px;left:50%/* Success Popup */
+.toast{position:fixed;top:70px;left:50%/* Active Contract Countdown */
+.contract-active-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.85);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(6px)}
+.contract-active-overlay.show{top:0!important}
+.contract-active-box{background:#1a1d2e;border-radius:20px;padding:2rem 1.5rem;width:320px;text-align:center;border:1px solid var(--border);box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.ca-sym{font-size:16px;font-weight:800;margin-bottom:.25rem}
+.ca-dir{display:inline-block;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:700;margin-bottom:1.25rem}
+.ca-dir.up{background:rgba(0,192,135,.15);color:var(--green)}
+.ca-dir.down{background:rgba(239,68,68,.15);color:var(--red)}
+.ca-timer{font-size:56px;font-weight:900;font-variant-numeric:tabular-nums;margin-bottom:.5rem;letter-spacing:2px}
+.ca-timer-label{font-size:12px;color:var(--sub);margin-bottom:1.5rem}
+.ca-price-live{font-size:28px;font-weight:800;margin-bottom:.25rem;font-variant-numeric:tabular-nums}
+.ca-price-change{font-size:14px;font-weight:700;margin-bottom:1.5rem}
+.ca-progress{width:100%;height:6px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;margin-bottom:1.25rem}
+.ca-progress-fill{height:100%;background:var(--yellow);border-radius:99px;transition:width 1s linear}
+.ca-info{display:flex;justify-content:space-between;padding:.5rem 0;font-size:13px;border-top:1px solid var(--border)}
+.ca-info-label{color:var(--sub)}
+.ca-info-val{font-weight:600}
+
+/* Success Popup */
 .success-popup-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.7);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(4px)}
 .success-popup-overlay.show{top:0!important}
 .success-popup{background:#1a1d2e;border-radius:20px;padding:2rem 1.5rem;width:300px;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 20px 60px rgba(0,0,0,.5)}
@@ -560,6 +632,24 @@ canvas#lc{width:100%;display:block}
 .th-bot-val{font-size:12px;font-weight:600;color:var(--text)}
 .th-empty{text-align:center;padding:3rem 1rem;color:var(--sub);font-size:13px}
 
+/* Active Contract Countdown */
+.contract-active-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.85);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(6px)}
+.contract-active-overlay.show{top:0!important}
+.contract-active-box{background:#1a1d2e;border-radius:20px;padding:2rem 1.5rem;width:320px;text-align:center;border:1px solid var(--border);box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.ca-sym{font-size:16px;font-weight:800;margin-bottom:.25rem}
+.ca-dir{display:inline-block;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:700;margin-bottom:1.25rem}
+.ca-dir.up{background:rgba(0,192,135,.15);color:var(--green)}
+.ca-dir.down{background:rgba(239,68,68,.15);color:var(--red)}
+.ca-timer{font-size:56px;font-weight:900;font-variant-numeric:tabular-nums;margin-bottom:.5rem;letter-spacing:2px}
+.ca-timer-label{font-size:12px;color:var(--sub);margin-bottom:1.5rem}
+.ca-price-live{font-size:28px;font-weight:800;margin-bottom:.25rem;font-variant-numeric:tabular-nums}
+.ca-price-change{font-size:14px;font-weight:700;margin-bottom:1.5rem}
+.ca-progress{width:100%;height:6px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;margin-bottom:1.25rem}
+.ca-progress-fill{height:100%;background:var(--yellow);border-radius:99px;transition:width 1s linear}
+.ca-info{display:flex;justify-content:space-between;padding:.5rem 0;font-size:13px;border-top:1px solid var(--border)}
+.ca-info-label{color:var(--sub)}
+.ca-info-val{font-weight:600}
+
 /* Success Popup */
 .success-popup-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.7);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(4px)}
 .success-popup-overlay.show{top:0!important}
@@ -587,7 +677,25 @@ canvas#lc{width:100%;display:block}
 .cd-value.profit{color:var(--green);font-weight:800}
 .cd-value.loss{color:var(--red);font-weight:800}
 
-.toast{position:fixed;top:70px;left:50%/* Success Popup */
+.toast{position:fixed;top:70px;left:50%/* Active Contract Countdown */
+.contract-active-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.85);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(6px)}
+.contract-active-overlay.show{top:0!important}
+.contract-active-box{background:#1a1d2e;border-radius:20px;padding:2rem 1.5rem;width:320px;text-align:center;border:1px solid var(--border);box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.ca-sym{font-size:16px;font-weight:800;margin-bottom:.25rem}
+.ca-dir{display:inline-block;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:700;margin-bottom:1.25rem}
+.ca-dir.up{background:rgba(0,192,135,.15);color:var(--green)}
+.ca-dir.down{background:rgba(239,68,68,.15);color:var(--red)}
+.ca-timer{font-size:56px;font-weight:900;font-variant-numeric:tabular-nums;margin-bottom:.5rem;letter-spacing:2px}
+.ca-timer-label{font-size:12px;color:var(--sub);margin-bottom:1.5rem}
+.ca-price-live{font-size:28px;font-weight:800;margin-bottom:.25rem;font-variant-numeric:tabular-nums}
+.ca-price-change{font-size:14px;font-weight:700;margin-bottom:1.5rem}
+.ca-progress{width:100%;height:6px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;margin-bottom:1.25rem}
+.ca-progress-fill{height:100%;background:var(--yellow);border-radius:99px;transition:width 1s linear}
+.ca-info{display:flex;justify-content:space-between;padding:.5rem 0;font-size:13px;border-top:1px solid var(--border)}
+.ca-info-label{color:var(--sub)}
+.ca-info-val{font-weight:600}
+
+/* Success Popup */
 .success-popup-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.7);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(4px)}
 .success-popup-overlay.show{top:0!important}
 .success-popup{background:#1a1d2e;border-radius:20px;padding:2rem 1.5rem;width:300px;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 20px 60px rgba(0,0,0,.5)}
@@ -637,6 +745,24 @@ canvas#lc{width:100%;display:block}
 .th-bot-val{font-size:12px;font-weight:600;color:var(--text)}
 .th-empty{text-align:center;padding:3rem 1rem;color:var(--sub);font-size:13px}
 
+/* Active Contract Countdown */
+.contract-active-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.85);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(6px)}
+.contract-active-overlay.show{top:0!important}
+.contract-active-box{background:#1a1d2e;border-radius:20px;padding:2rem 1.5rem;width:320px;text-align:center;border:1px solid var(--border);box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.ca-sym{font-size:16px;font-weight:800;margin-bottom:.25rem}
+.ca-dir{display:inline-block;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:700;margin-bottom:1.25rem}
+.ca-dir.up{background:rgba(0,192,135,.15);color:var(--green)}
+.ca-dir.down{background:rgba(239,68,68,.15);color:var(--red)}
+.ca-timer{font-size:56px;font-weight:900;font-variant-numeric:tabular-nums;margin-bottom:.5rem;letter-spacing:2px}
+.ca-timer-label{font-size:12px;color:var(--sub);margin-bottom:1.5rem}
+.ca-price-live{font-size:28px;font-weight:800;margin-bottom:.25rem;font-variant-numeric:tabular-nums}
+.ca-price-change{font-size:14px;font-weight:700;margin-bottom:1.5rem}
+.ca-progress{width:100%;height:6px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;margin-bottom:1.25rem}
+.ca-progress-fill{height:100%;background:var(--yellow);border-radius:99px;transition:width 1s linear}
+.ca-info{display:flex;justify-content:space-between;padding:.5rem 0;font-size:13px;border-top:1px solid var(--border)}
+.ca-info-label{color:var(--sub)}
+.ca-info-val{font-weight:600}
+
 /* Success Popup */
 .success-popup-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.7);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(4px)}
 .success-popup-overlay.show{top:0!important}
@@ -664,7 +790,25 @@ canvas#lc{width:100%;display:block}
 .cd-value.profit{color:var(--green);font-weight:800}
 .cd-value.loss{color:var(--red);font-weight:800}
 
-.toast{position:fixed;top:70px;left:50%/* Success Popup */
+.toast{position:fixed;top:70px;left:50%/* Active Contract Countdown */
+.contract-active-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.85);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(6px)}
+.contract-active-overlay.show{top:0!important}
+.contract-active-box{background:#1a1d2e;border-radius:20px;padding:2rem 1.5rem;width:320px;text-align:center;border:1px solid var(--border);box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.ca-sym{font-size:16px;font-weight:800;margin-bottom:.25rem}
+.ca-dir{display:inline-block;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:700;margin-bottom:1.25rem}
+.ca-dir.up{background:rgba(0,192,135,.15);color:var(--green)}
+.ca-dir.down{background:rgba(239,68,68,.15);color:var(--red)}
+.ca-timer{font-size:56px;font-weight:900;font-variant-numeric:tabular-nums;margin-bottom:.5rem;letter-spacing:2px}
+.ca-timer-label{font-size:12px;color:var(--sub);margin-bottom:1.5rem}
+.ca-price-live{font-size:28px;font-weight:800;margin-bottom:.25rem;font-variant-numeric:tabular-nums}
+.ca-price-change{font-size:14px;font-weight:700;margin-bottom:1.5rem}
+.ca-progress{width:100%;height:6px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;margin-bottom:1.25rem}
+.ca-progress-fill{height:100%;background:var(--yellow);border-radius:99px;transition:width 1s linear}
+.ca-info{display:flex;justify-content:space-between;padding:.5rem 0;font-size:13px;border-top:1px solid var(--border)}
+.ca-info-label{color:var(--sub)}
+.ca-info-val{font-weight:600}
+
+/* Success Popup */
 .success-popup-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.7);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(4px)}
 .success-popup-overlay.show{top:0!important}
 .success-popup{background:#1a1d2e;border-radius:20px;padding:2rem 1.5rem;width:300px;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 20px 60px rgba(0,0,0,.5)}
@@ -2408,23 +2552,148 @@ function setOmAmt(amt,el){
 }
 function onOmCustom(){const v=parseFloat(document.getElementById('om-custom').value)||0;if(v>0){omAmt=v;document.querySelectorAll('.om-amt-btn').forEach(b=>b.classList.remove('active'));}updateOmSummary();}
 function updateOmSummary(){document.getElementById('om-amt-show').textContent=omAmt.toLocaleString()+' ฿';document.getElementById('om-profit-show').textContent=Math.round(omAmt*0.85).toLocaleString()+' ฿';document.getElementById('om-balance').textContent=cash.toFixed(8);}
+let contractTimer=null,contractLiveTimer=null;
+
 async function confirmOrder(){
-  const price=prices[selSym],qty=omAmt/price;
+  const price=prices[selSym];
   if(omAmt<=0){toast('ใส่จำนวนเงิน');return;}
-  if(buySell==='buy'&&omAmt>cash){toast('เงินไม่พอ!');return;}
-  if(buySell==='buy'){
-    cash-=omAmt;
-    if(!portfolio[selSym])portfolio[selSym]={qty:0,avgCost:0};
-    const h=portfolio[selSym];h.avgCost=(h.avgCost*h.qty+price*qty)/(h.qty+qty);h.qty+=qty;
-  } else {
-    if(!portfolio[selSym]||portfolio[selSym].qty<qty){toast('หน่วยไม่พอ!');return;}
-    cash+=omAmt;portfolio[selSym].qty-=qty;
-  }
-  recordTrade(buySell,selSym,buySell,qty,price,omAmt,0);
+  if(omAmt>cash){toast('เงินไม่พอ!');return;}
+  
+  // Deduct bet immediately
+  cash-=omAmt;
   await sb.from('users').update({cash}).eq('id',cu.id);
-  closeOrderModal();updateStats();updateTradeCard();
-  // Show success popup
-  showSuccessPopup(buySell,price);
+  updateStats();
+  closeOrderModal();
+  
+  // Get admin-forced result for THIS user
+  const {data:ov}=await sb.from('result_overrides').select('result').eq('user_id',cu.id).single();
+  const forced=ov?ov.result:'auto';
+  
+  // Start contract countdown
+  startContract(price, omAmt, omTime, buySell, forced);
+}
+
+function startContract(openPrice, betAmount, duration, direction, forced){
+  const overlay=document.getElementById('contract-active');
+  const isBuy=direction==='buy';
+  
+  // Setup UI
+  document.getElementById('ca-sym').textContent=selSym+'/THB';
+  const dirEl=document.getElementById('ca-dir');
+  dirEl.textContent=isBuy?'▲ ซื้อ (คาดว่าขึ้น)':'▼ ขาย (คาดว่าลง)';
+  dirEl.className='ca-dir '+(isBuy?'up':'down');
+  document.getElementById('ca-open-price').textContent='฿'+openPrice.toLocaleString();
+  document.getElementById('ca-bet').textContent=fmt(betAmount);
+  overlay.classList.add('show');
+  
+  let remaining=duration;
+  let livePrice=openPrice;
+  const startTime=Date.now();
+  
+  // Determine target movement based on forced result
+  const pv=parseFloat(forced);
+  let priceBias=0;
+  if(!isNaN(pv)){
+    // Custom %: if positive, price moves in user's favor
+    priceBias=(pv>=0?1:-1)*(isBuy?1:-1)*0.0015;
+  } else if(forced==='win'){
+    priceBias=(isBuy?1:-1)*0.0015;
+  } else if(forced==='lose'){
+    priceBias=(isBuy?-1:1)*0.0015;
+  }
+  
+  // Live price animation
+  document.getElementById('ca-timer').textContent=remaining;
+  document.getElementById('ca-live-price').textContent='฿'+livePrice.toLocaleString();
+  
+  contractLiveTimer=setInterval(()=>{
+    // Simulate live price with bias
+    const change=(Math.random()-0.5+priceBias)*livePrice*0.003;
+    livePrice=Math.max(0.01,livePrice+change);
+    const pctChange=((livePrice-openPrice)/openPrice*100);
+    document.getElementById('ca-live-price').textContent='฿'+Math.round(livePrice).toLocaleString();
+    const chgEl=document.getElementById('ca-live-change');
+    chgEl.textContent=(pctChange>=0?'+':'')+pctChange.toFixed(3)+'%';
+    chgEl.style.color=pctChange>=0?'var(--green)':'var(--red)';
+  },300);
+  
+  // Countdown timer
+  contractTimer=setInterval(()=>{
+    remaining--;
+    document.getElementById('ca-timer').textContent=remaining;
+    const progress=(remaining/duration)*100;
+    document.getElementById('ca-progress-fill').style.width=progress+'%';
+    const fill=document.getElementById('ca-progress-fill');
+    fill.style.background=progress>50?'var(--yellow)':progress>20?'#f97316':'var(--red)';
+    
+    if(remaining<=0){
+      clearInterval(contractTimer);
+      clearInterval(contractLiveTimer);
+      resolveContract(openPrice, livePrice, betAmount, duration, direction, forced);
+    }
+  },1000);
+}
+
+async function resolveContract(openPrice, closePrice, betAmount, duration, direction, forced){
+  const overlay=document.getElementById('contract-active');
+  overlay.classList.remove('show');
+  
+  // Calculate result
+  let won, profit, payout;
+  const pv=parseFloat(forced);
+  if(!isNaN(pv)){
+    // Custom %
+    won=pv>=0;
+    profit=Math.round(betAmount*pv/100);
+    payout=betAmount+profit;
+    if(payout<0)payout=0;
+  } else if(forced==='win'){
+    won=true;profit=Math.round(betAmount*0.85);payout=betAmount+profit;
+  } else if(forced==='lose'){
+    won=false;profit=-betAmount;payout=0;
+  } else {
+    // Auto: based on actual price movement
+    const isBuy=direction==='buy';
+    const priceUp=closePrice>=openPrice;
+    won=(isBuy&&priceUp)||(!isBuy&&!priceUp);
+    profit=won?Math.round(betAmount*0.85):-betAmount;
+    payout=won?betAmount+profit:0;
+  }
+  
+  cash+=payout;
+  await sb.from('users').update({cash}).eq('id',cu.id);
+  
+  // Save to fast_trades (contract records)
+  await sb.from('fast_trades').insert({
+    user_id:cu.id,symbol:selSym,
+    direction:direction==='buy'?'up':'down',
+    bet:betAmount,duration,
+    result:won?'win':'lose',pnl:profit,forced
+  });
+  
+  updateStats();
+  
+  // Show result popup with real-time summary
+  showContractResult(won, profit, openPrice, closePrice, betAmount, duration, direction);
+}
+
+function showContractResult(won, profit, openPrice, closePrice, betAmount, duration, direction){
+  const isBuy=direction==='buy';
+  const icon=document.getElementById('sp-icon');
+  icon.textContent=won?'🎉':'😔';
+  icon.className='sp-icon '+(won?'buy':'sell');
+  document.getElementById('sp-title').textContent=won?'กำไร!':'ขาดทุน';
+  document.getElementById('sp-title').style.color=won?'var(--green)':'var(--red)';
+  document.getElementById('sp-sub').textContent=selSym+'/THB | '+(isBuy?'▲ ซื้อ':'▼ ขาย')+' | '+duration+' วินาที';
+  document.getElementById('sp-amount').textContent=(profit>=0?'+':'')+fmt(profit);
+  document.getElementById('sp-amount').className='sp-amount '+(won?'up':'dn');
+  document.getElementById('sp-price').textContent='฿'+Math.round(openPrice).toLocaleString();
+  document.getElementById('sp-time').textContent='฿'+Math.round(closePrice).toLocaleString();
+  // Change label to show close price
+  const rows=document.querySelectorAll('#success-popup .sp-sub');
+  document.getElementById('sp-profit').textContent=(profit>=0?'+':'')+fmt(profit);
+  document.getElementById('sp-profit').style.color=won?'var(--green)':'var(--red)';
+  document.getElementById('success-popup').classList.add('show');
 }
 
 function showSuccessPopup(side,price){
@@ -2796,6 +3065,27 @@ setInterval(tick,3000);
   </nav>
 <div id="lang-picker-container"></div>
 
+<!-- ACTIVE CONTRACT COUNTDOWN -->
+<div class="contract-active-overlay" id="contract-active">
+  <div class="contract-active-box">
+    <div class="ca-sym" id="ca-sym">BTC/THB</div>
+    <div class="ca-dir up" id="ca-dir">▲ ซื้อ</div>
+    <div class="ca-timer" id="ca-timer">180</div>
+    <div class="ca-timer-label">วินาที</div>
+    <div class="ca-price-live" id="ca-live-price">฿0</div>
+    <div class="ca-price-change" id="ca-live-change">+0.00%</div>
+    <div class="ca-progress"><div class="ca-progress-fill" id="ca-progress-fill" style="width:100%"></div></div>
+    <div class="ca-info">
+      <span class="ca-info-label">ราคาเปิด</span>
+      <span class="ca-info-val" id="ca-open-price">฿0</span>
+    </div>
+    <div class="ca-info">
+      <span class="ca-info-label">เงินลงทุน</span>
+      <span class="ca-info-val" id="ca-bet">฿0</span>
+    </div>
+  </div>
+</div>
+
 <!-- SUCCESS POPUP -->
 <div class="success-popup-overlay" id="success-popup">
   <div class="success-popup">
@@ -2808,10 +3098,10 @@ setInterval(tick,3000);
         <span>ราคาเปิด</span><span style="color:#fff;font-weight:600" id="sp-price">฿0</span>
       </div>
       <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-        <span>ระยะเวลา</span><span style="color:#fff;font-weight:600" id="sp-time">180 วิ</span>
+        <span>ราคาปิด</span><span style="color:#fff;font-weight:600" id="sp-time">฿0</span>
       </div>
       <div style="display:flex;justify-content:space-between">
-        <span>คาดการณ์กำไร</span><span style="color:var(--green);font-weight:700" id="sp-profit">฿850</span>
+        <span>กำไร/ขาดทุน</span><span style="font-weight:700" id="sp-profit">฿0</span>
       </div>
     </div>
     <div class="sp-btns">
