@@ -1877,12 +1877,12 @@ function genSmoothData(base,points,vol){
   return genTFData(base, points, Math.max(vol,0.012));
 }
 const TF_CONFIG={
-  '1m': {vol:0.006, count:60, label:'min'},
-  '10m':{vol:0.010, count:60, label:'min'},
-  '1h': {vol:0.015, count:60, label:'h'},
-  '1d': {vol:0.022, count:90, label:'D'},
-  '1mo':{vol:0.035, count:30, label:'Mo'},
-  '1y': {vol:0.05,  count:30, label:'Y'},
+  '1m': {vol:0.006, count:80, label:'min'},
+  '10m':{vol:0.010, count:80, label:'min'},
+  '1h': {vol:0.015, count:80, label:'h'},
+  '1d': {vol:0.022, count:80, label:'D'},
+  '1mo':{vol:0.035, count:80, label:'Mo'},
+  '1y': {vol:0.05,  count:80, label:'Y'},
 };
 
 function ensureTFData(sym){
