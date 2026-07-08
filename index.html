@@ -201,12 +201,17 @@ canvas.tchart{width:100%;display:block;border-radius:8px}
 .bet-preset{padding:6px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--sub);font-size:11px;font-weight:600;cursor:pointer;text-align:center}
 .bet-preset:active{background:var(--yellow);color:#000;border-color:var(--yellow)}
 
-.live-chart-box{background:var(--card2);border-radius:10px;padding:.875rem;margin-bottom:.875rem;display:none}
-.lcb-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.625rem}
-.lcb-sym{font-size:13px;font-weight:700;color:var(--sub)}
-.lcb-price{font-size:22px;font-weight:800}
-.lcb-chg{font-size:12px;font-weight:600}
-canvas#lc{width:100%;display:block;border-radius:6px}
+.live-chart-box{background:#0d0f1a;border-radius:14px;overflow:hidden;margin-bottom:.875rem;display:none;border:1px solid #1e2235}
+.lcb-top{display:flex;justify-content:space-between;align-items:flex-start;padding:.875rem 1rem .5rem}
+.lcb-sym{font-size:12px;font-weight:700;color:var(--sub);letter-spacing:.5px;text-transform:uppercase}
+.lcb-price{font-size:26px;font-weight:800;letter-spacing:-.5px}
+.lcb-chg{font-size:13px;font-weight:700;margin-top:2px}
+.lcb-meta{font-size:11px;color:var(--sub);margin-top:2px}
+.lcb-ohlc{display:flex;gap:.75rem;padding:0 1rem .625rem;font-size:11px}
+.lcb-ohlc span{color:var(--sub)}
+.lcb-ohlc strong{margin-left:3px}
+canvas#lc{width:100%;display:block}
+.lc-vol-bar{height:3px;background:linear-gradient(90deg,var(--yellow),transparent);margin:0}
 
 .timer-box{display:none;margin-bottom:.875rem}
 .tbar-bg{background:var(--card2);border-radius:99px;height:6px;overflow:hidden;margin-bottom:6px}
@@ -590,12 +595,23 @@ canvas#lc{width:100%;display:block;border-radius:6px}
       <div class="live-chart-box" id="lc-box">
         <div class="lcb-top">
           <div>
-            <div class="lcb-sym" id="lc-sym">BTC</div>
+            <div class="lcb-sym" id="lc-sym">BTC/THB</div>
             <div class="lcb-chg up" id="lc-chg">+0.00%</div>
+            <div class="lcb-meta" id="lc-meta">LIVE • อัพเดตทุก 0.5 วิ</div>
           </div>
-          <div class="lcb-price" id="lc-price">฿0</div>
+          <div style="text-align:right">
+            <div class="lcb-price" id="lc-price">฿0</div>
+            <div style="font-size:11px;color:var(--sub);margin-top:2px" id="lc-dir-label"></div>
+          </div>
         </div>
-        <canvas id="lc" height="100"></canvas>
+        <div class="lcb-ohlc">
+          <span>O <strong id="lc-o" style="color:var(--text)">-</strong></span>
+          <span>H <strong id="lc-h" style="color:#00c087">-</strong></span>
+          <span>L <strong id="lc-l" style="color:#ef4444">-</strong></span>
+          <span>C <strong id="lc-c" style="color:var(--text)">-</strong></span>
+        </div>
+        <canvas id="lc" height="160"></canvas>
+        <div class="lc-vol-bar" id="lc-vol-bar" style="width:60%"></div>
       </div>
 
       <div class="timer-box" id="timer-box">
@@ -1255,8 +1271,11 @@ async function startFast(){
   document.getElementById('lc-box').style.display='block';
   document.getElementById('timer-box').style.display='block';
   liveStart=prices[selSym];liveData=[liveStart];
-  document.getElementById('lc-sym').textContent=selSym;
+  candles=[];
+  document.getElementById('lc-sym').textContent=selSym+'/THB';
   document.getElementById('lc-price').textContent=fmt(liveStart);
+  document.getElementById('lc-dir-label').textContent=fDir==='up'?'▲ คาดว่าขึ้น':'▼ คาดว่าลง';
+  document.getElementById('lc-dir-label').style.color=fDir==='up'?'#00c087':'#ef4444';
   liveIv=setInterval(()=>{
     const last=liveData[liveData.length-1];
     let bias=0;
@@ -1289,31 +1308,140 @@ async function startFast(){
     if(rem<=0){clearInterval(iv);clearInterval(liveIv);resolveFast(bet,forced);}
   },1000);
 }
+let candles=[];  // {o,h,l,c,vol}
+let candleIv2=null;
+
+function buildCandles(){
+  // group liveData into candles of 5 ticks each
+  candles=[];
+  const grpSize=5;
+  for(let i=0;i<liveData.length;i+=grpSize){
+    const chunk=liveData.slice(i,i+grpSize);
+    if(!chunk.length) continue;
+    candles.push({
+      o:chunk[0],
+      h:Math.max(...chunk),
+      l:Math.min(...chunk),
+      c:chunk[chunk.length-1],
+      vol:Math.random()*0.8+0.2
+    });
+  }
+}
+
 function drawLC(){
   const cv=document.getElementById('lc');if(!cv)return;
   const ctx=cv.getContext('2d');
-  const w=cv.width=cv.offsetWidth*2;
-  const h=cv.height=200;
-  ctx.clearRect(0,0,w,h);
+  const W=cv.width=cv.offsetWidth*2;
+  const H=cv.height=320;
+  ctx.clearRect(0,0,W,H);
   if(liveData.length<2)return;
-  const mn=Math.min(...liveData),mx=Math.max(...liveData),rng=mx-mn||1;
-  const pad=6;
+
+  buildCandles();
   const last=liveData[liveData.length-1];
   const isUp=last>=liveStart;
   const lc=isUp?'#00c087':'#ef4444';
-  const gr=ctx.createLinearGradient(0,0,0,h);
-  gr.addColorStop(0,isUp?'rgba(0,192,135,.35)':'rgba(239,68,68,.35)');
-  gr.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.beginPath();
-  liveData.forEach((v,i)=>{const x=i/(liveData.length-1)*(w-pad*2)+pad;const y=h-pad-(v-mn)/rng*(h-pad*2);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
-  const lx=(liveData.length-1)/(liveData.length-1)*(w-pad*2)+pad;
-  const ly=h-pad-(last-mn)/rng*(h-pad*2);
-  ctx.lineTo(lx,h-pad);ctx.lineTo(pad,h-pad);
-  ctx.closePath();ctx.fillStyle=gr;ctx.fill();
-  ctx.beginPath();
-  liveData.forEach((v,i)=>{const x=i/(liveData.length-1)*(w-pad*2)+pad;const y=h-pad-(v-mn)/rng*(h-pad*2);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
-  ctx.strokeStyle=lc;ctx.lineWidth=2;ctx.stroke();
-  ctx.beginPath();ctx.arc(lx,ly,5,0,Math.PI*2);ctx.fillStyle=lc;ctx.fill();
+
+  const padL=56,padR=10,padT=12,padB=56;
+  const volH=40;
+  const chartH=H-padT-padB-volH-8;
+  const chartW=W-padL-padR;
+
+  // price range
+  const allPrices=liveData;
+  const mn=Math.min(...allPrices)*0.9995;
+  const mx=Math.max(...allPrices)*1.0005;
+  const rng=mx-mn||1;
+
+  // grid
+  ctx.strokeStyle='rgba(255,255,255,0.04)';
+  ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){
+    const y=padT+chartH*i/4;
+    ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(W-padR,y);ctx.stroke();
+    const pv=mx-rng*i/4;
+    ctx.fillStyle='rgba(255,255,255,0.3)';
+    ctx.font='20px -apple-system,sans-serif';
+    ctx.textAlign='right';
+    ctx.fillText(fmtPrice(pv),padL-5,y+4);
+  }
+
+  // price line (behind candles)
+  const ly=padT+chartH-(last-mn)/rng*chartH;
+  ctx.beginPath();ctx.setLineDash([4,3]);
+  ctx.moveTo(padL,ly);ctx.lineTo(W-padR,ly);
+  ctx.strokeStyle=lc+'66';ctx.lineWidth=1;ctx.stroke();
+  ctx.setLineDash([]);
+
+  // candles
+  if(candles.length>=2){
+    const cw=chartW/Math.max(candles.length,20);
+    const bw=Math.max(cw*0.55,4);
+    candles.forEach((c,i)=>{
+      const x=padL+i*cw+cw/2;
+      const up=c.c>=c.o;
+      const col=up?'#00c087':'#ef4444';
+      const oy=padT+chartH-(c.o-mn)/rng*chartH;
+      const cy2=padT+chartH-(c.c-mn)/rng*chartH;
+      const hy=padT+chartH-(c.h-mn)/rng*chartH;
+      const ly2=padT+chartH-(c.l-mn)/rng*chartH;
+      // wick
+      ctx.beginPath();ctx.moveTo(x,hy);ctx.lineTo(x,ly2);
+      ctx.strokeStyle=col;ctx.lineWidth=1.5;ctx.stroke();
+      // body
+      const bodyTop=Math.min(oy,cy2);
+      const bodyH=Math.max(Math.abs(cy2-oy),3);
+      ctx.fillStyle=up?col:'#ef444488';
+      ctx.strokeStyle=col;ctx.lineWidth=1;
+      if(up){
+        ctx.fillRect(x-bw/2,bodyTop,bw,bodyH);
+      } else {
+        ctx.strokeRect(x-bw/2,bodyTop,bw,bodyH);
+        ctx.globalAlpha=0.3;ctx.fillRect(x-bw/2,bodyTop,bw,bodyH);ctx.globalAlpha=1;
+      }
+      // volume bar
+      const vy=H-padB/2;
+      const vBarH=c.vol*(volH*0.8);
+      ctx.fillStyle=col+'55';
+      ctx.fillRect(x-bw/2,vy-vBarH,bw,vBarH);
+    });
+  } else {
+    // fallback line chart if not enough candles
+    ctx.beginPath();
+    liveData.forEach((v,i)=>{
+      const x=padL+i/(Math.max(liveData.length-1,1))*chartW;
+      const y=padT+chartH-(v-mn)/rng*chartH;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.strokeStyle=lc;ctx.lineWidth=2;ctx.stroke();
+  }
+
+  // current price tag
+  ctx.fillStyle=lc;
+  ctx.beginPath();ctx.roundRect(W-padR-1,ly-14,padR+1,26,3);ctx.fill();
+  ctx.fillStyle=lc+'22';
+  ctx.beginPath();ctx.roundRect(padL,ly-14,40,26,3);ctx.fill();
+  ctx.fillStyle=lc;ctx.font='bold 18px -apple-system,sans-serif';ctx.textAlign='left';
+  ctx.fillText('▶',padL+3,ly+5);
+
+  // pulsing dot at end
+  const endX=padL+chartW;
+  const endY=padT+chartH-(last-mn)/rng*chartH;
+  ctx.beginPath();ctx.arc(endX,endY,7,0,Math.PI*2);
+  ctx.fillStyle=lc+'33';ctx.fill();
+  ctx.beginPath();ctx.arc(endX,endY,4,0,Math.PI*2);
+  ctx.fillStyle=lc;ctx.fill();
+
+  // vol label
+  ctx.fillStyle='rgba(255,255,255,0.2)';ctx.font='18px -apple-system,sans-serif';
+  ctx.textAlign='left';ctx.fillText('VOL',padL+2,H-padB/2-volH*0.8-4);
+
+  // update OHLC
+  const hi=Math.max(...liveData),lo=Math.min(...liveData);
+  function fp(n){return n>=1000?Math.round(n).toLocaleString():n.toFixed(2);}
+  document.getElementById('lc-o').textContent='฿'+fp(liveStart);
+  document.getElementById('lc-h').textContent='฿'+fp(hi);
+  document.getElementById('lc-l').textContent='฿'+fp(lo);
+  document.getElementById('lc-c').textContent='฿'+fp(last);
 }
 async function resolveFast(bet,forced){
   let won,profit,payout;
