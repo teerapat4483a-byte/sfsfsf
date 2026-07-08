@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — เทรดจำลอง</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:sans-serif;background:#f3f4f6;color:#1e293b;min-height:100vh;padding:1rem}
+.wrap{max-width:900px;margin:0 auto}
+
+.login-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:99}
+.login-card{background:#fff;border-radius:12px;padding:2rem;width:320px;box-shadow:0 4px 20px rgba(0,0,0,.15)}
+.login-title{font-size:18px;font-weight:700;text-align:center;margin-bottom:1.25rem}
+.field{margin-bottom:.875rem}
+label{display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px}
+input{width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none}
+input:focus{border-color:#2563eb}
+.btn-login{width:100%;padding:10px;border:none;border-radius:8px;background:#2563eb;color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-top:.5rem}
+.err{color:#dc2626;font-size:12px;margin-top:.5rem;text-align:center}
+
+.main-content{display:none}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;background:#fff;padding:.875rem 1rem;border-radius:10px;border:1px solid #e5e7eb;flex-wrap:wrap;gap:8px}
+.title{font-size:17px;font-weight:700}
+.badge-admin{background:#fef3c7;color:#d97706;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:700;margin-left:8px}
+.topbar-right{display:flex;gap:8px;align-items:center}
+.btn-refresh{background:#f1f5f9;color:#475569;border:1px solid #d1d5db;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer}
+.btn-logout{background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer}
+
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem}
+.stat-card{background:#fff;border-radius:8px;padding:.875rem 1rem;border:1px solid #e5e7eb;text-align:center}
+.stat-label{font-size:12px;color:#64748b;margin-bottom:4px}
+.stat-val{font-size:24px;font-weight:700}
+.up{color:#16a34a}.dn{color:#dc2626}
+
+.section{background:#fff;border-radius:10px;padding:1rem;margin-bottom:1rem;border:1px solid #e5e7eb}
+.section-title{font-size:14px;font-weight:700;margin-bottom:1rem}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:8px 10px;background:#f8fafc;color:#64748b;font-weight:700;border-bottom:1px solid #e5e7eb;font-size:12px}
+td{padding:10px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+
+.result-btns{display:flex;gap:5px}
+.rb{padding:4px 10px;border-radius:6px;border:1px solid #d1d5db;font-size:11px;cursor:pointer;font-weight:700;background:#f9fafb;color:#64748b;transition:opacity .2s}
+.rb:hover{opacity:.8}
+.rb.auto.on{background:#e8f0fe;color:#2563eb;border-color:#93c5fd}
+.rb.win.on{background:#dcfce7;color:#16a34a;border-color:#86efac}
+.rb.lose.on{background:#fee2e2;color:#dc2626;border-color:#fca5a5}
+
+.adj-row{display:flex;gap:5px;align-items:center}
+.adj-row input{width:85px;padding:4px 7px;font-size:12px;border:1px solid #d1d5db;border-radius:6px}
+.btn-add{background:#dcfce7;color:#16a34a;border:1px solid #86efac;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;font-weight:700}
+.btn-cut{background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;font-weight:700}
+
+.empty{text-align:center;color:#94a3b8;padding:2rem;font-size:13px}
+.toast{position:fixed;top:14px;right:14px;background:#fff;border:1px solid #d1d5db;border-radius:8px;padding:.6rem 1rem;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<div class="login-overlay" id="login-overlay">
+  <div class="login-card">
+    <div class="login-title">🔐 Admin Login</div>
+    <div class="field"><label>Username</label><input type="text" id="a-user" value="admin" placeholder="admin"></div>
+    <div class="field"><label>Password</label><input type="password" id="a-pass" placeholder="รหัสผ่าน" onkeydown="if(event.key==='Enter')doAdminLogin()"></div>
+    <div class="err" id="a-err"></div>
+    <button class="btn-login" onclick="doAdminLogin()">เข้าสู่ระบบ</button>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main-content" id="main-content">
+<div class="wrap">
+  <div class="topbar">
+    <div>
+      <span class="title">⚙️ Admin Panel</span>
+      <span class="badge-admin">ADMIN</span>
+    </div>
+    <div class="topbar-right">
+      <button class="btn-refresh" onclick="loadUsers()">รีเฟรช</button>
+      <button class="btn-logout" onclick="doLogout()">ออกจากระบบ</button>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-label">ผู้เล่นทั้งหมด</div><div class="stat-val" id="stat-total">0</div></div>
+    <div class="stat-card"><div class="stat-label">บังคับกำไร</div><div class="stat-val up" id="stat-win">0</div></div>
+    <div class="stat-card"><div class="stat-label">บังคับขาดทุน</div><div class="stat-val dn" id="stat-lose">0</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">จัดการผู้เล่น</div>
+    <table>
+      <thead>
+        <tr>
+          <th>ผู้ใช้</th>
+          <th>เงินสด</th>
+          <th>กำหนดผลเทรดเร็ว</th>
+          <th>ปรับเงิน</th>
+        </tr>
+      </thead>
+      <tbody id="users-tbody">
+        <tr><td colspan="4" class="empty">กำลังโหลด...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://myjawbecdfwwndyrjttx.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15amF3YmVjZGZ3d25keXJqdHR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0OTMxNzksImV4cCI6MjA5OTA2OTE3OX0.CdysmTFeVMErbKd4OqCRoFLdRKenqfvKkoXw4ISIoOs';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const ADMIN_USER = 'admin';
+const ADMIN_PASS = 'admin1234';
+
+let usersData = [];
+let isAdmin = false;
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+function doAdminLogin(){
+  const u=document.getElementById('a-user').value;
+  const p=document.getElementById('a-pass').value;
+  if(u===ADMIN_USER && p===ADMIN_PASS){
+    isAdmin=true;
+    sessionStorage.setItem('is_admin','1');
+    document.getElementById('login-overlay').style.display='none';
+    document.getElementById('main-content').style.display='block';
+    loadUsers();
+  } else {
+    document.getElementById('a-err').textContent='รหัสผ่านไม่ถูกต้อง';
+  }
+}
+
+function doLogout(){
+  sessionStorage.removeItem('is_admin');
+  isAdmin=false;
+  document.getElementById('login-overlay').style.display='flex';
+  document.getElementById('main-content').style.display='none';
+}
+
+async function loadUsers(){
+  const {data:users} = await sb.from('users').select('id,username,cash,created_at').order('created_at');
+  const {data:overrides} = await sb.from('result_overrides').select('*');
+
+  usersData = (users||[]).map(u=>{
+    const ov = (overrides||[]).find(o=>o.user_id===u.id);
+    return {...u, forced_result: ov?ov.result:'auto'};
+  });
+
+  document.getElementById('stat-total').textContent = usersData.length;
+  document.getElementById('stat-win').textContent = usersData.filter(u=>u.forced_result==='win').length;
+  document.getElementById('stat-lose').textContent = usersData.filter(u=>u.forced_result==='lose').length;
+
+  renderUsers();
+}
+
+function renderUsers(){
+  const tbody = document.getElementById('users-tbody');
+  if(!usersData.length){
+    tbody.innerHTML='<tr><td colspan="4" class="empty">ยังไม่มีผู้เล่น</td></tr>';
+    return;
+  }
+  tbody.innerHTML = usersData.map(u=>`
+    <tr>
+      <td><strong>${u.username}</strong><br><span style="font-size:10px;color:#94a3b8">${u.id.slice(0,8)}...</span></td>
+      <td><span style="font-weight:700;color:#16a34a">฿${Math.round(u.cash).toLocaleString()}</span></td>
+      <td>
+        <div class="result-btns">
+          <button class="rb auto ${u.forced_result==='auto'?'on':''}" onclick="setResult('${u.id}','auto',this)">สุ่ม</button>
+          <button class="rb win ${u.forced_result==='win'?'on':''}" onclick="setResult('${u.id}','win',this)">กำไร</button>
+          <button class="rb lose ${u.forced_result==='lose'?'on':''}" onclick="setResult('${u.id}','lose',this)">ขาดทุน</button>
+        </div>
+      </td>
+      <td>
+        <div class="adj-row">
+          <input type="number" id="adj-${u.id}" placeholder="จำนวน" min="0" step="1000">
+          <button class="btn-add" onclick="adjustCash('${u.id}',1)">+เติม</button>
+          <button class="btn-cut" onclick="adjustCash('${u.id}',-1)">-หัก</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function setResult(userId, result, btn){
+  await sb.from('result_overrides').upsert({
+    user_id: userId,
+    result,
+    updated_at: new Date().toISOString()
+  }, {onConflict:'user_id'});
+
+  const row = btn.closest('tr');
+  row.querySelectorAll('.rb').forEach(b=>{
+    b.classList.remove('on');
+  });
+  btn.classList.add('on');
+
+  const u = usersData.find(u=>u.id===userId);
+  if(u) u.forced_result = result;
+
+  document.getElementById('stat-win').textContent = usersData.filter(u=>u.forced_result==='win').length;
+  document.getElementById('stat-lose').textContent = usersData.filter(u=>u.forced_result==='lose').length;
+
+  const labels = {auto:'สุ่ม', win:'กำไร', lose:'ขาดทุน'};
+  showToast(`ตั้งผล "${labels[result]}" ให้ ${u?u.username:userId}`);
+}
+
+async function adjustCash(userId, sign){
+  const input = document.getElementById('adj-'+userId);
+  const amount = parseFloat(input.value);
+  if(!amount||amount<=0){showToast('ใส่จำนวนเงิน');return;}
+
+  const u = usersData.find(u=>u.id===userId);
+  if(!u) return;
+  const newCash = u.cash + amount*sign;
+  if(newCash<0){showToast('เงินติดลบไม่ได้');return;}
+
+  await sb.from('users').update({cash: newCash}).eq('id', userId);
+  u.cash = newCash;
+  input.value='';
+  renderUsers();
+  showToast(`${sign>0?'เติม':'หัก'} ฿${amount.toLocaleString()} ให้ ${u.username}`);
+}
+
+// Restore session
+if(sessionStorage.getItem('is_admin')==='1'){
+  isAdmin=true;
+  document.getElementById('login-overlay').style.display='none';
+  document.getElementById('main-content').style.display='block';
+  loadUsers();
+}
+
+setInterval(()=>{if(isAdmin)loadUsers();}, 15000);
+</script>
+</body>
+</html>
