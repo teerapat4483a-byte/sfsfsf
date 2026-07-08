@@ -232,6 +232,16 @@ select{width:100%;padding:7px 8px;border:1px solid #d1d5db;border-radius:6px;fon
 
 <div class="toast" id="toast"></div>
 
+<!-- Register Success Popup -->
+<div id="reg-popup-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:16px;padding:2rem;width:300px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.15)">
+    <div style="font-size:48px;margin-bottom:.75rem">🎉</div>
+    <div style="font-size:18px;font-weight:700;color:#1e293b;margin-bottom:.5rem">สมัครสมาชิกเรียบร้อย!</div>
+    <div style="font-size:13px;color:#64748b;margin-bottom:1.25rem" id="reg-popup-name"></div>
+    <button onclick="closeRegisterPopup()" style="width:100%;padding:10px;border:none;border-radius:8px;background:#2563eb;color:#fff;font-size:14px;font-weight:700;cursor:pointer">เข้าสู่ระบบเลย</button>
+  </div>
+</div>
+
 <script>
 const SUPABASE_URL = 'https://myjawbecdfwwndyrjttx.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15amF3YmVjZGZ3d25keXJqdHR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0OTMxNzksImV4cCI6MjA5OTA2OTE3OX0.CdysmTFeVMErbKd4OqCRoFLdRKenqfvKkoXw4ISIoOs';
@@ -308,7 +318,7 @@ async function doRegister(){
 
   const {error} = await sb.from('users').insert({username, password, cash:0});
   if(error){showMsg('r-msg','เกิดข้อผิดพลาด: '+error.message,true);return;}
-  showMsg('r-msg','สมัครสำเร็จ กรุณาเข้าสู่ระบบ',false);
+  showRegisterPopup(username);
 }
 
 async function doLogin(){
@@ -679,6 +689,17 @@ function tick(){
     renderStocks();renderPortfolio();
   }
   updateStats();
+}
+
+function showRegisterPopup(username){
+  document.getElementById('reg-popup-name').textContent = `ยินดีต้อนรับ ${username} กรุณาเข้าสู่ระบบเพื่อเริ่มเทรด`;
+  const overlay = document.getElementById('reg-popup-overlay');
+  overlay.style.display = 'flex';
+}
+
+function closeRegisterPopup(){
+  document.getElementById('reg-popup-overlay').style.display = 'none';
+  switchAuthTab('login', document.querySelector('.tab-btn'));
 }
 
 restoreSession();
