@@ -422,6 +422,21 @@ canvas#lc{width:100%;display:block;border-radius:6px}
       <div class="announce-menu">☰</div>
     </div>
 
+    <!-- Gold Banner -->
+    <div style="background:linear-gradient(135deg,#1a1200 0%,#3d2b00 50%,#1a1200 100%);margin-top:8px;padding:1rem;display:flex;align-items:center;gap:1rem;border-top:1px solid #5a4000;border-bottom:1px solid #5a4000">
+      <div style="font-size:36px">🥇</div>
+      <div style="flex:1">
+        <div style="font-size:11px;color:#d4af37;font-weight:700;letter-spacing:1px;margin-bottom:2px">GOLD MARKET</div>
+        <div style="font-size:14px;font-weight:700;color:#ffd700">ทองคำโลก XAU/USD</div>
+        <div style="font-size:12px;color:#c9a227;margin-top:2px" id="gold-banner-price">฿105,800 / oz</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:11px;color:#d4af37;margin-bottom:2px">เปลี่ยนแปลง</div>
+        <div id="gold-banner-chg" style="font-size:14px;font-weight:700;color:#00c087">+0.00%</div>
+        <div style="font-size:10px;color:#5a4000;margin-top:4px">อัพเดต 3 วิ</div>
+      </div>
+    </div>
+
     <!-- Market List -->
     <div class="market-section">
       <div class="market-header">
@@ -432,6 +447,7 @@ canvas#lc{width:100%;display:block;border-radius:6px}
         <button class="mcat active" onclick="homeFilter('all',this)">ทั้งหมด</button>
         <button class="mcat" onclick="homeFilter('crypto',this)">คริปโต</button>
         <button class="mcat" onclick="homeFilter('thai',this)">หุ้นไทย</button>
+        <button class="mcat" onclick="homeFilter('gold',this)">ทองคำ</button>
       </div>
       <div class="mlist-head">
         <span>สินทรัพย์</span>
@@ -450,6 +466,24 @@ canvas#lc{width:100%;display:block;border-radius:6px}
         <button class="mcat active" onclick="marketFilter('all',this)">ทั้งหมด</button>
         <button class="mcat" onclick="marketFilter('crypto',this)">คริปโต</button>
         <button class="mcat" onclick="marketFilter('thai',this)">หุ้นไทย</button>
+        <button class="mcat" onclick="marketFilter('gold',this)">🥇 ทองคำ</button>
+      </div>
+    </div>
+    <!-- Gold stats bar (แสดงเฉพาะตอนเลือกหมวดทอง) -->
+    <div id="gold-stats-bar" style="display:none;background:linear-gradient(135deg,#1a1200,#2d1f00);padding:.875rem 1rem;border-bottom:1px solid #5a4000">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;text-align:center">
+        <div>
+          <div style="font-size:10px;color:#d4af37;margin-bottom:2px">XAU/USD</div>
+          <div style="font-size:13px;font-weight:700;color:#ffd700" id="gs-xauusd">฿0</div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:#d4af37;margin-bottom:2px">ทอง 96.5%</div>
+          <div style="font-size:13px;font-weight:700;color:#ffd700" id="gs-gold96">฿0</div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:#c0c0c0;margin-bottom:2px">เงิน/Silver</div>
+          <div style="font-size:13px;font-weight:700;color:#c0c0c0" id="gs-silver">฿0</div>
+        </div>
       </div>
     </div>
     <div class="mlist-head" style="padding:.625rem 1rem">
@@ -678,6 +712,13 @@ const ASSETS=[
   {sym:'SCC',name:'ปูนซิเมนต์ไทย',cat:'thai',price:285,color:'#cc0000',emoji:'🏗️'},
   {sym:'MINT',name:'ไมเนอร์ อินเตอร์',cat:'thai',price:32,color:'#ff6600',emoji:'🍽️'},
   {sym:'CPN',name:'เซ็นทรัลพัฒนา',cat:'thai',price:68,color:'#cc0000',emoji:'🏬'},
+  // ทองคำ
+  {sym:'XAUUSD',name:'ทองคำโลก (USD)',cat:'gold',price:105800,color:'#ffd700',emoji:'🥇'},
+  {sym:'XAUEUR',name:'ทองคำ (EUR)',cat:'gold',price:97200,color:'#e8b800',emoji:'🥇'},
+  {sym:'XAUTHB',name:'ทองคำไทย (THB)',cat:'gold',price:45500,color:'#d4af37',emoji:'🏅'},
+  {sym:'GOLD96',name:'ทองคำ 96.5%',cat:'gold',price:43200,color:'#cfb53b',emoji:'🏅'},
+  {sym:'SILVER',name:'เงิน (Silver)',cat:'gold',price:1280,color:'#c0c0c0',emoji:'🥈'},
+  {sym:'PLATINUM',name:'แพลทินัม',cat:'gold',price:31500,color:'#e5e4e2',emoji:'💎'},
 ];
 
 let cu=null,cash=0,portfolio={};
@@ -714,8 +755,8 @@ function authMsg(id,msg,err){
 }
 function logoImg(a,cls,size=32){
   if(a.emoji){
-    // หุ้นไทย ใช้ emoji
-    return `<span style="width:${size}px;height:${size}px;border-radius:50%;background:${a.color}22;display:inline-flex;align-items:center;justify-content:center;font-size:${size*0.5}px;flex-shrink:0">${a.emoji}</span>`;
+    const bg = a.cat==='gold' ? 'linear-gradient(135deg,#3d2b00,#5a4000)' : a.color+'22';
+    return `<span style="width:${size}px;height:${size}px;border-radius:50%;background:${bg};display:inline-flex;align-items:center;justify-content:center;font-size:${size*0.5}px;flex-shrink:0;border:${a.cat==='gold'?'1px solid #d4af3755':''}">${a.emoji}</span>`;
   }
   // คริปโต ใช้รูปจาก coingecko
   return `<img src="${a.logo}" class="${cls}" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:contain;padding:3px;background:${a.color}22;flex-shrink:0" onerror="this.outerHTML='<span style=width:${size}px;height:${size}px;border-radius:50%;background:${a.color}22;display:inline-flex;align-items:center;justify-content:center;font-size:${size*0.4}px;font-weight:700;color:${a.color};flex-shrink:0>${a.sym[0]}</span>'">`;
@@ -843,7 +884,19 @@ function marketFilter(cat,el){
   mktCat=cat;
   document.querySelectorAll('#page-market .mcat').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
+  const gsb=document.getElementById('gold-stats-bar');
+  if(gsb) gsb.style.display=cat==='gold'?'block':'none';
+  if(cat==='gold') updateGoldStats();
   renderMarket();
+}
+
+function updateGoldStats(){
+  const el1=document.getElementById('gs-xauusd');
+  const el2=document.getElementById('gs-gold96');
+  const el3=document.getElementById('gs-silver');
+  if(el1) el1.textContent='฿'+Math.round(prices['XAUUSD']||105800).toLocaleString();
+  if(el2) el2.textContent='฿'+Math.round(prices['GOLD96']||43200).toLocaleString();
+  if(el3) el3.textContent='฿'+Math.round(prices['SILVER']||1280).toLocaleString();
 }
 function renderMarket(){
   const data=mktCat==='all'?ASSETS:ASSETS.filter(a=>a.cat===mktCat);
@@ -1092,10 +1145,21 @@ async function doTrade(){
 
 /* ─── FAST TRADE ─── */
 function renderFastSym(){
-  document.getElementById('fsym-grid').innerHTML=ASSETS.map(a=>`
-    <button class="fsym-btn ${a.sym===selSym?'active':''}" onclick="setFSym('${a.sym}')">
-      ${logoImg(a,'',24)}<br>${a.sym}
-    </button>`).join('');
+  const cats=[
+    {label:'⚡ คริปโต',cat:'crypto'},
+    {label:'📈 หุ้นไทย',cat:'thai'},
+    {label:'🥇 ทองคำ',cat:'gold'},
+  ];
+  let html='';
+  cats.forEach(c=>{
+    const items=ASSETS.filter(a=>a.cat===c.cat);
+    html+=`<div style="grid-column:1/-1;font-size:10px;font-weight:700;color:var(--sub);letter-spacing:.5px;margin-top:4px">${c.label}</div>`;
+    html+=items.map(a=>`
+      <button class="fsym-btn ${a.sym===selSym?'active':''}" onclick="setFSym('${a.sym}')" style="${a.cat==='gold'?'border-color:#5a4000;background:linear-gradient(135deg,#1a1200,#2d1f00)':''}">
+        ${logoImg(a,'',22)}<br><span style="font-size:10px">${a.sym}</span>
+      </button>`).join('');
+  });
+  document.getElementById('fsym-grid').innerHTML=html;
 }
 function setFSym(sym){selSym=sym;renderFastSym();}
 function setFDir(d){
@@ -1262,6 +1326,18 @@ function tick(){
   }
   updateTicker();
   updateStats();
+  // update gold banner
+  const gp = prices['XAUUSD'];
+  const gh = hists['XAUUSD'];
+  if(gh && gp){
+    const gprev = gh[gh.length-2]||gh[0];
+    const gchg = ((gp-gprev)/gprev*100).toFixed(2);
+    const gup = gchg >= 0;
+    const gpEl = document.getElementById('gold-banner-price');
+    const gcEl = document.getElementById('gold-banner-chg');
+    if(gpEl) gpEl.textContent = '฿'+Math.round(gp).toLocaleString()+' / oz';
+    if(gcEl){gcEl.textContent=(gup?'+':'')+gchg+'%';gcEl.style.color=gup?'#00c087':'#ef4444';}
+  }
 }
 
 /* ─── INIT ─── */
