@@ -2,983 +2,1082 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>TradeX</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{--bg:#0b0e11;--card:#1e2329;--card2:#2b3139;--border:#2b3139;--text:#eaecef;--sub:#848e9c;--green:#0ecb81;--red:#f6465d;--yellow:#f0b90b;--blue:#1890ff}
-body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;position:relative;padding-bottom:70px}
+:root{--bg:#121420;--card:#1a1d2e;--card2:#222538;--border:#2a2d3e;--text:#e8eaf0;--sub:#6b7280;--green:#00c087;--red:#ef4444;--yellow:#f5a623;--blue:#3b82f6;--purple:#8b5cf6}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+body{max-width:480px;margin:0 auto;position:relative;overflow-x:hidden}
 
-/* LOGIN */
-.login-screen{display:none;position:fixed;inset:0;align-items:center;justify-content:center;padding:1rem;background:rgba(0,0,0,.85);z-index:100;backdrop-filter:blur(4px)}
-.login-card{background:var(--card);border-radius:16px;padding:2rem;width:100%;max-width:380px}
-.logo-wrap{text-align:center;margin-bottom:2rem}
-.logo-icon{font-size:48px}
-.logo-name{font-size:24px;font-weight:700;color:var(--yellow);margin-top:.5rem}
-.logo-sub{font-size:12px;color:var(--sub);margin-top:4px}
-.auth-tabs{display:flex;background:var(--card2);border-radius:8px;padding:4px;margin-bottom:1.5rem;gap:4px}
-.auth-tab{flex:1;padding:8px;border:none;background:transparent;border-radius:6px;font-size:13px;cursor:pointer;color:var(--sub);font-weight:600}
-.auth-tab.active{background:var(--yellow);color:#000}
+/* SCROLLBAR */
+::-webkit-scrollbar{width:0;height:0}
+
+/* LOGIN OVERLAY */
+.login-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:999;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
+.login-overlay.show{display:flex}
+.login-sheet{background:var(--card);border-radius:20px 20px 0 0;padding:1.5rem 1.25rem 2rem;width:100%;max-width:480px}
+.sheet-handle{width:40px;height:4px;background:var(--border);border-radius:99px;margin:0 auto 1.25rem}
+.sheet-title{font-size:18px;font-weight:700;margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center}
+.sheet-close{background:none;border:none;color:var(--sub);font-size:24px;cursor:pointer;line-height:1}
+.auth-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:1.25rem}
+.auth-tab{flex:1;padding:10px;background:none;border:none;color:var(--sub);font-size:14px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.auth-tab.active{color:var(--yellow);border-bottom-color:var(--yellow)}
 .auth-panel{display:none}.auth-panel.active{display:block}
-.field{margin-bottom:1rem}
-.field label{display:block;font-size:12px;color:var(--sub);margin-bottom:6px}
-.field input{width:100%;padding:12px;background:var(--card2);border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);outline:none}
-.field input:focus{border-color:var(--yellow)}
-.btn-auth{width:100%;padding:13px;border:none;border-radius:8px;background:var(--yellow);color:#000;font-size:15px;font-weight:700;cursor:pointer;margin-top:.5rem}
-.auth-msg{font-size:12px;margin-top:.5rem;padding:8px 10px;border-radius:6px;display:none}
-.auth-msg.err{background:rgba(246,70,93,.15);color:var(--red);display:block}
-.auth-msg.ok{background:rgba(14,203,129,.15);color:var(--green);display:block}
-.admin-link{text-align:center;margin-top:1.25rem;font-size:12px;color:var(--sub)}
-.admin-link a{color:var(--yellow);text-decoration:none}
+.inp-group{margin-bottom:1rem}
+.inp-group label{display:block;font-size:12px;color:var(--sub);margin-bottom:6px}
+.inp-group input{width:100%;padding:13px 14px;background:var(--card2);border:1px solid var(--border);border-radius:10px;font-size:15px;color:var(--text);outline:none}
+.inp-group input:focus{border-color:var(--yellow)}
+.btn-submit{width:100%;padding:14px;border:none;border-radius:10px;background:var(--yellow);color:#000;font-size:16px;font-weight:700;cursor:pointer;margin-top:.5rem}
+.auth-msg{font-size:12px;margin:.5rem 0;padding:8px 10px;border-radius:8px;display:none}
+.auth-msg.err{background:rgba(239,68,68,.15);color:var(--red);display:block}
+.auth-msg.ok{background:rgba(0,192,135,.15);color:var(--green);display:block}
 
-/* MAIN APP */
-.main-app{display:block}
+/* MAIN */
+.app{min-height:100vh;padding-bottom:65px}
 
 /* TOPBAR */
-.topbar{background:var(--card);padding:.875rem 1rem;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10;border-bottom:1px solid var(--border)}
-.topbar-logo{font-size:18px;font-weight:700;color:var(--yellow)}
-.topbar-right{display:flex;align-items:center;gap:10px}
+.topbar{background:var(--bg);padding:.875rem 1rem;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border)}
+.topbar-logo{display:flex;align-items:center;gap:8px}
+.topbar-logo img{width:28px;height:28px;border-radius:6px}
+.topbar-logo span{font-size:18px;font-weight:800;color:var(--yellow);letter-spacing:-.5px}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.btn-login-top{padding:7px 16px;background:var(--yellow);color:#000;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer}
+.user-info{display:none;align-items:center;gap:8px}
+.user-avatar{width:30px;height:30px;border-radius:50%;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#000}
 .user-cash{font-size:13px;color:var(--green);font-weight:700}
-.btn-logout-top{background:rgba(246,70,93,.15);color:var(--red);border:none;border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer}
+.btn-out{background:none;border:none;color:var(--sub);font-size:20px;cursor:pointer}
+
+/* TICKER BAR */
+.ticker-bar{background:var(--card);padding:.5rem 1rem;display:flex;gap:1.5rem;overflow-x:auto;border-bottom:1px solid var(--border)}
+.ticker-item{flex-shrink:0;text-align:center;min-width:90px}
+.ticker-sym{font-size:11px;color:var(--sub);margin-bottom:2px}
+.ticker-price{font-size:14px;font-weight:700}
+.ticker-chg{font-size:11px;font-weight:600}
+.up{color:var(--green)}.dn{color:var(--red)}
 
 /* PAGES */
-.page{display:none;padding:1rem}.page.active{display:block}
+.page{display:none;padding:0}.page.active{display:block}
 
-/* HOME PAGE */
-.banner{background:linear-gradient(135deg,#1a1f2e,#2b3139);border-radius:12px;padding:1.25rem;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center}
-.banner-left h2{font-size:18px;font-weight:700;margin-bottom:4px}
-.banner-left p{font-size:12px;color:var(--sub)}
-.banner-cash{text-align:right}
-.banner-cash-label{font-size:11px;color:var(--sub)}
-.banner-cash-val{font-size:22px;font-weight:700;color:var(--green)}
+/* HOME */
+/* Slider */
+.slider-wrap{position:relative;overflow:hidden;margin-bottom:0}
+.slider-track{display:flex;transition:transform .4s ease}
+.slide{min-width:100%;padding:1.25rem 1rem;display:flex;justify-content:space-between;align-items:center}
+.slide-1{background:linear-gradient(135deg,#1a1040 0%,#2d1b69 100%)}
+.slide-2{background:linear-gradient(135deg,#0a2a1a 0%,#0d4a2e 100%)}
+.slide-3{background:linear-gradient(135deg,#1a0a2e 0%,#3b1a6b 100%)}
+.slide-left{flex:1}
+.slide-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;margin-bottom:6px}
+.slide-badge.featured{background:rgba(245,166,35,.2);color:var(--yellow)}
+.slide-badge.new{background:rgba(0,192,135,.2);color:var(--green)}
+.slide-badge.top{background:rgba(239,68,68,.2);color:var(--red)}
+.slide-title{font-size:13px;color:var(--sub);margin-bottom:4px}
+.slide-amount{font-size:22px;font-weight:800;color:var(--yellow);margin-bottom:8px}
+.slide-btn{padding:7px 16px;border:none;border-radius:99px;background:var(--green);color:#000;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;width:fit-content}
+.slide-right{text-align:center}
+.slide-coin-icon{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 4px;border:2px solid rgba(255,255,255,.1)}
+.slide-coin-name{font-size:12px;color:var(--sub)}
+.slide-dots{display:flex;justify-content:center;gap:6px;padding:.5rem 0;background:var(--card)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--border);cursor:pointer;transition:all .3s}
+.dot.active{background:var(--yellow);width:18px;border-radius:3px}
 
-.topup-row{display:flex;gap:8px;margin-bottom:1rem}
-.topup-row input{flex:1;padding:10px 12px;background:var(--card2);border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--text);outline:none}
-.topup-row input:focus{border-color:var(--yellow)}
-.btn-topup{padding:10px 16px;background:var(--yellow);color:#000;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+/* Market ticker mini */
+.market-ticker{display:grid;grid-template-columns:repeat(3,1fr);gap:0;background:var(--card);border-top:1px solid var(--border)}
+.mticker-item{padding:.75rem;text-align:center;border-right:1px solid var(--border)}
+.mticker-item:last-child{border-right:none}
+.mticker-sym{font-size:11px;color:var(--sub);margin-bottom:2px}
+.mticker-price{font-size:14px;font-weight:700}
+.mticker-chg{font-size:11px;font-weight:600}
 
-.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem}
-.stat-card{background:var(--card);border-radius:10px;padding:.75rem;text-align:center}
-.stat-label{font-size:11px;color:var(--sub);margin-bottom:4px}
-.stat-val{font-size:16px;font-weight:700}
+/* Quick Menu */
+.quick-menu{background:var(--card);padding:1rem;margin-top:8px;display:grid;grid-template-columns:repeat(5,1fr);gap:.5rem}
+.qm-item{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer}
+.qm-icon{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px}
+.qm-label{font-size:10px;color:var(--sub);text-align:center;font-weight:500}
 
-.section-title{font-size:14px;font-weight:700;margin-bottom:.75rem;display:flex;justify-content:space-between;align-items:center}
-.section-title span{font-size:11px;color:var(--sub);font-weight:400}
+/* Announcement */
+.announce-bar{background:var(--card);margin-top:8px;padding:.625rem 1rem;display:flex;align-items:center;gap:.75rem;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.announce-icon{font-size:16px;flex-shrink:0}
+.announce-scroll{overflow:hidden;flex:1}
+.announce-text{font-size:12px;color:var(--sub);white-space:nowrap;animation:scrollText 20s linear infinite}
+@keyframes scrollText{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+.announce-menu{font-size:16px;color:var(--sub);cursor:pointer;flex-shrink:0}
 
-/* MARKET PAGE */
-.cat-tabs{display:flex;gap:6px;margin-bottom:1rem;overflow-x:auto;padding-bottom:4px}
-.cat-tabs::-webkit-scrollbar{display:none}
-.cat-tab{padding:7px 16px;border-radius:99px;border:1px solid var(--border);font-size:13px;cursor:pointer;background:transparent;color:var(--sub);white-space:nowrap;font-weight:600}
-.cat-tab.active{background:var(--yellow);color:#000;border-color:var(--yellow)}
-
-.market-list{}
-.market-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)}
-.market-row:last-child{border-bottom:none}
-.market-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;margin-right:10px;flex-shrink:0}
-.market-left{display:flex;align-items:center}
-.market-name{font-size:14px;font-weight:700}
-.market-sub{font-size:11px;color:var(--sub)}
-.market-right{text-align:right}
-.market-price{font-size:14px;font-weight:700}
-.market-chg{font-size:12px;font-weight:600;padding:2px 8px;border-radius:4px;margin-top:2px;display:inline-block}
-.chg-up{background:rgba(14,203,129,.15);color:var(--green)}
-.chg-dn{background:rgba(246,70,93,.15);color:var(--red)}
+/* Market List Home */
+.market-section{background:var(--card);margin-top:8px;padding:0}
+.market-header{display:flex;align-items:center;justify-content:space-between;padding:.875rem 1rem .5rem}
+.market-header-title{font-size:14px;font-weight:700}
+.market-see-all{font-size:12px;color:var(--yellow);cursor:pointer}
+.market-cats{display:flex;gap:0;padding:0 1rem .5rem;overflow-x:auto}
+.mcat{padding:5px 12px;border-radius:99px;border:none;background:none;font-size:12px;color:var(--sub);cursor:pointer;font-weight:600;white-space:nowrap}
+.mcat.active{background:rgba(245,166,35,.15);color:var(--yellow)}
+.mlist-head{display:grid;grid-template-columns:1fr 1fr 1fr;padding:.5rem 1rem;border-top:1px solid var(--border)}
+.mlist-head span{font-size:11px;color:var(--sub)}
+.mlist-head span:nth-child(2){text-align:center}
+.mlist-head span:last-child{text-align:right}
+.mlist-item{display:grid;grid-template-columns:1fr 1fr 1fr;padding:.75rem 1rem;border-top:1px solid var(--border);cursor:pointer;align-items:center}
+.mlist-item:active{background:var(--card2)}
+.mlist-left{display:flex;align-items:center;gap:10px}
+.mlist-logo{width:32px;height:32px;border-radius:50%;object-fit:contain;padding:3px}
+.mlist-logo-fallback{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.mlist-name{font-size:13px;font-weight:700}
+.mlist-sub{font-size:10px;color:var(--sub);margin-top:1px}
+.mlist-price{font-size:13px;font-weight:700;text-align:center}
+.mlist-chg{text-align:right}
+.chg-badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:12px;font-weight:700}
+.chg-up{background:rgba(0,192,135,.15);color:var(--green)}
+.chg-dn{background:rgba(239,68,68,.15);color:var(--red)}
 
 /* TRADE PAGE */
-.trade-sym-selector{display:flex;gap:6px;margin-bottom:1rem;overflow-x:auto;padding-bottom:4px}
-.trade-sym-selector::-webkit-scrollbar{display:none}
-.sym-btn{padding:6px 14px;border-radius:99px;border:1px solid var(--border);font-size:12px;cursor:pointer;background:transparent;color:var(--sub);white-space:nowrap;font-weight:600}
-.sym-btn.active{background:var(--yellow);color:#000;border-color:var(--yellow)}
+.trade-page{padding:0}
+.sym-scroll{display:flex;gap:0;overflow-x:auto;background:var(--card);border-bottom:1px solid var(--border)}
+.sym-btn{padding:.625rem 1rem;background:none;border:none;color:var(--sub);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent}
+.sym-btn.active{color:var(--yellow);border-bottom-color:var(--yellow)}
 
-.trade-card{background:var(--card);border-radius:12px;padding:1rem;margin-bottom:1rem}
-.trade-price-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem}
-.trade-sym{font-size:16px;font-weight:700}
-.trade-price{font-size:24px;font-weight:700}
-.trade-chg-badge{font-size:12px;padding:3px 8px;border-radius:4px;margin-top:4px;display:inline-block}
+.trade-price-card{background:var(--card);padding:1rem;margin-bottom:8px}
+.tpc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem}
+.tpc-sym{font-size:13px;color:var(--sub);margin-bottom:2px}
+.tpc-price{font-size:28px;font-weight:800}
+.tpc-chg{font-size:12px;font-weight:600;padding:3px 8px;border-radius:4px}
+.tpc-right{text-align:right;font-size:12px;color:var(--sub)}
+.tpc-vol{margin-top:4px}
 
-.spark-wrap{margin-bottom:1rem}
-canvas.spark{width:100%;height:80px;border-radius:8px}
+.chart-wrap{background:var(--card);padding:.875rem 1rem;margin-bottom:8px}
+canvas.tchart{width:100%;display:block;border-radius:8px}
 
-.buy-sell-tabs{display:flex;gap:8px;margin-bottom:1rem}
-.bs-tab{flex:1;padding:10px;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer}
-.bs-tab.buy{background:rgba(14,203,129,.15);color:var(--green)}
-.bs-tab.sell{background:rgba(246,70,93,.15);color:var(--red)}
+.order-card{background:var(--card);padding:1rem;margin-bottom:8px}
+.bs-tabs{display:flex;border-radius:10px;overflow:hidden;margin-bottom:1rem;border:1px solid var(--border)}
+.bs-tab{flex:1;padding:11px;background:none;border:none;font-size:14px;font-weight:700;cursor:pointer;color:var(--sub)}
 .bs-tab.buy.active{background:var(--green);color:#000}
 .bs-tab.sell.active{background:var(--red);color:#fff}
 
-.qty-row{display:flex;gap:8px;align-items:center;margin-bottom:.75rem}
-.qty-row input{flex:1;padding:10px;background:var(--card2);border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);outline:none;text-align:center}
-.qty-row input:focus{border-color:var(--yellow)}
-.btn-trade{width:100%;padding:13px;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer}
-.btn-trade.buy{background:var(--green);color:#000}
-.btn-trade.sell{background:var(--red);color:#fff}
+.order-row{display:flex;align-items:center;margin-bottom:.875rem;gap:.75rem}
+.order-label{font-size:12px;color:var(--sub);width:60px;flex-shrink:0}
+.order-input{flex:1;padding:11px 12px;background:var(--card2);border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);outline:none}
+.order-input:focus{border-color:var(--yellow)}
+.stepper{display:flex;gap:6px}
+.stepper button{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.order-summary{background:var(--card2);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:12px;display:flex;justify-content:space-between}
+.order-summary span{color:var(--sub)}
+.order-summary strong{color:var(--text)}
+.btn-order{width:100%;padding:14px;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer}
+.btn-order.buy{background:var(--green);color:#000}
+.btn-order.sell{background:var(--red);color:#fff}
+.holding-row{display:flex;justify-content:space-between;font-size:12px;color:var(--sub);margin-bottom:1rem}
 
-.holding-info{background:var(--card2);border-radius:8px;padding:.75rem;font-size:12px;color:var(--sub);margin-bottom:.75rem;display:flex;justify-content:space-between}
+/* FAST TRADE PAGE */
+.fast-page{padding:.875rem}
+.fast-header{font-size:16px;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+.fast-sym-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem}
+.fsym-btn{padding:8px 4px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--sub);font-size:12px;font-weight:700;cursor:pointer;text-align:center}
+.fsym-btn.active{background:rgba(245,166,35,.15);color:var(--yellow);border-color:var(--yellow)}
+.fast-card{background:var(--card);border-radius:12px;padding:1rem;margin-bottom:.875rem}
+.fast-card-title{font-size:12px;color:var(--sub);margin-bottom:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.fast-dir-btns{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem}
+.fdir-btn{padding:14px;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+.fdir-btn.up{background:rgba(0,192,135,.15);color:var(--green);border:1.5px solid rgba(0,192,135,.3)}
+.fdir-btn.down{background:rgba(239,68,68,.15);color:var(--red);border:1.5px solid rgba(239,68,68,.3)}
+.fdir-btn.up.active{background:var(--green);color:#000;border-color:var(--green)}
+.fdir-btn.down.active{background:var(--red);color:#fff;border-color:var(--red)}
+.fast-time-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem}
+.ftime-btn{padding:8px;background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--sub);font-size:13px;font-weight:600;cursor:pointer;text-align:center}
+.ftime-btn.active{background:rgba(245,166,35,.15);color:var(--yellow);border-color:var(--yellow)}
+.bet-row{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem}
+.bet-input{flex:1;padding:13px;background:var(--card2);border:1px solid var(--border);border-radius:10px;font-size:16px;color:var(--text);outline:none;font-weight:700}
+.bet-input:focus{border-color:var(--yellow)}
+.bet-presets{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:1rem}
+.bet-preset{padding:6px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--sub);font-size:11px;font-weight:600;cursor:pointer;text-align:center}
+.bet-preset:active{background:var(--yellow);color:#000;border-color:var(--yellow)}
 
-/* FAST TRADE */
-.fast-card{background:var(--card);border-radius:12px;padding:1rem;margin-bottom:1rem}
-.fast-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
-.fast-field label{font-size:11px;color:var(--sub);margin-bottom:5px;display:block}
-.fast-field select,.fast-field input{width:100%;padding:10px;background:var(--card2);border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--text);outline:none}
-.fast-field select:focus,.fast-field input:focus{border-color:var(--yellow)}
+.live-chart-box{background:var(--card2);border-radius:10px;padding:.875rem;margin-bottom:.875rem;display:none}
+.lcb-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.625rem}
+.lcb-sym{font-size:13px;font-weight:700;color:var(--sub)}
+.lcb-price{font-size:22px;font-weight:800}
+.lcb-chg{font-size:12px;font-weight:600}
+canvas#lc{width:100%;display:block;border-radius:6px}
 
-.dir-btns{display:flex;gap:8px;margin-bottom:1rem}
-.dir-btn{flex:1;padding:12px;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer}
-.dir-btn.up{background:rgba(14,203,129,.15);color:var(--green);border:1px solid rgba(14,203,129,.3)}
-.dir-btn.down{background:rgba(246,70,93,.15);color:var(--red);border:1px solid rgba(246,70,93,.3)}
-.dir-btn.up.active{background:var(--green);color:#000}
-.dir-btn.down.active{background:var(--red);color:#fff}
+.timer-box{display:none;margin-bottom:.875rem}
+.tbar-bg{background:var(--card2);border-radius:99px;height:6px;overflow:hidden;margin-bottom:6px}
+.tbar-fill{height:6px;border-radius:99px;background:var(--yellow);transition:width .1s linear}
+.tbar-label{font-size:12px;color:var(--sub);text-align:center}
 
-.live-chart-wrap{display:none;background:var(--card2);border-radius:10px;padding:.875rem;margin-bottom:1rem}
-.live-chart-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.live-sym{font-size:13px;font-weight:700}
-.live-price{font-size:20px;font-weight:700}
-.live-chg{font-size:12px;font-weight:600}
-canvas#live-canvas{width:100%;height:100px;border-radius:6px;display:block}
+.btn-fast-start{width:100%;padding:16px;border:none;border-radius:12px;background:var(--yellow);color:#000;font-size:17px;font-weight:800;cursor:pointer;letter-spacing:.3px}
+.btn-fast-start:disabled{opacity:.4;cursor:not-allowed}
 
-.timer-wrap{display:none;margin-bottom:1rem}
-.timer-bar-bg{background:var(--card2);border-radius:99px;height:8px;overflow:hidden;margin-bottom:6px}
-.timer-bar{height:8px;border-radius:99px;background:var(--yellow);transition:width .1s linear;width:100%}
-.timer-text{font-size:12px;color:var(--sub);text-align:center}
+.result-box{display:none;background:var(--card);border-radius:12px;padding:1.5rem;text-align:center;margin-bottom:.875rem;border:1px solid var(--border)}
+.result-box.show{display:block}
+.rb-amount{font-size:32px;font-weight:800;margin-bottom:4px}
+.rb-detail{font-size:13px;color:var(--sub)}
 
-.btn-start{width:100%;padding:14px;border:none;border-radius:10px;background:var(--yellow);color:#000;font-size:16px;font-weight:700;cursor:pointer}
-.btn-start:disabled{opacity:.4;cursor:not-allowed}
-
-.result-popup-fast{display:none;background:var(--card);border-radius:12px;padding:1.5rem;text-align:center;margin-bottom:1rem;border:1px solid var(--border)}
-.result-popup-fast.show{display:block}
-.r-title{font-size:28px;font-weight:700;margin-bottom:4px}
-.r-sub{font-size:13px;color:var(--sub)}
+.fast-hist-title{font-size:13px;font-weight:700;color:var(--sub);margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.5px}
+.fh-item{background:var(--card);border-radius:10px;padding:.875rem 1rem;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border)}
+.fhi-left .fhi-sym{font-size:14px;font-weight:700}
+.fhi-left .fhi-meta{font-size:11px;color:var(--sub);margin-top:2px}
+.fhi-pnl{font-size:16px;font-weight:800}
 
 /* PORTFOLIO PAGE */
-.port-summary{background:linear-gradient(135deg,#1a1f2e,#2b3139);border-radius:12px;padding:1.25rem;margin-bottom:1rem;text-align:center}
-.port-total-label{font-size:12px;color:var(--sub);margin-bottom:4px}
-.port-total-val{font-size:28px;font-weight:700;color:var(--green)}
-.port-pnl{font-size:14px;margin-top:4px}
-
-.port-list{}
-.port-item{background:var(--card);border-radius:10px;padding:.875rem 1rem;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
-.port-item-left{}
-.port-sym{font-size:15px;font-weight:700}
-.port-detail{font-size:11px;color:var(--sub);margin-top:2px}
-.port-item-right{text-align:right}
-.port-val{font-size:15px;font-weight:700}
-.port-pnl-item{font-size:11px;margin-top:2px}
-
-.fast-history{margin-top:1rem}
-.hist-item{background:var(--card);border-radius:8px;padding:.75rem 1rem;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
-.hist-left{font-size:13px}
-.hist-sym{font-weight:700}
-.hist-detail{font-size:11px;color:var(--sub);margin-top:2px}
-.hist-pnl{font-size:14px;font-weight:700}
+.port-page{padding:.875rem}
+.port-banner{background:linear-gradient(135deg,var(--card) 0%,var(--card2) 100%);border-radius:14px;padding:1.25rem;margin-bottom:1rem;border:1px solid var(--border)}
+.pb-label{font-size:12px;color:var(--sub);margin-bottom:4px}
+.pb-total{font-size:30px;font-weight:800;color:var(--green);margin-bottom:4px}
+.pb-pnl{font-size:13px}
+.pb-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:1rem}
+.pb-stat{background:var(--bg);border-radius:8px;padding:.625rem .875rem}
+.pb-stat-label{font-size:11px;color:var(--sub);margin-bottom:3px}
+.pb-stat-val{font-size:15px;font-weight:700}
+.port-section-title{font-size:13px;font-weight:700;color:var(--sub);margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.5px}
+.ph-item{background:var(--card);border-radius:10px;padding:.875rem 1rem;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);cursor:pointer}
+.phi-left{display:flex;align-items:center;gap:10px}
+.phi-logo{width:36px;height:36px;border-radius:50%;object-fit:contain;padding:3px}
+.phi-logo-fb{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700}
+.phi-name{font-size:14px;font-weight:700}
+.phi-qty{font-size:11px;color:var(--sub);margin-top:2px}
+.phi-right{text-align:right}
+.phi-val{font-size:14px;font-weight:700}
+.phi-pnl{font-size:11px;margin-top:2px}
 
 /* BOTTOM NAV */
-.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--card);border-top:1px solid var(--border);display:flex;z-index:20}
-.nav-btn{flex:1;padding:10px 0 8px;border:none;background:transparent;color:var(--sub);font-size:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
-.nav-btn.active{color:var(--yellow)}
-.nav-icon{font-size:20px}
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--card);border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(5,1fr);z-index:50;padding-bottom:env(safe-area-inset-bottom)}
+.bnav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 7px;background:none;border:none;color:var(--sub);font-size:10px;cursor:pointer;font-weight:600}
+.bnav-btn.active{color:var(--yellow)}
+.bnav-icon{font-size:22px;line-height:1}
 
 /* POPUP */
 .popup-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;align-items:center;justify-content:center}
 .popup-overlay.show{display:flex}
-.popup-card{background:var(--card);border-radius:16px;padding:2rem;width:300px;text-align:center}
-.popup-icon{font-size:52px;margin-bottom:.75rem}
-.popup-title{font-size:18px;font-weight:700;margin-bottom:.5rem}
+.popup-box{background:var(--card);border-radius:16px;padding:2rem 1.5rem;width:300px;text-align:center}
+.popup-emoji{font-size:52px;margin-bottom:.75rem}
+.popup-title{font-size:19px;font-weight:700;margin-bottom:.5rem}
 .popup-sub{font-size:13px;color:var(--sub);margin-bottom:1.25rem}
-.popup-btn{width:100%;padding:12px;border:none;border-radius:8px;background:var(--yellow);color:#000;font-size:14px;font-weight:700;cursor:pointer}
+.popup-btn{width:100%;padding:12px;border:none;border-radius:10px;background:var(--yellow);color:#000;font-size:15px;font-weight:700;cursor:pointer}
 
-.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:.6rem 1.25rem;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;white-space:nowrap}
+.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:.625rem 1.25rem;font-size:13px;color:var(--text);opacity:0;transition:opacity .25s;pointer-events:none;z-index:9999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.3)}
 .toast.show{opacity:1}
 
-.up{color:var(--green)}.dn{color:var(--red)}
+/* Empty state */
+.empty-state{text-align:center;padding:3rem 1rem;color:var(--sub)}
+.empty-state .ei{font-size:48px;margin-bottom:.75rem}
+.empty-state p{font-size:14px}
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
-<div class="login-screen" id="login-screen" onclick="if(event.target===this)closeLogin()">
-  <div class="login-card">
-    <div style="display:flex;justify-content:flex-end;margin-bottom:.5rem">
-      <button onclick="closeLogin()" style="background:none;border:none;color:var(--sub);font-size:22px;cursor:pointer;line-height:1">×</button>
-    </div>
-    <div class="logo-wrap">
-      <div class="logo-icon">📈</div>
-      <div class="logo-name">TradeX</div>
-      <div class="logo-sub">จำลองการเทรดคริปโต & หุ้นไทย</div>
+<!-- LOGIN SHEET -->
+<div class="login-overlay" id="login-overlay" onclick="if(event.target===this)closeLogin()">
+  <div class="login-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">
+      <span id="sheet-title-text">เข้าสู่ระบบ / ลงทะเบียน</span>
+      <button class="sheet-close" onclick="closeLogin()">×</button>
     </div>
     <div class="auth-tabs">
       <button class="auth-tab active" onclick="switchAuthTab('login',this)">เข้าสู่ระบบ</button>
-      <button class="auth-tab" onclick="switchAuthTab('register',this)">สมัครสมาชิก</button>
+      <button class="auth-tab" onclick="switchAuthTab('register',this)">ลงทะเบียน</button>
     </div>
-    <div class="auth-panel active" id="auth-login">
-      <div class="field"><label>ชื่อผู้ใช้</label><input type="text" id="l-user" placeholder="username"></div>
-      <div class="field"><label>รหัสผ่าน</label><input type="password" id="l-pass" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="auth-panel active" id="ap-login">
+      <div class="inp-group"><label>ชื่อผู้ใช้</label><input id="l-user" type="text" placeholder="กรอกชื่อผู้ใช้"></div>
+      <div class="inp-group"><label>รหัสผ่าน</label><input id="l-pass" type="password" placeholder="รหัสผ่าน" onkeydown="if(event.key==='Enter')doLogin()"></div>
       <div class="auth-msg" id="l-msg"></div>
-      <button class="btn-auth" onclick="doLogin()">เข้าสู่ระบบ</button>
+      <button class="btn-submit" onclick="doLogin()">เข้าสู่ระบบ</button>
     </div>
-    <div class="auth-panel" id="auth-register">
-      <div class="field"><label>ชื่อผู้ใช้</label><input type="text" id="r-user" placeholder="อย่างน้อย 3 ตัวอักษร"></div>
-      <div class="field"><label>รหัสผ่าน</label><input type="password" id="r-pass"></div>
+    <div class="auth-panel" id="ap-register">
+      <div class="inp-group"><label>ชื่อผู้ใช้</label><input id="r-user" type="text" placeholder="อย่างน้อย 3 ตัวอักษร"></div>
+      <div class="inp-group"><label>รหัสผ่าน</label><input id="r-pass" type="password" placeholder="รหัสผ่าน"></div>
       <div class="auth-msg" id="r-msg"></div>
-      <button class="btn-auth" onclick="doRegister()">สมัครสมาชิก</button>
+      <button class="btn-submit" onclick="doRegister()">ลงทะเบียน</button>
     </div>
-
   </div>
 </div>
 
 <!-- MAIN APP -->
-<div class="main-app" id="main-app">
+<div class="app">
+  <!-- TOPBAR -->
   <div class="topbar">
-    <div class="topbar-logo">📈 TradeX</div>
+    <div class="topbar-logo">
+      <span>📈 TradeX</span>
+    </div>
     <div class="topbar-right">
-      <button id="topbar-login-btn" onclick="document.getElementById('login-screen').style.display='flex'" style="padding:6px 14px;background:var(--yellow);color:#000;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">เข้าสู่ระบบ</button>
-      <div id="topbar-user" style="display:none;align-items:center;gap:8px">
-        <span class="user-cash" id="top-cash">฿0</span>
-        <button class="btn-logout-top" onclick="doLogout()">ออก</button>
+      <button class="btn-login-top" id="btn-login-top" onclick="openLogin()">เข้าสู่ระบบ / ลงทะเบียน</button>
+      <div class="user-info" id="user-info">
+        <div class="user-avatar" id="user-avatar">T</div>
+        <span class="user-cash" id="user-cash">฿0</span>
+        <button class="btn-out" onclick="doLogout()" title="ออกจากระบบ">⊗</button>
       </div>
     </div>
   </div>
 
-  <!-- HOME -->
+  <!-- HOME PAGE -->
   <div class="page active" id="page-home">
-    <div class="banner">
-      <div class="banner-left">
-        <h2>สวัสดี <span id="home-username">-</span> 👋</h2>
-        <p>พอร์ตของคุณวันนี้</p>
+    <!-- Slider -->
+    <div class="slider-wrap">
+      <div class="slider-track" id="slider-track">
+        <div class="slide slide-1">
+          <div class="slide-left">
+            <div class="slide-badge featured">⭐ Featured</div>
+            <div class="slide-title">Friendship Invitation Benefits<br>Share Now!</div>
+            <div class="slide-amount">200,000 USDT!</div>
+            <button class="slide-btn" onclick="requireLogin()">GO ›</button>
+          </div>
+          <div class="slide-right">
+            <div class="slide-coin-icon" style="background:rgba(98,126,234,.2)">Ξ</div>
+            <div class="slide-coin-name">ETH</div>
+            <div style="color:var(--green);font-size:13px;font-weight:700;margin-top:4px" id="slide-eth-price">฿0</div>
+          </div>
+        </div>
+        <div class="slide slide-2">
+          <div class="slide-left">
+            <div class="slide-badge new" style="background:rgba(0,192,135,.2);color:var(--green)">🆕 New Listing</div>
+            <div class="slide-title">เทรดคริปโตและหุ้นไทย<br>ด้วยเงินจำลอง!</div>
+            <div class="slide-amount">ฟรี 0 บาท</div>
+            <button class="slide-btn" onclick="openLogin()">สมัครเลย ›</button>
+          </div>
+          <div class="slide-right">
+            <div class="slide-coin-icon" style="background:rgba(240,185,11,.2)">₿</div>
+            <div class="slide-coin-name">BTC</div>
+            <div style="color:var(--yellow);font-size:13px;font-weight:700;margin-top:4px" id="slide-btc-price">฿0</div>
+          </div>
+        </div>
+        <div class="slide slide-3">
+          <div class="slide-left">
+            <div class="slide-badge top" style="background:rgba(239,68,68,.2);color:var(--red)">🔥 TOP1</div>
+            <div class="slide-title">Staking ผลตอบแทนสูง<br>APR สูงสุด 120%</div>
+            <div class="slide-amount">เริ่มต้นวันนี้!</div>
+            <button class="slide-btn" onclick="switchPage('fast',document.getElementById('nav-fast'))">เริ่มเลย ›</button>
+          </div>
+          <div class="slide-right">
+            <div class="slide-coin-icon" style="background:rgba(139,92,246,.2)">◎</div>
+            <div class="slide-coin-name">SOL</div>
+            <div style="color:var(--purple);font-size:13px;font-weight:700;margin-top:4px" id="slide-sol-price">฿0</div>
+          </div>
+        </div>
       </div>
-      <div class="banner-cash">
-        <div class="banner-cash-label">เงินสด</div>
-        <div class="banner-cash-val" id="home-cash">฿0</div>
+      <div class="slide-dots">
+        <div class="dot active" onclick="goSlide(0)"></div>
+        <div class="dot" onclick="goSlide(1)"></div>
+        <div class="dot" onclick="goSlide(2)"></div>
       </div>
     </div>
 
-    <div class="topup-row">
-      <input type="number" id="topup-amt" placeholder="เติมเงิน (฿)..." min="100" step="100">
-      <button class="btn-topup" onclick="doTopup()">เติมเงิน</button>
+    <!-- Market Ticker 3 col -->
+    <div class="market-ticker">
+      <div class="mticker-item">
+        <div class="mticker-sym">BTC/THB</div>
+        <div class="mticker-price up" id="mt-btc">฿0</div>
+        <div class="mticker-chg" id="mt-btc-chg">0%</div>
+      </div>
+      <div class="mticker-item">
+        <div class="mticker-sym">BCH/THB</div>
+        <div class="mticker-price" id="mt-eth">฿0</div>
+        <div class="mticker-chg" id="mt-eth-chg">0%</div>
+      </div>
+      <div class="mticker-item">
+        <div class="mticker-sym">ETH/THB</div>
+        <div class="mticker-price" id="mt-bnb">฿0</div>
+        <div class="mticker-chg" id="mt-bnb-chg">0%</div>
+      </div>
     </div>
 
-    <div class="stat-row">
-      <div class="stat-card">
-        <div class="stat-label">มูลค่าหุ้น</div>
-        <div class="stat-val" id="stat-port">฿0</div>
+    <!-- Quick Menu -->
+    <div class="quick-menu">
+      <div class="qm-item" onclick="requireLogin()">
+        <div class="qm-icon" style="background:rgba(0,192,135,.1)">💰</div>
+        <div class="qm-label">เงินฝาก</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">กำไร/ขาดทุน</div>
-        <div class="stat-val" id="stat-pnl">฿0</div>
+      <div class="qm-item" onclick="requireLogin()">
+        <div class="qm-icon" style="background:rgba(239,68,68,.1)">💸</div>
+        <div class="qm-label">ถอน</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">รวมทั้งหมด</div>
-        <div class="stat-val" id="stat-total">฿0</div>
+      <div class="qm-item" onclick="requireLogin()">
+        <div class="qm-icon" style="background:rgba(245,166,35,.1)">🚀</div>
+        <div class="qm-label">IEO</div>
+      </div>
+      <div class="qm-item" onclick="requireLogin()">
+        <div class="qm-icon" style="background:rgba(139,92,246,.1)">🔒</div>
+        <div class="qm-label">Staking</div>
+      </div>
+      <div class="qm-item" onclick="requireLogin()">
+        <div class="qm-icon" style="background:rgba(59,130,246,.1)">🎧</div>
+        <div class="qm-label">ติดต่อ</div>
       </div>
     </div>
 
-    <div class="section-title">ตลาดวันนี้ <span>อัพเดตทุก 3 วิ</span></div>
-    <div id="home-market-preview"></div>
+    <!-- Announcement -->
+    <div class="announce-bar">
+      <div class="announce-icon">📢</div>
+      <div class="announce-scroll">
+        <div class="announce-text" id="announce-text">TradeX ยินดีต้อนรับ! เทรดคริปโตและหุ้นไทยด้วยเงินจำลอง • BTC/THB ราคาอัพเดตเรียลไทม์ • เติมเงินจำลองได้ที่แอดมิน</div>
+      </div>
+      <div class="announce-menu">☰</div>
+    </div>
+
+    <!-- Market List -->
+    <div class="market-section">
+      <div class="market-header">
+        <div class="market-header-title">ตลาด</div>
+        <div class="market-see-all" onclick="switchPage('market',document.getElementById('nav-market'))">ดูทั้งหมด ›</div>
+      </div>
+      <div class="market-cats">
+        <button class="mcat active" onclick="homeFilter('all',this)">ทั้งหมด</button>
+        <button class="mcat" onclick="homeFilter('crypto',this)">คริปโต</button>
+        <button class="mcat" onclick="homeFilter('thai',this)">หุ้นไทย</button>
+      </div>
+      <div class="mlist-head">
+        <span>สินทรัพย์</span>
+        <span>ราคาล่าสุด</span>
+        <span>เปลี่ยนแปลง</span>
+      </div>
+      <div id="home-mlist"></div>
+    </div>
   </div>
 
-  <!-- MARKET -->
+  <!-- MARKET PAGE -->
   <div class="page" id="page-market">
-    <div class="cat-tabs">
-      <button class="cat-tab active" onclick="switchCat('all',this)">ทั้งหมด</button>
-      <button class="cat-tab" onclick="switchCat('crypto',this)">คริปโต</button>
-      <button class="cat-tab" onclick="switchCat('thai',this)">หุ้นไทย</button>
+    <div style="background:var(--card);padding:.875rem 1rem;border-bottom:1px solid var(--border)">
+      <div style="font-size:16px;font-weight:700;margin-bottom:.875rem">ตลาด</div>
+      <div class="market-cats" style="padding:0">
+        <button class="mcat active" onclick="marketFilter('all',this)">ทั้งหมด</button>
+        <button class="mcat" onclick="marketFilter('crypto',this)">คริปโต</button>
+        <button class="mcat" onclick="marketFilter('thai',this)">หุ้นไทย</button>
+      </div>
     </div>
-    <div class="market-list" id="market-list"></div>
+    <div class="mlist-head" style="padding:.625rem 1rem">
+      <span>สินทรัพย์</span>
+      <span>ราคาล่าสุด</span>
+      <span>เปลี่ยนแปลง</span>
+    </div>
+    <div id="market-mlist"></div>
   </div>
 
-  <!-- TRADE -->
+  <!-- TRADE PAGE -->
   <div class="page" id="page-trade">
-    <div class="trade-sym-selector" id="sym-selector"></div>
-    <div class="trade-card">
-      <div class="trade-price-row">
+    <div class="sym-scroll" id="sym-scroll"></div>
+    <div class="trade-price-card">
+      <div class="tpc-top">
         <div>
-          <div class="trade-sym" id="t-sym">BTC/THB</div>
-          <div id="t-chg-badge" class="trade-chg-badge chg-up">+0.00%</div>
+          <div class="tpc-sym" id="tpc-sym">BTC/THB</div>
+          <div class="tpc-price up" id="tpc-price">฿0</div>
         </div>
-        <div style="text-align:right">
-          <div class="trade-price" id="t-price">฿0</div>
+        <div>
+          <div class="tpc-chg chg-up" id="tpc-chg">+0.00%</div>
+          <div class="tpc-right tpc-vol">ถือ: <span id="tpc-hold">0</span> หน่วย</div>
         </div>
       </div>
-      <div class="spark-wrap">
-        <canvas class="spark" id="trade-spark" height="80"></canvas>
-      </div>
-      <div class="holding-info">
-        <span>ถืออยู่: <span id="t-holding">0</span> หน่วย</span>
-        <span>ราคาทุน: <span id="t-avg">฿0</span></span>
-      </div>
-      <div class="buy-sell-tabs">
+    </div>
+    <div class="chart-wrap">
+      <canvas class="tchart" id="tchart" height="120"></canvas>
+    </div>
+    <div class="order-card">
+      <div class="bs-tabs">
         <button class="bs-tab buy active" id="bs-buy" onclick="setBuySell('buy')">ซื้อ</button>
         <button class="bs-tab sell" id="bs-sell" onclick="setBuySell('sell')">ขาย</button>
       </div>
-      <div class="qty-row">
-        <button onclick="adjQty(-1)" style="padding:10px 14px;background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:18px;cursor:pointer">−</button>
-        <input type="number" id="t-qty" value="1" min="1">
-        <button onclick="adjQty(1)" style="padding:10px 14px;background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:18px;cursor:pointer">+</button>
+      <div class="order-row">
+        <div class="order-label">จำนวน</div>
+        <div class="stepper">
+          <button onclick="adjQty(-1)">−</button>
+          <input type="number" class="order-input" id="t-qty" value="1" min="1" style="width:80px;text-align:center">
+          <button onclick="adjQty(1)">+</button>
+        </div>
       </div>
-      <div style="font-size:12px;color:var(--sub);text-align:center;margin-bottom:.75rem">รวม: <span id="t-total" style="color:var(--text);font-weight:700">฿0</span></div>
-      <button class="btn-trade buy" id="btn-trade" onclick="doTrade()">ซื้อ</button>
+      <div class="holding-row">
+        <span>ราคาปัจจุบัน: <strong id="t-cur-price">฿0</strong></span>
+        <span>ราคาทุน: <strong id="t-avg-cost">฿0</strong></span>
+      </div>
+      <div class="order-summary">
+        <span>มูลค่ารวม</span>
+        <strong id="t-total">฿0</strong>
+      </div>
+      <button class="btn-order buy" id="btn-order" onclick="doTrade()">ซื้อ</button>
     </div>
   </div>
 
-  <!-- FAST TRADE -->
+  <!-- FAST TRADE PAGE -->
   <div class="page" id="page-fast">
-    <div class="fast-card">
-      <div style="font-size:15px;font-weight:700;margin-bottom:1rem">⚡ เทรดเร็ว</div>
-      <div class="fast-grid">
-        <div class="fast-field">
-          <label>สินทรัพย์</label>
-          <select id="f-sym" onchange="updateFastSym()">
-            <optgroup label="คริปโต">
-              <option value="BTC">BTC</option>
-              <option value="ETH">ETH</option>
-              <option value="BNB">BNB</option>
-              <option value="SOL">SOL</option>
-            </optgroup>
-            <optgroup label="หุ้นไทย">
-              <option value="PTT">PTT</option>
-              <option value="CPALL">CPALL</option>
-              <option value="AOT">AOT</option>
-              <option value="KBANK">KBANK</option>
-            </optgroup>
-          </select>
+    <div class="fast-page">
+      <div class="fast-header">⚡ เทรดเร็ว <span style="font-size:12px;color:var(--sub);font-weight:400">กำหนดผลโดย Admin</span></div>
+
+      <div class="fast-sym-grid" id="fsym-grid"></div>
+
+      <div class="fast-card">
+        <div class="fast-card-title">ทิศทาง</div>
+        <div class="fast-dir-btns">
+          <button class="fdir-btn up active" id="fdir-up" onclick="setFDir('up')">▲ ขึ้น</button>
+          <button class="fdir-btn down" id="fdir-down" onclick="setFDir('down')">▼ ลง</button>
         </div>
-        <div class="fast-field">
-          <label>เดิมพัน (฿)</label>
-          <input type="number" id="f-bet" value="100" min="10" step="10">
+        <div class="fast-card-title">เวลา</div>
+        <div class="fast-time-grid">
+          <button class="ftime-btn active" data-sec="10" onclick="setFTime(10,this)">10 วิ</button>
+          <button class="ftime-btn" data-sec="20" onclick="setFTime(20,this)">20 วิ</button>
+          <button class="ftime-btn" data-sec="30" onclick="setFTime(30,this)">30 วิ</button>
         </div>
-        <div class="fast-field">
-          <label>เวลา</label>
-          <select id="f-time">
-            <option value="10">10 วินาที</option>
-            <option value="20">20 วินาที</option>
-            <option value="30">30 วินาที</option>
-          </select>
-        </div>
-        <div class="fast-field">
-          <label>ราคาปัจจุบัน</label>
-          <input type="text" id="f-cur-price" readonly style="color:var(--yellow)">
+        <div class="fast-card-title">เดิมพัน</div>
+        <input type="number" class="bet-input" id="f-bet" value="100" min="10">
+        <div class="bet-presets">
+          <div class="bet-preset" onclick="setBet(100)">฿100</div>
+          <div class="bet-preset" onclick="setBet(500)">฿500</div>
+          <div class="bet-preset" onclick="setBet(1000)">฿1,000</div>
+          <div class="bet-preset" onclick="setBet(5000)">฿5,000</div>
         </div>
       </div>
 
-      <div class="dir-btns">
-        <button class="dir-btn up active" id="dir-up" onclick="setDir('up')">▲ ขึ้น</button>
-        <button class="dir-btn down" id="dir-down" onclick="setDir('down')">▼ ลง</button>
-      </div>
-
-      <div class="live-chart-wrap" id="live-chart-wrap">
-        <div class="live-chart-top">
+      <div class="live-chart-box" id="lc-box">
+        <div class="lcb-top">
           <div>
-            <div class="live-sym" id="lc-sym">BTC</div>
-            <div class="live-chg" id="lc-chg">+0.00%</div>
+            <div class="lcb-sym" id="lc-sym">BTC</div>
+            <div class="lcb-chg up" id="lc-chg">+0.00%</div>
           </div>
-          <div class="live-price" id="lc-price">฿0</div>
+          <div class="lcb-price" id="lc-price">฿0</div>
         </div>
-        <canvas id="live-canvas" height="100"></canvas>
+        <canvas id="lc" height="100"></canvas>
       </div>
 
-      <div class="timer-wrap" id="timer-wrap">
-        <div class="timer-bar-bg"><div class="timer-bar" id="timer-bar"></div></div>
-        <div class="timer-text" id="timer-text">รอผล...</div>
+      <div class="timer-box" id="timer-box">
+        <div class="tbar-bg"><div class="tbar-fill" id="tbar-fill" style="width:100%"></div></div>
+        <div class="tbar-label" id="tbar-label">รอผล...</div>
       </div>
 
-      <button class="btn-start" id="btn-start" onclick="startFast()">เริ่มเทรด</button>
-    </div>
+      <div class="result-box" id="result-box">
+        <div class="rb-amount" id="rb-amount"></div>
+        <div class="rb-detail" id="rb-detail"></div>
+      </div>
 
-    <div class="result-popup-fast" id="result-popup">
-      <div class="r-title" id="r-title"></div>
-      <div class="r-sub" id="r-sub"></div>
-    </div>
+      <button class="btn-fast-start" id="btn-fast" onclick="startFast()">เริ่มเทรด</button>
 
-    <div class="section-title" style="margin-top:1rem">ประวัติเทรดเร็ว</div>
-    <div id="fast-log"></div>
+      <div style="margin-top:1.25rem">
+        <div class="fast-hist-title">ประวัติล่าสุด</div>
+        <div id="fast-hist"></div>
+      </div>
+    </div>
   </div>
 
-  <!-- PORTFOLIO -->
+  <!-- FUTURES / PORT PAGE -->
   <div class="page" id="page-port">
-    <div class="port-summary">
-      <div class="port-total-label">สินทรัพย์รวม</div>
-      <div class="port-total-val" id="port-total">฿0</div>
-      <div class="port-pnl" id="port-pnl-summary">กำไร/ขาดทุน: ฿0</div>
+    <div class="port-page">
+      <div class="port-banner">
+        <div class="pb-label">สินทรัพย์รวม</div>
+        <div class="pb-total" id="pb-total">฿0</div>
+        <div class="pb-pnl up" id="pb-pnl">กำไร/ขาดทุน ฿0</div>
+        <div class="pb-row">
+          <div class="pb-stat">
+            <div class="pb-stat-label">เงินสด</div>
+            <div class="pb-stat-val" id="pb-cash">฿0</div>
+          </div>
+          <div class="pb-stat">
+            <div class="pb-stat-label">มูลค่าหุ้น</div>
+            <div class="pb-stat-val" id="pb-port">฿0</div>
+          </div>
+        </div>
+      </div>
+      <div class="port-section-title">หุ้นที่ถืออยู่</div>
+      <div id="ph-list"></div>
+      <div style="margin-top:1.25rem">
+        <div class="port-section-title">ประวัติเทรดเร็ว</div>
+        <div id="ph-fast-hist"></div>
+      </div>
     </div>
-    <div class="section-title">หุ้นที่ถืออยู่</div>
-    <div id="port-list"><div style="text-align:center;color:var(--sub);padding:2rem;font-size:13px">ยังไม่มีหุ้น</div></div>
-    <div class="section-title" style="margin-top:1rem">ประวัติเทรดเร็ว 10 รายการล่าสุด</div>
-    <div id="port-fast-hist"></div>
   </div>
 
-  <div class="bottom-nav">
-    <button class="nav-btn active" id="nav-home" onclick="switchPage('home',this)"><span class="nav-icon">🏠</span>หน้าหลัก</button>
-    <button class="nav-btn" id="nav-market" onclick="switchPage('market',this)"><span class="nav-icon">📊</span>ตลาด</button>
-    <button class="nav-btn" id="nav-trade" onclick="switchPage('trade',this)"><span class="nav-icon">💱</span>เทรด</button>
-    <button class="nav-btn" id="nav-fast" onclick="switchPage('fast',this)"><span class="nav-icon">⚡</span>เร็ว</button>
-    <button class="nav-btn" id="nav-port" onclick="switchPage('port',this)"><span class="nav-icon">💼</span>พอร์ต</button>
-  </div>
+  <!-- BOTTOM NAV -->
+  <nav class="bnav">
+    <button class="bnav-btn active" id="nav-home" onclick="switchPage('home',this)">
+      <span class="bnav-icon">🏠</span>หน้าหลัก
+    </button>
+    <button class="bnav-btn" id="nav-market" onclick="switchPage('market',this)">
+      <span class="bnav-icon">📊</span>ตลาด
+    </button>
+    <button class="bnav-btn" id="nav-trade" onclick="switchPage('trade',this)">
+      <span class="bnav-icon">💱</span>ซื้อขาย
+    </button>
+    <button class="bnav-btn" id="nav-fast" onclick="switchPage('fast',this)">
+      <span class="bnav-icon">⚡</span>ฟิวเจอร์ส
+    </button>
+    <button class="bnav-btn" id="nav-port" onclick="switchPage('port',this)">
+      <span class="bnav-icon">💼</span>กระเป๋าเงิน
+    </button>
+  </nav>
 </div>
 
 <!-- POPUPS -->
 <div class="popup-overlay" id="reg-popup">
-  <div class="popup-card">
-    <div class="popup-icon">🎉</div>
-    <div class="popup-title">สมัครสมาชิกเรียบร้อย!</div>
-    <div class="popup-sub" id="reg-popup-msg">ยินดีต้อนรับ กรุณาเข้าสู่ระบบเพื่อเริ่มเทรด</div>
-    <button class="popup-btn" onclick="closeRegPopup()">เข้าสู่ระบบเลย</button>
+  <div class="popup-box">
+    <div class="popup-emoji">🎉</div>
+    <div class="popup-title">ลงทะเบียนสำเร็จ!</div>
+    <div class="popup-sub" id="reg-popup-msg">ยินดีต้อนรับ! กรุณาเข้าสู่ระบบเพื่อเริ่มเทรด</div>
+    <button class="popup-btn" onclick="document.getElementById('reg-popup').classList.remove('show');switchAuthTab('login',document.querySelector('.auth-tab'))">เข้าสู่ระบบเลย</button>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const SUPABASE_URL='https://myjawbecdfwwndyrjttx.supabase.co';
-const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15amF3YmVjZGZ3d25keXJqdHR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0OTMxNzksImV4cCI6MjA5OTA2OTE3OX0.CdysmTFeVMErbKd4OqCRoFLdRKenqfvKkoXw4ISIoOs';
-const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const SB_URL='https://myjawbecdfwwndyrjttx.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15amF3YmVjZGZ3d25keXJqdHR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0OTMxNzksImV4cCI6MjA5OTA2OTE3OX0.CdysmTFeVMErbKd4OqCRoFLdRKenqfvKkoXw4ISIoOs';
+const sb=supabase.createClient(SB_URL,SB_KEY);
 
-const ALL_STOCKS=[
+const ASSETS=[
   {sym:'BTC',name:'Bitcoin',cat:'crypto',price:2100000,color:'#f0b90b',logo:'https://cdn.jsdelivr.net/gh/spothq/cryptocurrency-icons/128/color/btc.png'},
   {sym:'ETH',name:'Ethereum',cat:'crypto',price:62000,color:'#627eea',logo:'https://cdn.jsdelivr.net/gh/spothq/cryptocurrency-icons/128/color/eth.png'},
   {sym:'BNB',name:'BNB',cat:'crypto',price:15000,color:'#f3ba2f',logo:'https://cdn.jsdelivr.net/gh/spothq/cryptocurrency-icons/128/color/bnb.png'},
   {sym:'SOL',name:'Solana',cat:'crypto',price:5200,color:'#9945ff',logo:'https://cdn.jsdelivr.net/gh/spothq/cryptocurrency-icons/128/color/sol.png'},
-  {sym:'PTT',name:'PTT',cat:'thai',price:35,color:'#0ecb81',logo:'https://upload.wikimedia.org/wikipedia/th/thumb/5/5f/PTT_Logo.svg/200px-PTT_Logo.svg.png'},
+  {sym:'PTT',name:'PTT',cat:'thai',price:35,color:'#00c087',logo:'https://upload.wikimedia.org/wikipedia/th/thumb/5/5f/PTT_Logo.svg/200px-PTT_Logo.svg.png'},
   {sym:'CPALL',name:'CP ALL',cat:'thai',price:58,color:'#1890ff',logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/7-eleven_logo.svg/200px-7-eleven_logo.svg.png'},
-  {sym:'AOT',name:'AOT',cat:'thai',price:72,color:'#f6465d',logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/thirty/AOT_logo.svg/200px-AOT_logo.svg.png'},
-  {sym:'KBANK',name:'กสิกรไทย',cat:'thai',price:145,color:'#1ba345',logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/thirty/KBank_logo.svg/200px-KBank_logo.svg.png'},
+  {sym:'AOT',name:'AOT',cat:'thai',price:72,color:'#ef4444',logo:'https://seeklogo.com/images/A/airports-of-thailand-aot-logo-562C6AC3E1-seeklogo.com.png'},
+  {sym:'KBANK',name:'กสิกรไทย',cat:'thai',price:145,color:'#1ba345',logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/KBANK_logo_2019.svg/200px-KBANK_logo_2019.svg.png'},
 ];
 
-let currentUser=null,cash=0,portfolio={};
-let prices={},histories={};
-let selectedSym='BTC',buySell='buy',fastDir='up';
-let isRunning=false;
-let liveData=[],liveInterval=null,liveStartPrice=0;
-let currentCat='all';
+let cu=null,cash=0,portfolio={};
+let prices={},hists={};
+let selSym='BTC',buySell='buy',fDir='up',fTime=10;
+let running=false,liveData=[],liveIv=null,liveStart=0;
+let homeCat='all',mktCat='all';
+let slideIdx=0,slideIv=null;
 
-ALL_STOCKS.forEach(s=>{
-  prices[s.sym]=s.price;
-  histories[s.sym]=Array.from({length:30},(_,i)=>{
-    let v=s.price;
-    for(let j=0;j<i;j++) v+=(Math.random()-.5)*v*.025;
-    return Math.max(1,+v.toFixed(2));
+ASSETS.forEach(a=>{
+  prices[a.sym]=a.price;
+  hists[a.sym]=Array.from({length:40},(_,i)=>{
+    let v=a.price;
+    for(let j=0;j<i;j++) v+=(Math.random()-.5)*v*.02;
+    return Math.max(0.01,+v.toFixed(4));
   });
 });
 
+/* ─── UTILS ─── */
 function fmt(n){
-  if(n>=1000000) return '฿'+(n/1000000).toFixed(2)+'M';
-  if(n>=1000) return '฿'+Math.round(n).toLocaleString();
+  if(n>=1000000)return '฿'+(n/1000000).toFixed(2)+'M';
+  if(n>=1000)return '฿'+Math.round(n).toLocaleString();
   return '฿'+n.toFixed(2);
 }
-function fmtFull(n){return '฿'+n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
-function pct(a,b){return ((a-b)/b*100).toFixed(2);}
-
-function showToast(msg){
+function pct(a,b){return((a-b)/b*100).toFixed(2);}
+function toast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2200);
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);
 }
-function showAuthMsg(id,msg,isErr){
+function authMsg(id,msg,err){
   const el=document.getElementById(id);
-  el.textContent=msg;el.className='auth-msg '+(isErr?'err':'ok');
+  el.textContent=msg;el.className='auth-msg '+(err?'err':'ok');
+}
+function logoImg(a,cls,size=32){
+  return `<img src="${a.logo}" class="${cls}" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:contain;padding:3px;background:${a.color}22" onerror="this.style.display='none';this.nextSibling.style.display='flex'"><span style="display:none;width:${size}px;height:${size}px;border-radius:50%;background:${a.color}22;color:${a.color};align-items:center;justify-content:center;font-size:${size*0.4}px;font-weight:700;flex-shrink:0">${a.sym[0]}</span>`;
 }
 
-// ── AUTH ──
+/* ─── AUTH ─── */
+function openLogin(){document.getElementById('login-overlay').classList.add('show');}
+function closeLogin(){document.getElementById('login-overlay').classList.remove('show');}
+function requireLogin(){if(!cu){openLogin();return false;}return true;}
 function switchAuthTab(tab,el){
   document.querySelectorAll('.auth-tab').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.auth-panel').forEach(p=>p.classList.remove('active'));
   el.classList.add('active');
-  document.getElementById('auth-'+tab).classList.add('active');
+  document.getElementById('ap-'+tab).classList.add('active');
 }
-
 async function doRegister(){
-  const username=document.getElementById('r-user').value.trim();
-  const password=document.getElementById('r-pass').value.trim();
-  if(!username||!password){showAuthMsg('r-msg','กรุณากรอกข้อมูล',true);return;}
-  if(username.length<3){showAuthMsg('r-msg','ชื่อผู้ใช้อย่างน้อย 3 ตัวอักษร',true);return;}
-  const {data:exist}=await sb.from('users').select('id').eq('username',username).single();
-  if(exist){showAuthMsg('r-msg','ชื่อผู้ใช้นี้มีแล้ว',true);return;}
-  const {error}=await sb.from('users').insert({username,password,cash:0});
-  if(error){showAuthMsg('r-msg','เกิดข้อผิดพลาด',true);return;}
-  document.getElementById('reg-popup-msg').textContent=`ยินดีต้อนรับ ${username} กรุณาเข้าสู่ระบบเพื่อเริ่มเทรด`;
+  const u=document.getElementById('r-user').value.trim();
+  const p=document.getElementById('r-pass').value.trim();
+  if(!u||!p){authMsg('r-msg','กรุณากรอกข้อมูล',true);return;}
+  if(u.length<3){authMsg('r-msg','ชื่อผู้ใช้อย่างน้อย 3 ตัวอักษร',true);return;}
+  const {data:ex}=await sb.from('users').select('id').eq('username',u).single();
+  if(ex){authMsg('r-msg','ชื่อนี้มีแล้ว',true);return;}
+  const {error}=await sb.from('users').insert({username:u,password:p,cash:0});
+  if(error){authMsg('r-msg','เกิดข้อผิดพลาด',true);return;}
+  closeLogin();
+  document.getElementById('reg-popup-msg').textContent=`ยินดีต้อนรับ ${u}! กรุณาเข้าสู่ระบบเพื่อเริ่มเทรด`;
   document.getElementById('reg-popup').classList.add('show');
 }
-
-function closeRegPopup(){
-  document.getElementById('reg-popup').classList.remove('show');
-  switchAuthTab('login',document.querySelector('.auth-tab'));
-}
-
 async function doLogin(){
-  const username=document.getElementById('l-user').value.trim();
-  const password=document.getElementById('l-pass').value.trim();
-  if(!username||!password){showAuthMsg('l-msg','กรุณากรอกข้อมูล',true);return;}
-  const {data:user}=await sb.from('users').select('*').eq('username',username).eq('password',password).single();
-  if(!user){showAuthMsg('l-msg','ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง',true);return;}
-  currentUser=user;cash=user.cash;
+  const u=document.getElementById('l-user').value.trim();
+  const p=document.getElementById('l-pass').value.trim();
+  if(!u||!p){authMsg('l-msg','กรุณากรอกข้อมูล',true);return;}
+  const {data:user}=await sb.from('users').select('*').eq('username',u).eq('password',p).single();
+  if(!user){authMsg('l-msg','ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง',true);return;}
+  cu=user;cash=user.cash;
   localStorage.setItem('tradex_uid',user.id);
-  showMainApp();
+  closeLogin();showUser();toast('เข้าสู่ระบบสำเร็จ');
 }
-
 async function restoreSession(){
   const uid=localStorage.getItem('tradex_uid');
-  if(!uid) return;
-  const {data:user}=await sb.from('users').select('*').eq('id',uid).single();
-  if(user){currentUser=user;cash=user.cash;showMainApp();}
+  if(!uid)return;
+  const {data:u}=await sb.from('users').select('*').eq('id',uid).single();
+  if(u){cu=u;cash=u.cash;showUser();}
 }
-
-function showMainApp(){
-  document.getElementById('login-screen').style.display='none';
-  document.getElementById('home-username').textContent=currentUser.username;
-  document.getElementById('top-cash').textContent=fmt(cash);
-  // แสดงปุ่ม logout ซ่อนปุ่ม login
-  document.getElementById('topbar-login-btn').style.display='none';
-  document.getElementById('topbar-user').style.display='flex';
-  updateStats();renderAll();updateFastSym();
-}
-
-function doLogout(){
-  localStorage.removeItem('tradex_uid');
-  currentUser=null;cash=0;portfolio={};
-  document.getElementById('login-screen').style.display='none';
-  document.getElementById('topbar-login-btn').style.display='block';
-  document.getElementById('topbar-user').style.display='none';
-  document.getElementById('home-username').textContent='ผู้เยี่ยมชม';
+function showUser(){
+  document.getElementById('btn-login-top').style.display='none';
+  const ui=document.getElementById('user-info');
+  ui.style.display='flex';
+  document.getElementById('user-avatar').textContent=cu.username[0].toUpperCase();
   updateStats();
 }
-
-function closeLogin(){
-  document.getElementById('login-screen').style.display='none';
+function doLogout(){
+  localStorage.removeItem('tradex_uid');
+  cu=null;cash=0;portfolio={};
+  document.getElementById('btn-login-top').style.display='block';
+  document.getElementById('user-info').style.display='none';
+  toast('ออกจากระบบแล้ว');
 }
 
-function requireLogin(){
-  if(!currentUser){
-    document.getElementById('login-screen').style.display='flex';
-    return false;
-  }
-  return true;
-}
-
-// ── NAV ──
+/* ─── NAV ─── */
 function switchPage(page,el){
-  // หน้าที่ต้อง login
-  if(['trade','fast','port'].includes(page) && !requireLogin()) return;
+  if(['trade','fast','port'].includes(page)&&!requireLogin())return;
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
   el.classList.add('active');
-  if(page==='trade') updateTradeCard();
-  if(page==='port'){renderPortfolio();loadFastLog();}
-  if(page==='fast') loadFastLog();
-  if(page==='market') renderMarket();
+  if(page==='trade'){renderSymScroll();updateTradeCard();}
+  if(page==='fast'){renderFastSym();loadFastHist();}
+  if(page==='port'){renderPort();loadFastHist();}
+  if(page==='market')renderMarket();
 }
 
-// ── STATS ──
+/* ─── SLIDER ─── */
+function goSlide(i){
+  slideIdx=i;
+  document.getElementById('slider-track').style.transform=`translateX(-${i*100}%)`;
+  document.querySelectorAll('.dot').forEach((d,j)=>d.classList.toggle('active',j===i));
+}
+function startSlider(){
+  slideIv=setInterval(()=>{slideIdx=(slideIdx+1)%3;goSlide(slideIdx);},4000);
+}
+
+/* ─── STATS ─── */
 function updateStats(){
-  let portVal=0,cost=0;
-  Object.entries(portfolio).forEach(([sym,h])=>{portVal+=h.qty*prices[sym];cost+=h.qty*h.avgCost;});
-  const pnl=portVal-cost;
-  document.getElementById('top-cash').textContent=fmt(cash);
-  document.getElementById('home-cash').textContent=fmt(cash);
-  document.getElementById('stat-port').textContent=fmt(portVal);
-  const pEl=document.getElementById('stat-pnl');
-  pEl.textContent=(pnl>=0?'+':'')+fmt(pnl);
-  pEl.className='stat-val '+(pnl>=0?'up':'dn');
-  document.getElementById('stat-total').textContent=fmt(cash+portVal);
-  document.getElementById('port-total').textContent=fmt(cash+portVal);
-  const psEl=document.getElementById('port-pnl-summary');
-  psEl.textContent='กำไร/ขาดทุน: '+(pnl>=0?'+':'')+fmt(pnl);
-  psEl.className='port-pnl '+(pnl>=0?'up':'dn');
+  if(!cu)return;
+  let pv=0,cb=0;
+  Object.entries(portfolio).forEach(([sym,h])=>{pv+=h.qty*prices[sym];cb+=h.qty*h.avgCost;});
+  const pnl=pv-cb;
+  document.getElementById('user-cash').textContent=fmt(cash);
+  document.getElementById('pb-total').textContent=fmt(cash+pv);
+  document.getElementById('pb-cash').textContent=fmt(cash);
+  document.getElementById('pb-port').textContent=fmt(pv);
+  const pEl=document.getElementById('pb-pnl');
+  pEl.textContent='กำไร/ขาดทุน '+(pnl>=0?'+':'')+fmt(pnl);
+  pEl.className='pb-pnl '+(pnl>=0?'up':'dn');
 }
 
-// ── MARKET ──
-function switchCat(cat,el){
-  currentCat=cat;
-  document.querySelectorAll('.cat-tab').forEach(b=>b.classList.remove('active'));
+/* ─── MARKET LIST ─── */
+function mlistHTML(assets){
+  return assets.map(a=>{
+    const prev=hists[a.sym][hists[a.sym].length-2]||hists[a.sym][0];
+    const cur=prices[a.sym];
+    const chg=pct(cur,prev);
+    const up=chg>=0;
+    return`<div class="mlist-item" onclick="goTrade('${a.sym}')">
+      <div class="mlist-left">${logoImg(a,'mlist-logo')}
+        <div><div class="mlist-name">${a.sym}</div><div class="mlist-sub">${a.name}</div></div>
+      </div>
+      <div class="mlist-price ${up?'up':'dn'}">${fmt(cur)}</div>
+      <div class="mlist-chg"><span class="chg-badge ${up?'chg-up':'chg-dn'}">${up?'+':''}${chg}%</span></div>
+    </div>`;
+  }).join('');
+}
+function homeFilter(cat,el){
+  homeCat=cat;
+  document.querySelectorAll('.market-cats .mcat').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderHomeMlist();
+}
+function renderHomeMlist(){
+  const data=homeCat==='all'?ASSETS:ASSETS.filter(a=>a.cat===homeCat);
+  document.getElementById('home-mlist').innerHTML=mlistHTML(data);
+}
+function marketFilter(cat,el){
+  mktCat=cat;
+  document.querySelectorAll('#page-market .mcat').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
   renderMarket();
 }
-
-function renderHomePreview(){
-  const el=document.getElementById('home-market-preview');
-  if(!el) return;
-  el.innerHTML=ALL_STOCKS.slice(0,4).map(s=>{
-    const hist=histories[s.sym];
-    const prev=hist[hist.length-2]||hist[0];
-    const cur=prices[s.sym];
-    const chg=pct(cur,prev);
-    const isUp=chg>=0;
-    return`<div class="market-row" onclick="goTrade('${s.sym}')">
-      <div class="market-left">
-        <div class="market-icon"><img src="${s.logo}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="width:36px;height:36px;border-radius:50%;object-fit:contain;background:${s.color}22;padding:4px"><span style="display:none;width:36px;height:36px;border-radius:50%;background:${s.color}22;color:${s.color};align-items:center;justify-content:center;font-size:14px;font-weight:700">${s.sym[0]}</span></div>
-        <div><div class="market-name">${s.sym}</div><div class="market-sub">${s.name}</div></div>
-      </div>
-      <div class="market-right">
-        <div class="market-price">${fmt(cur)}</div>
-        <div class="market-chg ${isUp?'chg-up':'chg-dn'}">${isUp?'+':''}${chg}%</div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
 function renderMarket(){
-  const list=document.getElementById('market-list');
-  const filtered=currentCat==='all'?ALL_STOCKS:ALL_STOCKS.filter(s=>s.cat===currentCat);
-  list.innerHTML=filtered.map(s=>{
-    const hist=histories[s.sym];
+  const data=mktCat==='all'?ASSETS:ASSETS.filter(a=>a.cat===mktCat);
+  document.getElementById('market-mlist').innerHTML=mlistHTML(data);
+}
+function goTrade(sym){selSym=sym;switchPage('trade',document.getElementById('nav-trade'));}
+
+/* ─── TICKER ─── */
+function updateTicker(){
+  document.getElementById('slide-btc-price').textContent=fmt(prices['BTC']);
+  document.getElementById('slide-eth-price').textContent=fmt(prices['ETH']);
+  document.getElementById('slide-sol-price').textContent=fmt(prices['SOL']);
+  ['BTC','ETH','BNB'].forEach((s,i)=>{
+    const ids=[['mt-btc','mt-btc-chg'],['mt-eth','mt-eth-chg'],['mt-bnb','mt-bnb-chg']];
+    const hist=hists[s];
     const prev=hist[hist.length-2]||hist[0];
-    const cur=prices[s.sym];
+    const cur=prices[s];
     const chg=pct(cur,prev);
-    const isUp=chg>=0;
-    return`<div class="market-row" onclick="goTrade('${s.sym}')">
-      <div class="market-left">
-        <div class="market-icon"><img src="${s.logo}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="width:36px;height:36px;border-radius:50%;object-fit:contain;background:${s.color}22;padding:4px"><span style="display:none;width:36px;height:36px;border-radius:50%;background:${s.color}22;color:${s.color};align-items:center;justify-content:center;font-size:14px;font-weight:700">${s.sym[0]}</span></div>
-        <div><div class="market-name">${s.sym}</div><div class="market-sub">${s.name}</div></div>
-      </div>
-      <div class="market-right">
-        <div class="market-price">${fmt(cur)}</div>
-        <div class="market-chg ${isUp?'chg-up':'chg-dn'}">${isUp?'+':''}${chg}%</div>
-      </div>
-    </div>`;
-  }).join('');
+    const up=chg>=0;
+    document.getElementById(ids[i][0]).textContent=fmt(cur);
+    document.getElementById(ids[i][0]).className='mticker-price '+(up?'up':'dn');
+    const cEl=document.getElementById(ids[i][1]);
+    cEl.textContent=(up?'+':'')+chg+'%';
+    cEl.className='mticker-chg '+(up?'up':'dn');
+  });
 }
 
-function goTrade(sym){
-  selectedSym=sym;
-  switchPage('trade',document.getElementById('nav-trade'));
-  updateTradeCard();
-  renderSymSelector();
+/* ─── TRADE ─── */
+function renderSymScroll(){
+  const el=document.getElementById('sym-scroll');
+  el.innerHTML=ASSETS.map(a=>`<button class="sym-btn ${a.sym===selSym?'active':''}" onclick="selSymbol('${a.sym}')">${a.sym}/THB</button>`).join('');
 }
-
-// ── TRADE ──
-function renderSymSelector(){
-  const el=document.getElementById('sym-selector');
-  el.innerHTML=ALL_STOCKS.map(s=>`
-    <button class="sym-btn ${s.sym===selectedSym?'active':''}" onclick="selectSym('${s.sym}')">${s.sym}</button>
-  `).join('');
-}
-
-function selectSym(sym){
-  selectedSym=sym;
-  renderSymSelector();
-  updateTradeCard();
-}
-
+function selSymbol(sym){selSym=sym;renderSymScroll();updateTradeCard();}
 function setBuySell(v){
   buySell=v;
   document.getElementById('bs-buy').classList.toggle('active',v==='buy');
   document.getElementById('bs-sell').classList.toggle('active',v==='sell');
-  document.getElementById('btn-trade').className='btn-trade '+v;
-  document.getElementById('btn-trade').textContent=v==='buy'?'ซื้อ':'ขาย';
-  updateTradeTotal();
+  document.getElementById('btn-order').className='btn-order '+v;
+  document.getElementById('btn-order').textContent=v==='buy'?'ซื้อ':'ขาย';
+  updTradeTotal();
 }
-
 function adjQty(d){
   const el=document.getElementById('t-qty');
   el.value=Math.max(1,(parseInt(el.value)||1)+d);
-  updateTradeTotal();
+  updTradeTotal();
 }
-
-function updateTradeTotal(){
+function updTradeTotal(){
   const qty=parseInt(document.getElementById('t-qty').value)||1;
-  document.getElementById('t-total').textContent=fmt(qty*prices[selectedSym]);
+  document.getElementById('t-total').textContent=fmt(qty*prices[selSym]);
 }
-
 function updateTradeCard(){
-  const s=ALL_STOCKS.find(x=>x.sym===selectedSym);
-  const hist=histories[selectedSym];
+  const a=ASSETS.find(x=>x.sym===selSym);
+  const hist=hists[selSym];
   const prev=hist[hist.length-2]||hist[0];
-  const cur=prices[selectedSym];
+  const cur=prices[selSym];
   const chg=pct(cur,prev);
-  const isUp=chg>=0;
-  document.getElementById('t-sym').textContent=selectedSym+'/THB';
-  document.getElementById('t-price').textContent=fmt(cur);
-  document.getElementById('t-price').className='trade-price '+(isUp?'up':'dn');
-  const badge=document.getElementById('t-chg-badge');
-  badge.textContent=(isUp?'+':'')+chg+'%';
-  badge.className='trade-chg-badge '+(isUp?'chg-up':'chg-dn');
-  const h=portfolio[selectedSym];
-  document.getElementById('t-holding').textContent=h?h.qty:0;
-  document.getElementById('t-avg').textContent=h?fmt(h.avgCost):'฿0';
-  drawTradeSpark();
-  updateTradeTotal();
+  const up=chg>=0;
+  document.getElementById('tpc-sym').textContent=selSym+'/THB';
+  document.getElementById('tpc-price').textContent=fmt(cur);
+  document.getElementById('tpc-price').className='tpc-price '+(up?'up':'dn');
+  const cEl=document.getElementById('tpc-chg');
+  cEl.textContent=(up?'+':'')+chg+'%';
+  cEl.className='tpc-chg '+(up?'chg-up':'chg-dn');
+  document.getElementById('tpc-hold').textContent=portfolio[selSym]?portfolio[selSym].qty:0;
+  document.getElementById('t-cur-price').textContent=fmt(cur);
+  document.getElementById('t-avg-cost').textContent=portfolio[selSym]?fmt(portfolio[selSym].avgCost):'฿0';
+  drawTradeChart();updTradeTotal();
 }
-
-function drawTradeSpark(){
-  const canvas=document.getElementById('trade-spark');
-  if(!canvas) return;
-  const ctx=canvas.getContext('2d');
-  const data=histories[selectedSym];
-  const w=canvas.width=canvas.offsetWidth*2;
-  const h=canvas.height=160;
+function drawTradeChart(){
+  const cv=document.getElementById('tchart');
+  if(!cv)return;
+  const ctx=cv.getContext('2d');
+  const data=hists[selSym];
+  const w=cv.width=cv.offsetWidth*2;
+  const h=cv.height=240;
   ctx.clearRect(0,0,w,h);
   const mn=Math.min(...data),mx=Math.max(...data),rng=mx-mn||1;
   const pad=8;
   const last=data[data.length-1],first=data[0];
   const isUp=last>=first;
-  const lc=isUp?'#0ecb81':'#f6465d';
-  const grad=ctx.createLinearGradient(0,0,0,h);
-  grad.addColorStop(0,isUp?'rgba(14,203,129,.3)':'rgba(246,70,93,.3)');
-  grad.addColorStop(1,'rgba(0,0,0,0)');
+  const lc=isUp?'#00c087':'#ef4444';
+  const gr=ctx.createLinearGradient(0,0,0,h);
+  gr.addColorStop(0,isUp?'rgba(0,192,135,.3)':'rgba(239,68,68,.3)');
+  gr.addColorStop(1,'rgba(0,0,0,0)');
   ctx.beginPath();
-  data.forEach((v,i)=>{
-    const x=i/(data.length-1)*(w-pad*2)+pad;
-    const y=h-pad-(v-mn)/rng*(h-pad*2);
-    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
-  });
+  data.forEach((v,i)=>{const x=i/(data.length-1)*(w-pad*2)+pad;const y=h-pad-(v-mn)/rng*(h-pad*2);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
   const lx=(data.length-1)/(data.length-1)*(w-pad*2)+pad;
   ctx.lineTo(lx,h-pad);ctx.lineTo(pad,h-pad);
-  ctx.closePath();ctx.fillStyle=grad;ctx.fill();
+  ctx.closePath();ctx.fillStyle=gr;ctx.fill();
   ctx.beginPath();
-  data.forEach((v,i)=>{
-    const x=i/(data.length-1)*(w-pad*2)+pad;
-    const y=h-pad-(v-mn)/rng*(h-pad*2);
-    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
-  });
+  data.forEach((v,i)=>{const x=i/(data.length-1)*(w-pad*2)+pad;const y=h-pad-(v-mn)/rng*(h-pad*2);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
   ctx.strokeStyle=lc;ctx.lineWidth=2;ctx.stroke();
 }
-
 async function doTrade(){
-  if(!requireLogin()) return;
+  if(!requireLogin())return;
   const qty=parseInt(document.getElementById('t-qty').value)||1;
-  const price=prices[selectedSym];
+  const price=prices[selSym];
   const total=qty*price;
   if(buySell==='buy'){
-    if(total>cash){showToast('เงินไม่พอ!');return;}
+    if(total>cash){toast('เงินไม่พอ!');return;}
     cash-=total;
-    if(!portfolio[selectedSym]) portfolio[selectedSym]={qty:0,avgCost:0};
-    const h=portfolio[selectedSym];
+    if(!portfolio[selSym])portfolio[selSym]={qty:0,avgCost:0};
+    const h=portfolio[selSym];
     h.avgCost=(h.avgCost*h.qty+price*qty)/(h.qty+qty);
     h.qty+=qty;
-    showToast(`ซื้อ ${selectedSym} ${qty} หน่วย`);
+    toast(`ซื้อ ${selSym} ${qty} หน่วย`);
   } else {
-    if(!portfolio[selectedSym]||portfolio[selectedSym].qty<qty){showToast('หน่วยไม่พอ!');return;}
+    if(!portfolio[selSym]||portfolio[selSym].qty<qty){toast('หน่วยไม่พอ!');return;}
     cash+=qty*price;
-    portfolio[selectedSym].qty-=qty;
-    showToast(`ขาย ${selectedSym} ${qty} หน่วย`);
+    portfolio[selSym].qty-=qty;
+    toast(`ขาย ${selSym} ${qty} หน่วย`);
   }
-  await sb.from('users').update({cash}).eq('id',currentUser.id);
+  await sb.from('users').update({cash}).eq('id',cu.id);
   updateStats();updateTradeCard();
 }
 
-// ── FAST TRADE ──
-function setDir(d){
-  fastDir=d;
-  document.getElementById('dir-up').classList.toggle('active',d==='up');
-  document.getElementById('dir-down').classList.toggle('active',d==='down');
+/* ─── FAST TRADE ─── */
+function renderFastSym(){
+  document.getElementById('fsym-grid').innerHTML=ASSETS.map(a=>`
+    <button class="fsym-btn ${a.sym===selSym?'active':''}" onclick="setFSym('${a.sym}')">
+      ${logoImg(a,'',24)}<br>${a.sym}
+    </button>`).join('');
 }
-
-function updateFastSym(){
-  const sym=document.getElementById('f-sym').value;
-  document.getElementById('f-cur-price').value=fmt(prices[sym]);
+function setFSym(sym){selSym=sym;renderFastSym();}
+function setFDir(d){
+  fDir=d;
+  document.getElementById('fdir-up').classList.toggle('active',d==='up');
+  document.getElementById('fdir-down').classList.toggle('active',d==='down');
 }
+function setFTime(t,el){
+  fTime=t;
+  document.querySelectorAll('.ftime-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+function setBet(v){document.getElementById('f-bet').value=v;}
 
 async function startFast(){
-  if(isRunning) return;
+  if(!requireLogin())return;
+  if(running)return;
   const bet=parseInt(document.getElementById('f-bet').value)||0;
-  const sym=document.getElementById('f-sym').value;
-  const duration=parseInt(document.getElementById('f-time').value);
-  if(bet<=0||bet>cash){showToast('เดิมพันไม่ถูกต้องหรือเงินไม่พอ');return;}
-
-  const {data:ov}=await sb.from('result_overrides').select('result').eq('user_id',currentUser.id).single();
+  if(bet<=0||bet>cash){toast('เดิมพันไม่ถูกต้องหรือเงินไม่พอ');return;}
+  const {data:ov}=await sb.from('result_overrides').select('result').eq('user_id',cu.id).single();
   const forced=ov?ov.result:'auto';
-
-  isRunning=true;cash-=bet;updateStats();
-  document.getElementById('btn-start').disabled=true;
-  document.getElementById('result-popup').classList.remove('show');
-  document.getElementById('timer-wrap').style.display='block';
-  document.getElementById('live-chart-wrap').style.display='block';
-
-  liveStartPrice=prices[sym];
-  liveData=[liveStartPrice];
-  document.getElementById('lc-sym').textContent=sym;
-  document.getElementById('lc-price').textContent=fmt(liveStartPrice);
-
-  liveInterval=setInterval(()=>{
+  running=true;cash-=bet;updateStats();
+  document.getElementById('btn-fast').disabled=true;
+  document.getElementById('result-box').classList.remove('show');
+  document.getElementById('lc-box').style.display='block';
+  document.getElementById('timer-box').style.display='block';
+  liveStart=prices[selSym];liveData=[liveStart];
+  document.getElementById('lc-sym').textContent=selSym;
+  document.getElementById('lc-price').textContent=fmt(liveStart);
+  liveIv=setInterval(()=>{
     const last=liveData[liveData.length-1];
     let bias=0;
-    if(forced==='win') bias=fastDir==='up'?0.01:-0.01;
-    else if(forced==='lose') bias=fastDir==='up'?-0.01:0.01;
+    const pv=parseFloat(forced);
+    if(!isNaN(pv))bias=(pv>=0?1:-1)*0.012;
+    else if(forced==='win')bias=fDir==='up'?0.012:-0.012;
+    else if(forced==='lose')bias=fDir==='up'?-0.012:0.012;
     const chg=(Math.random()-.5+bias)*last*.035;
-    const next=Math.max(1,+(last+chg).toFixed(4));
-    liveData.push(next);
-    if(liveData.length>60) liveData.shift();
-    drawLiveChart();
-    document.getElementById('lc-price').textContent=fmt(next);
-    const cp=((next-liveStartPrice)/liveStartPrice*100).toFixed(2);
-    const cEl=document.getElementById('lc-chg');
-    cEl.textContent=(cp>=0?'+':'')+cp+'%';
-    cEl.className='live-chg '+(cp>=0?'up':'dn');
+    const nxt=Math.max(0.01,+(last+chg).toFixed(4));
+    liveData.push(nxt);
+    if(liveData.length>80)liveData.shift();
+    drawLC();
+    document.getElementById('lc-price').textContent=fmt(nxt);
+    const cp=((nxt-liveStart)/liveStart*100).toFixed(2);
+    const ce=document.getElementById('lc-chg');
+    ce.textContent=(cp>=0?'+':'')+cp+'%';
+    ce.className='lcb-chg '+(cp>=0?'up':'dn');
   },500);
-
-  let remaining=duration;
-  const bar=document.getElementById('timer-bar');
-  const txt=document.getElementById('timer-text');
-  bar.style.width='100%';bar.style.background='var(--yellow)';
-  txt.textContent=`${remaining} วิ — ${sym} ${fastDir==='up'?'▲ ขึ้น':'▼ ลง'}`;
-
+  let rem=fTime;
+  const fill=document.getElementById('tbar-fill');
+  const lbl=document.getElementById('tbar-label');
+  fill.style.width='100%';fill.style.background='var(--yellow)';
+  lbl.textContent=`${rem} วิ — ${selSym} ${fDir==='up'?'▲ ขึ้น':'▼ ลง'}`;
   const iv=setInterval(()=>{
-    remaining--;
-    const p=Math.max(0,(remaining/duration)*100);
-    bar.style.width=p+'%';
-    bar.style.background=p>50?'var(--yellow)':p>20?'#ff9800':'var(--red)';
-    txt.textContent=`เหลือ ${remaining} วิ`;
-    if(remaining<=0){
-      clearInterval(iv);clearInterval(liveInterval);
-      resolveFast(sym,bet,duration,forced);
-    }
+    rem--;
+    const p=Math.max(0,(rem/fTime)*100);
+    fill.style.width=p+'%';
+    fill.style.background=p>50?'var(--yellow)':p>20?'#f97316':'var(--red)';
+    lbl.textContent=`เหลือ ${rem} วิ`;
+    if(rem<=0){clearInterval(iv);clearInterval(liveIv);resolveFast(bet,forced);}
   },1000);
 }
-
-function drawLiveChart(){
-  const canvas=document.getElementById('live-canvas');
-  if(!canvas) return;
-  const ctx=canvas.getContext('2d');
-  const w=canvas.width=canvas.offsetWidth*2;
-  const h=canvas.height=200;
+function drawLC(){
+  const cv=document.getElementById('lc');if(!cv)return;
+  const ctx=cv.getContext('2d');
+  const w=cv.width=cv.offsetWidth*2;
+  const h=cv.height=200;
   ctx.clearRect(0,0,w,h);
-  if(liveData.length<2) return;
+  if(liveData.length<2)return;
   const mn=Math.min(...liveData),mx=Math.max(...liveData),rng=mx-mn||1;
-  const pad=8;
-  const last=liveData[liveData.length-1],first=liveData[0];
-  const isUp=last>=first;
-  const lc=isUp?'#0ecb81':'#f6465d';
-  const grad=ctx.createLinearGradient(0,0,0,h);
-  grad.addColorStop(0,isUp?'rgba(14,203,129,.35)':'rgba(246,70,93,.35)');
-  grad.addColorStop(1,'rgba(0,0,0,0)');
+  const pad=6;
+  const last=liveData[liveData.length-1];
+  const isUp=last>=liveStart;
+  const lc=isUp?'#00c087':'#ef4444';
+  const gr=ctx.createLinearGradient(0,0,0,h);
+  gr.addColorStop(0,isUp?'rgba(0,192,135,.35)':'rgba(239,68,68,.35)');
+  gr.addColorStop(1,'rgba(0,0,0,0)');
   ctx.beginPath();
-  liveData.forEach((v,i)=>{
-    const x=i/(liveData.length-1)*(w-pad*2)+pad;
-    const y=h-pad-(v-mn)/rng*(h-pad*2);
-    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
-  });
+  liveData.forEach((v,i)=>{const x=i/(liveData.length-1)*(w-pad*2)+pad;const y=h-pad-(v-mn)/rng*(h-pad*2);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
   const lx=(liveData.length-1)/(liveData.length-1)*(w-pad*2)+pad;
   const ly=h-pad-(last-mn)/rng*(h-pad*2);
   ctx.lineTo(lx,h-pad);ctx.lineTo(pad,h-pad);
-  ctx.closePath();ctx.fillStyle=grad;ctx.fill();
+  ctx.closePath();ctx.fillStyle=gr;ctx.fill();
   ctx.beginPath();
-  liveData.forEach((v,i)=>{
-    const x=i/(liveData.length-1)*(w-pad*2)+pad;
-    const y=h-pad-(v-mn)/rng*(h-pad*2);
-    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
-  });
+  liveData.forEach((v,i)=>{const x=i/(liveData.length-1)*(w-pad*2)+pad;const y=h-pad-(v-mn)/rng*(h-pad*2);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
   ctx.strokeStyle=lc;ctx.lineWidth=2;ctx.stroke();
   ctx.beginPath();ctx.arc(lx,ly,5,0,Math.PI*2);ctx.fillStyle=lc;ctx.fill();
 }
-
-async function resolveFast(sym,bet,duration,forced){
-  let won, profit, payout;
-  // forced อาจเป็น 'auto','win','lose' หรือตัวเลข % เช่น '85' หรือ '-50'
-  const pctVal = parseFloat(forced);
-  if(!isNaN(pctVal)){
-    // กำหนดเป็น % เช่น 85 = กำไร 85%, -50 = ขาดทุน 50%
-    won = pctVal >= 0;
-    profit = Math.round(bet * pctVal / 100);
-    payout = bet + profit; // ถ้าขาดทุน payout = bet - ขาดทุน
-    if(payout < 0) payout = 0;
-  } else if(forced==='win'){
-    won=true;
-    profit=Math.round(bet*.85);
-    payout=bet+profit;
-  } else if(forced==='lose'){
-    won=false;
-    profit=-bet;
-    payout=0;
-  } else {
-    won=Math.random()>.5;
-    profit=won?Math.round(bet*.85):-bet;
-    payout=won?bet+Math.round(bet*.85):0;
-  }
+async function resolveFast(bet,forced){
+  let won,profit,payout;
+  const pv=parseFloat(forced);
+  if(!isNaN(pv)){won=pv>=0;profit=Math.round(bet*pv/100);payout=bet+profit;if(payout<0)payout=0;}
+  else if(forced==='win'){won=true;profit=Math.round(bet*.85);payout=bet+profit;}
+  else if(forced==='lose'){won=false;profit=-bet;payout=0;}
+  else{won=Math.random()>.5;profit=won?Math.round(bet*.85):-bet;payout=won?bet+profit:0;}
   cash+=payout;
-  await sb.from('users').update({cash}).eq('id',currentUser.id);
-  await sb.from('fast_trades').insert({user_id:currentUser.id,symbol:sym,direction:fastDir,bet,duration,result:won?'win':'lose',pnl:profit,forced});
+  await sb.from('users').update({cash}).eq('id',cu.id);
+  await sb.from('fast_trades').insert({user_id:cu.id,symbol:selSym,direction:fDir,bet,duration:fTime,result:won?'win':'lose',pnl:profit,forced});
   updateStats();
-  const popup=document.getElementById('result-popup');
-  popup.classList.add('show');
-  const pctStr = !isNaN(pctVal) ? ` (${pctVal>=0?'+':''}${pctVal}%)` : '';
-  document.getElementById('r-title').textContent=won?`กำไร +${fmt(profit)}${pctStr}`:`ขาดทุน ${fmt(profit)}${pctStr}`;
-  document.getElementById('r-title').className='r-title '+(won?'up':'dn');
-  document.getElementById('r-sub').textContent=`${sym} ${fastDir==='up'?'▲ ขึ้น':'▼ ลง'} | เดิมพัน ${fmt(bet)}`;
-  document.getElementById('timer-wrap').style.display='none';
-  document.getElementById('live-chart-wrap').style.display='none';
-  document.getElementById('btn-start').disabled=false;
-  isRunning=false;
-  loadFastLog();
+  const rb=document.getElementById('result-box');
+  rb.classList.add('show');
+  document.getElementById('rb-amount').textContent=won?`กำไร +${fmt(profit)}`:`ขาดทุน ${fmt(profit)}`;
+  document.getElementById('rb-amount').className='rb-amount '+(won?'up':'dn');
+  const pctStr=!isNaN(pv)?` (${pv>=0?'+':''}${pv}%)`:'';
+  document.getElementById('rb-detail').textContent=`${selSym} ${fDir==='up'?'▲ ขึ้น':'▼ ลง'} | เดิมพัน ${fmt(bet)}${pctStr}`;
+  document.getElementById('lc-box').style.display='none';
+  document.getElementById('timer-box').style.display='none';
+  document.getElementById('btn-fast').disabled=false;
+  running=false;loadFastHist();
 }
-
-async function loadFastLog(){
-  if(!currentUser) return;
-  const {data}=await sb.from('fast_trades').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(10);
-  const el=document.getElementById('fast-log');
-  const el2=document.getElementById('port-fast-hist');
-  if(!data||!data.length){
-    const empty='<div style="text-align:center;color:var(--sub);padding:1.5rem;font-size:13px">ยังไม่มีรายการ</div>';
-    if(el) el.innerHTML=empty;
-    if(el2) el2.innerHTML=empty;
-    return;
-  }
-  const html=data.map(l=>`
-    <div class="hist-item">
-      <div class="hist-left">
-        <div class="hist-sym">${l.symbol} ${l.direction==='up'?'▲':'▼'} ${l.duration}วิ</div>
-        <div class="hist-detail">เดิมพัน ${fmt(l.bet)} • ${l.forced!=='auto'?'[บังคับ]':''}</div>
+async function loadFastHist(){
+  if(!cu)return;
+  const {data}=await sb.from('fast_trades').select('*').eq('user_id',cu.id).order('created_at',{ascending:false}).limit(10);
+  const html=data&&data.length?data.map(l=>`
+    <div class="fh-item">
+      <div class="fhi-left">
+        <div class="fhi-sym">${l.symbol} ${l.direction==='up'?'▲':'▼'} ${l.duration}วิ</div>
+        <div class="fhi-meta">เดิมพัน ${fmt(l.bet)}</div>
       </div>
-      <div class="hist-pnl ${l.pnl>=0?'up':'dn'}">${l.pnl>=0?'+':''}${fmt(l.pnl)}</div>
-    </div>`).join('');
-  if(el) el.innerHTML=html;
-  if(el2) el2.innerHTML=html;
+      <div class="fhi-pnl ${l.pnl>=0?'up':'dn'}">${l.pnl>=0?'+':''}${fmt(l.pnl)}</div>
+    </div>`).join(''):'<div class="empty-state"><div class="ei">📋</div><p>ยังไม่มีประวัติ</p></div>';
+  const el1=document.getElementById('fast-hist');
+  const el2=document.getElementById('ph-fast-hist');
+  if(el1)el1.innerHTML=html;
+  if(el2)el2.innerHTML=html;
 }
 
-function renderPortfolio(){
-  const el=document.getElementById('port-list');
+/* ─── PORT ─── */
+function renderPort(){
+  updateStats();
+  const el=document.getElementById('ph-list');
   const entries=Object.entries(portfolio).filter(([,h])=>h.qty>0);
-  if(!entries.length){el.innerHTML='<div style="text-align:center;color:var(--sub);padding:2rem;font-size:13px">ยังไม่มีหุ้น</div>';return;}
+  if(!entries.length){el.innerHTML='<div class="empty-state"><div class="ei">💼</div><p>ยังไม่มีหุ้น</p></div>';return;}
   el.innerHTML=entries.map(([sym,h])=>{
+    const a=ASSETS.find(x=>x.sym===sym);
     const val=h.qty*prices[sym];
     const pnl=val-h.qty*h.avgCost;
     const pp=((pnl/(h.qty*h.avgCost))*100).toFixed(2);
-    const s=ALL_STOCKS.find(x=>x.sym===sym);
-    return`<div class="port-item">
-      <div class="port-item-left">
-        <div style="display:flex;align-items:center;gap:8px">
-          <div style="width:32px;height:32px;border-radius:50%;overflow:hidden;background:${s?s.color+'22':'#fff2'};display:flex;align-items:center;justify-content:center">
-            ${s?`<img src="${s.logo}" style="width:32px;height:32px;object-fit:contain;padding:3px" onerror="this.outerHTML='<span style=color:${s.color};font-weight:700;font-size:13px>${sym[0]}</span>'">`:`<span style="color:#fff;font-weight:700;font-size:13px">${sym[0]}</span>`}
-          </div>
-          <div>
-            <div class="port-sym">${sym}</div>
-            <div class="port-detail">${h.qty} หน่วย @ ${fmt(h.avgCost)}</div>
-          </div>
-        </div>
+    return`<div class="ph-item" onclick="goTrade('${sym}')">
+      <div class="phi-left">${logoImg(a,'phi-logo',36)}
+        <div><div class="phi-name">${sym}</div><div class="phi-qty">${h.qty} หน่วย @ ${fmt(h.avgCost)}</div></div>
       </div>
-      <div class="port-item-right">
-        <div class="port-val">${fmt(val)}</div>
-        <div class="port-pnl-item ${pnl>=0?'up':'dn'}">${pnl>=0?'+':''}${fmt(pnl)} (${pnl>=0?'+':''}${pp}%)</div>
+      <div class="phi-right">
+        <div class="phi-val">${fmt(val)}</div>
+        <div class="phi-pnl ${pnl>=0?'up':'dn'}">${pnl>=0?'+':''}${fmt(pnl)} (${pnl>=0?'+':''}${pp}%)</div>
       </div>
     </div>`;
   }).join('');
 }
 
-function renderAll(){
-  renderHomePreview();renderSymSelector();updateTradeCard();
-}
-
+/* ─── TICK ─── */
 function tick(){
-  ALL_STOCKS.forEach(s=>{
-    const chg=(Math.random()-.48)*s.price*.02;
-    prices[s.sym]=Math.max(1,+(prices[s.sym]+chg).toFixed(4));
-    histories[s.sym].push(prices[s.sym]);
-    if(histories[s.sym].length>40) histories[s.sym].shift();
+  ASSETS.forEach(a=>{
+    const chg=(Math.random()-.48)*a.price*.018;
+    prices[a.sym]=Math.max(0.01,+(prices[a.sym]+chg).toFixed(4));
+    hists[a.sym].push(prices[a.sym]);
+    if(hists[a.sym].length>50)hists[a.sym].shift();
   });
   const active=document.querySelector('.page.active');
   if(active){
     const id=active.id;
-    if(id==='page-home') renderHomePreview();
-    if(id==='page-market') renderMarket();
-    if(id==='page-trade'){updateTradeCard();drawTradeSpark();}
+    if(id==='page-home'){renderHomeMlist();updateTicker();}
+    if(id==='page-market')renderMarket();
+    if(id==='page-trade'){updateTradeCard();}
   }
+  updateTicker();
   updateStats();
-  if(document.getElementById('f-cur-price'))
-    updateFastSym();
 }
 
-// init guest view
-document.getElementById('home-username').textContent='ผู้เยี่ยมชม';
-renderHomePreview();renderMarket();renderSymSelector();updateTradeCard();
-
+/* ─── INIT ─── */
+renderHomeMlist();updateTicker();startSlider();
 restoreSession();
 setInterval(tick,3000);
 </script>
