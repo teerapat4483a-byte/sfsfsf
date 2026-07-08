@@ -2542,91 +2542,186 @@ function tick(){
   }
 }
 
-/* ─── BINANCE REALTIME DATA ─── */
-const BINANCE_MAP={'BTC':'BTCUSDT','ETH':'ETHUSDT','BNB':'BNBUSDT','SOL':'SOLUSDT','XRP':'XRPUSDT','ADA':'ADAUSDT','DOGE':'DOGEUSDT','DOT':'DOTUSDT','AVAX':'AVAXUSDT','MATIC':'MATICUSDT','LINK':'LINKUSDT','LTC':'LTCUSDT'};
-const THB_RATE=34.5;
+/* ─── REALTIME PRICE DATA ─── */
+const BINANCE_MAP={
+  'BTC':'BTCUSDT','ETH':'ETHUSDT','BNB':'BNBUSDT','SOL':'SOLUSDT',
+  'XRP':'XRPUSDT','ADA':'ADAUSDT','DOGE':'DOGEUSDT','DOT':'DOTUSDT',
+  'AVAX':'AVAXUSDT','MATIC':'MATICUSDT','LINK':'LINKUSDT','LTC':'LTCUSDT'
+};
+// Thai stocks: use Stooq CSV (free, no key)
+const THAI_MAP={
+  'PTT':'PTT.BK','CPALL':'CPALL.BK','AOT':'AOT.BK','KBANK':'KBANK.BK',
+  'SCB':'SCB.BK','BBL':'BBL.BK','KTB':'KTB.BK','ADVANC':'ADVANC.BK',
+  'TRUE':'TRUE.BK','GULF':'GULF.BK'
+};
+// Gold & Metals: use Frankfurt Stock Exchange via Stooq
+const GOLD_STOOQ={
+  'XAUUSD':'XAUUSD','XAUTHB':null,'GOLD96':null,'SILVER':'XAGUSD','PLATINUM':'XPTUSD'
+};
+
 let binanceWS=null;
+let usdThb=34.5; // will be updated from API
 const TF_TO_INTERVAL={'1m':'1m','10m':'15m','1h':'1h','1d':'1d','1mo':'1M','1y':'1M'};
 const TF_TO_LIMIT={'1m':80,'10m':80,'1h':80,'1d':80,'1mo':36,'1y':24};
 
-async function fetchBinanceKlines(sym,tf){
-  const bSym=BINANCE_MAP[sym];if(!bSym)return null;
-  const interval=TF_TO_INTERVAL[tf]||'1d';
-  const limit=TF_TO_LIMIT[tf]||80;
+// ── Fetch USD/THB rate ──
+async function fetchUSDTHB(){
   try{
-    const res=await fetch(`https://api.binance.com/api/v3/klines?symbol=${bSym}&interval=${interval}&limit=${limit}`);
-    if(!res.ok)return null;
-    const data=await res.json();
-    return data.map(k=>({o:parseFloat(k[1])*THB_RATE,h:parseFloat(k[2])*THB_RATE,l:parseFloat(k[3])*THB_RATE,c:parseFloat(k[4])*THB_RATE,vol:parseFloat(k[5])}));
-  }catch(e){console.log('Binance klines error:',e.message);return null;}
+    const r=await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+    if(!r.ok)return;
+    const d=await r.json();
+    if(d.rates&&d.rates.THB) usdThb=d.rates.THB;
+  }catch(e){}
 }
 
+// ── Binance: Crypto prices ──
 async function fetchBinancePrices(){
   try{
     const syms=Object.values(BINANCE_MAP);
-    const res=await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbols=${JSON.stringify(syms)}`);
-    if(!res.ok)return;
-    const data=await res.json();
+    const r=await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbols=${JSON.stringify(syms)}`);
+    if(!r.ok)return;
+    const data=await r.json();
     data.forEach(t=>{
-      const ourSym=Object.keys(BINANCE_MAP).find(k=>BINANCE_MAP[k]===t.symbol);
-      if(ourSym){
-        prices[ourSym]=parseFloat(t.lastPrice)*THB_RATE;
-        hists[ourSym].push(prices[ourSym]);
-        if(hists[ourSym].length>50)hists[ourSym].shift();
+      const sym=Object.keys(BINANCE_MAP).find(k=>BINANCE_MAP[k]===t.symbol);
+      if(sym){
+        const p=parseFloat(t.lastPrice)*usdThb;
+        prices[sym]=p;
+        hists[sym].push(p);
+        if(hists[sym].length>50)hists[sym].shift();
       }
     });
-    updateTicker();renderHomeMlist();
-    const active=document.querySelector('.page.active');
-    if(active&&active.id==='page-trade')updateTradeCard();
-    updateStats();
-  }catch(e){console.log('Binance price error:',e.message);}
+  }catch(e){console.log('Binance error:',e.message);}
 }
 
+// ── Binance WebSocket: Crypto realtime ──
 function startBinanceWS(){
   const streams=Object.values(BINANCE_MAP).map(s=>s.toLowerCase()+'@miniTicker').join('/');
   try{
     binanceWS=new WebSocket(`wss://stream.binance.com:9443/stream?streams=${streams}`);
     binanceWS.onmessage=(e)=>{
       try{
-        const d=JSON.parse(e.data).data;
-        if(!d||!d.s)return;
-        const ourSym=Object.keys(BINANCE_MAP).find(k=>BINANCE_MAP[k]===d.s);
-        if(ourSym){
-          const p=parseFloat(d.c)*THB_RATE;
-          prices[ourSym]=p;
-          hists[ourSym].push(p);
-          if(hists[ourSym].length>50)hists[ourSym].shift();
-          updateTicker();updateStats();
-          const active=document.querySelector('.page.active');
-          if(active&&active.id==='page-trade'&&selSym===ourSym)updateTradeCard();
-          if(active&&(active.id==='page-home'||active.id==='page-market'))renderHomeMlist();
+        const d=JSON.parse(e.data).data;if(!d||!d.s)return;
+        const sym=Object.keys(BINANCE_MAP).find(k=>BINANCE_MAP[k]===d.s);
+        if(sym){
+          const p=parseFloat(d.c)*usdThb;
+          prices[sym]=p;hists[sym].push(p);if(hists[sym].length>50)hists[sym].shift();
+          refreshUI(sym);
         }
       }catch(ex){}
     };
     binanceWS.onclose=()=>setTimeout(startBinanceWS,5000);
     binanceWS.onerror=()=>binanceWS.close();
-  }catch(e){console.log('WebSocket error');}
+  }catch(e){}
+}
+
+// ── Fetch Thai stocks via Yahoo Finance v8 (CORS-friendly via allorigins) ──
+async function fetchThaiStocks(){
+  await Promise.allSettled(Object.entries(THAI_MAP).map(async([sym,ticker])=>{
+    try{
+      const url=`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`;
+      const proxy=`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+      const r=await fetch(proxy);if(!r.ok)return;
+      const j=await r.json();
+      const data=JSON.parse(j.contents);
+      const p=data?.chart?.result?.[0]?.meta?.regularMarketPrice;
+      if(p&&p>0){
+        prices[sym]=p;
+        hists[sym].push(p);
+        if(hists[sym].length>50)hists[sym].shift();
+      }
+    }catch(e){}
+  }));
+}
+
+// ── Fetch Gold/Silver prices via Metals.live (free public API) ──
+async function fetchMetalPrices(){
+  try{
+    // metals.live provides free spot prices in USD/troy oz
+    const r=await fetch('https://metals.live/api/spot');
+    if(!r.ok) throw new Error('metals.live failed');
+    const d=await r.json();
+    // d = [{metal:'gold',price:2300.5,...},...]
+    d.forEach(item=>{
+      const p=item.price*usdThb; // USD/oz → THB/oz
+      if(item.metal==='gold'){
+        prices['XAUUSD']=p;
+        prices['XAUTHB']=p;
+        prices['GOLD96']=p*0.965; // 96.5% purity
+        hists['XAUUSD'].push(p);hists['XAUTHB'].push(p);hists['GOLD96'].push(p*0.965);
+      }
+      if(item.metal==='silver'){
+        prices['SILVER']=item.price*usdThb;
+        hists['SILVER'].push(prices['SILVER']);
+      }
+      if(item.metal==='platinum'){
+        prices['PLATINUM']=item.price*usdThb;
+        hists['PLATINUM'].push(prices['PLATINUM']);
+      }
+    });
+  }catch(e){
+    // Fallback: try frankfurter for XAU
+    try{
+      const r2=await fetch('https://api.frankfurter.app/latest?from=XAU&to=THB,USD');
+      if(r2.ok){
+        const d2=await r2.json();
+        if(d2.rates&&d2.rates.THB){
+          const goldThb=d2.rates.THB;
+          prices['XAUUSD']=goldThb;prices['XAUTHB']=goldThb;prices['GOLD96']=goldThb*0.965;
+          hists['XAUUSD'].push(goldThb);
+        }
+      }
+    }catch(e2){console.log('Gold fallback failed');}
+  }
+}
+
+// ── Binance Klines (chart data) ──
+async function fetchBinanceKlines(sym,tf){
+  const bSym=BINANCE_MAP[sym];if(!bSym)return null;
+  try{
+    const r=await fetch(`https://api.binance.com/api/v3/klines?symbol=${bSym}&interval=${TF_TO_INTERVAL[tf]||'1d'}&limit=${TF_TO_LIMIT[tf]||80}`);
+    if(!r.ok)return null;
+    const data=await r.json();
+    return data.map(k=>({o:parseFloat(k[1])*usdThb,h:parseFloat(k[2])*usdThb,l:parseFloat(k[3])*usdThb,c:parseFloat(k[4])*usdThb,vol:parseFloat(k[5])}));
+  }catch(e){return null;}
 }
 
 async function ensureTFDataBinance(sym,tf){
-  if(!BINANCE_MAP[sym])return false;
   const klines=await fetchBinanceKlines(sym,tf);
-  if(klines&&klines.length>0){
-    if(!tfHists[sym])tfHists[sym]={};
-    tfHists[sym][tf]=klines;
-    return true;
-  }
+  if(klines&&klines.length>0){if(!tfHists[sym])tfHists[sym]={};tfHists[sym][tf]=klines;return true;}
   return false;
 }
 
+// ── Refresh UI after price update ──
+function refreshUI(sym){
+  updateTicker();updateStats();
+  const active=document.querySelector('.page.active');
+  if(!active)return;
+  if(active.id==='page-trade'&&selSym===sym)updateTradeCard();
+  if(active.id==='page-home'||active.id==='page-market')renderHomeMlist();
+}
+
+// ── Master init ──
 async function initBinance(){
-  await fetchBinancePrices();
+  // 1. Fetch exchange rate
+  await fetchUSDTHB();
+  // 2. Fetch all prices in parallel
+  await Promise.allSettled([fetchBinancePrices(),fetchThaiStocks(),fetchMetalPrices()]);
+  // 3. Update UI
+  updateTicker();renderHomeMlist();updateStats();
+  // 4. Start WebSocket for crypto
   startBinanceWS();
+  // 5. Load chart for current symbol
   if(selSym&&BINANCE_MAP[selSym]){
     const ok=await ensureTFDataBinance(selSym,curTF);
     if(ok)drawTradeChart();
   }
 }
+
+// ── Polling fallback every 60s for stocks & metals ──
+setInterval(async()=>{
+  await Promise.allSettled([fetchBinancePrices(),fetchThaiStocks(),fetchMetalPrices()]);
+  updateTicker();renderHomeMlist();updateStats();
+},60000);
 
 // INIT
 renderHomeMlist();updateTicker();startSlider();applyLang();restoreSession();
