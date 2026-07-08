@@ -3,275 +3,365 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin — เทรดจำลอง</title>
+<title>Admin Panel — Bitforex168</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:sans-serif;background:#f3f4f6;color:#1e293b;min-height:100vh;padding:1rem}
-.wrap{max-width:900px;margin:0 auto}
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+:root{--bg:#0f1117;--sidebar:#161b27;--card:#1e2433;--border:#2a3044;--text:#e2e8f0;--sub:#64748b;--accent:#3b82f6;--green:#10b981;--red:#ef4444;--yellow:#f59e0b}
+body{background:var(--bg);color:var(--text);min-height:100vh;display:flex}
 
-.login-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:99}
-.login-card{background:#fff;border-radius:12px;padding:2rem;width:320px;box-shadow:0 4px 20px rgba(0,0,0,.15)}
-.login-title{font-size:18px;font-weight:700;text-align:center;margin-bottom:1.25rem}
-.field{margin-bottom:.875rem}
-label{display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px}
-input{width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none}
-input:focus{border-color:#2563eb}
-.btn-login{width:100%;padding:10px;border:none;border-radius:8px;background:#2563eb;color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-top:.5rem}
-.err{color:#dc2626;font-size:12px;margin-top:.5rem;text-align:center}
+/* LOGIN */
+.login-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:999;backdrop-filter:blur(8px)}
+.login-card{background:var(--card);border-radius:16px;padding:2rem;width:340px;border:1px solid var(--border);box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.login-logo{text-align:center;margin-bottom:1.5rem}
+.login-logo-icon{font-size:40px;margin-bottom:.5rem}
+.login-logo-name{font-size:20px;font-weight:800;color:var(--yellow)}
+.login-logo-sub{font-size:12px;color:var(--sub);margin-top:2px}
+.lf{margin-bottom:1rem}
+.lf label{display:block;font-size:12px;font-weight:600;color:var(--sub);margin-bottom:6px;letter-spacing:.5px;text-transform:uppercase}
+.lf input{width:100%;padding:11px 14px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;font-size:14px;color:var(--text);outline:none}
+.lf input:focus{border-color:var(--accent)}
+.btn-login{width:100%;padding:12px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-top:.5rem}
+.err{color:var(--red);font-size:12px;margin-top:.5rem;text-align:center}
 
-.main-content{display:none}
-.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;background:#fff;padding:.875rem 1rem;border-radius:10px;border:1px solid #e5e7eb;flex-wrap:wrap;gap:8px}
-.title{font-size:17px;font-weight:700}
-.badge-admin{background:#fef3c7;color:#d97706;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:700;margin-left:8px}
-.topbar-right{display:flex;gap:8px;align-items:center}
-.btn-refresh{background:#f1f5f9;color:#475569;border:1px solid #d1d5db;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer}
-.btn-logout{background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer}
+/* LAYOUT */
+.admin-layout{display:none;width:100%;min-height:100vh}
+.sidebar{width:220px;background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;height:100vh}
+.sidebar-logo{padding:1.25rem 1rem;border-bottom:1px solid var(--border)}
+.sidebar-logo-name{font-size:16px;font-weight:800;color:var(--yellow)}
+.sidebar-logo-badge{font-size:10px;color:var(--sub);margin-top:2px}
+.sidebar-menu{flex:1;padding:.75rem 0;overflow-y:auto}
+.menu-item{display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;cursor:pointer;border-radius:0;transition:all .15s;color:var(--sub);font-size:13px;font-weight:600;position:relative}
+.menu-item:hover{background:rgba(255,255,255,.04);color:var(--text)}
+.menu-item.active{background:rgba(59,130,246,.1);color:var(--accent)}
+.menu-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);border-radius:0 2px 2px 0}
+.menu-icon{font-size:18px;width:24px;text-align:center}
+.menu-badge{margin-left:auto;background:var(--red);color:#fff;border-radius:99px;padding:1px 7px;font-size:10px;font-weight:700}
+.sidebar-footer{padding:1rem;border-top:1px solid var(--border)}
+.btn-logout-sb{width:100%;padding:9px;border:1px solid rgba(239,68,68,.3);border-radius:8px;background:rgba(239,68,68,.08);color:var(--red);font-size:13px;font-weight:600;cursor:pointer}
 
-.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem}
-.stat-card{background:#fff;border-radius:8px;padding:.875rem 1rem;border:1px solid #e5e7eb;text-align:center}
-.stat-label{font-size:12px;color:#64748b;margin-bottom:4px}
-.stat-val{font-size:24px;font-weight:700}
-.up{color:#16a34a}.dn{color:#dc2626}
+/* CONTENT */
+.content{margin-left:220px;flex:1;padding:1.5rem;min-height:100vh;overflow-y:auto}
+.content-section{display:none}
+.content-section.active{display:block}
 
-.section{background:#fff;border-radius:10px;padding:1rem;margin-bottom:1rem;border:1px solid #e5e7eb}
-.section-title{font-size:14px;font-weight:700;margin-bottom:1rem}
+/* TOPBAR */
+.content-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}
+.content-title{font-size:20px;font-weight:800;color:var(--text)}
+.content-title span{font-size:13px;color:var(--sub);font-weight:400;margin-left:.75rem}
 
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1.5rem}
+.stat-card{background:var(--card);border-radius:12px;padding:1rem 1.25rem;border:1px solid var(--border)}
+.stat-label{font-size:12px;color:var(--sub);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.stat-val{font-size:26px;font-weight:800}
+.up{color:var(--green)}.dn{color:var(--red)}
+
+/* CARDS */
+.admin-card{background:var(--card);border-radius:12px;border:1px solid var(--border);margin-bottom:1.25rem;overflow:hidden}
+.card-header{padding:.875rem 1.25rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.card-title{font-size:14px;font-weight:700}
+.card-body{padding:1.25rem}
+.btn-sm{padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--sub);font-size:12px;cursor:pointer}
+.btn-sm:hover{background:rgba(255,255,255,.1);color:var(--text)}
+
+/* TABLE */
 table{width:100%;border-collapse:collapse;font-size:13px}
-th{text-align:left;padding:8px 10px;background:#f8fafc;color:#64748b;font-weight:700;border-bottom:1px solid #e5e7eb;font-size:12px}
-td{padding:10px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+th{text-align:left;padding:10px 12px;color:var(--sub);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:12px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
 tr:last-child td{border-bottom:none}
-tr:hover td{background:#fafafa}
+tr:hover td{background:rgba(255,255,255,.02)}
 
-.result-btns{display:flex;gap:5px}
-.rb{padding:4px 10px;border-radius:6px;border:1px solid #d1d5db;font-size:11px;cursor:pointer;font-weight:700;background:#f9fafb;color:#64748b;transition:opacity .2s}
-.rb:hover{opacity:.8}
-.rb.auto.on{background:#e8f0fe;color:#2563eb;border-color:#93c5fd}
-.rb.win.on{background:#dcfce7;color:#16a34a;border-color:#86efac}
-.rb.lose.on{background:#fee2e2;color:#dc2626;border-color:#fca5a5}
-.rb.pct.on{background:#fef3c7;color:#d97706;border-color:#fcd34d}
+/* BUTTONS */
+.rb{padding:5px 10px;border-radius:6px;border:1px solid var(--border);font-size:11px;cursor:pointer;font-weight:700;background:rgba(255,255,255,.06);color:var(--sub)}
+.rb.auto.on{background:rgba(59,130,246,.15);color:#60a5fa;border-color:rgba(59,130,246,.4)}
+.rb.win.on{background:rgba(16,185,129,.15);color:#34d399;border-color:rgba(16,185,129,.4)}
+.rb.lose.on{background:rgba(239,68,68,.15);color:#f87171;border-color:rgba(239,68,68,.4)}
+.rb.pct.on{background:rgba(245,158,11,.15);color:#fbbf24;border-color:rgba(245,158,11,.4)}
 .pct-row{display:flex;gap:5px;align-items:center;margin-top:6px}
-.pct-row input{width:70px;padding:4px 7px;font-size:12px;border:1px solid #d1d5db;border-radius:6px;text-align:center}
-.btn-pct{background:#fef3c7;color:#d97706;border:1px solid #fcd34d;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-weight:700}
-
+.pct-row input{width:80px;padding:5px 8px;font-size:12px;border:1px solid var(--border);border-radius:6px;background:rgba(255,255,255,.06);color:var(--text);text-align:center;outline:none}
+.btn-pct{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.4);border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;font-weight:700}
 .adj-row{display:flex;gap:5px;align-items:center}
-.adj-row input{width:85px;padding:4px 7px;font-size:12px;border:1px solid #d1d5db;border-radius:6px}
-.btn-add{background:#dcfce7;color:#16a34a;border:1px solid #86efac;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;font-weight:700}
-.btn-cut{background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;font-weight:700}
+.adj-row input{width:90px;padding:5px 8px;font-size:12px;border:1px solid var(--border);border-radius:6px;background:rgba(255,255,255,.06);color:var(--text);outline:none}
+.btn-add{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.4);border-radius:6px;padding:5px 9px;font-size:11px;cursor:pointer;font-weight:700}
+.btn-cut{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.4);border-radius:6px;padding:5px 9px;font-size:11px;cursor:pointer;font-weight:700}
+.result-btns{display:flex;gap:4px;flex-wrap:wrap}
 
-.empty{text-align:center;color:#94a3b8;padding:2rem;font-size:13px}
-.toast{position:fixed;top:14px;right:14px;background:#fff;border:1px solid #d1d5db;border-radius:8px;padding:.6rem 1rem;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+/* CHAT */
+.chat-layout{display:grid;grid-template-columns:240px 1fr;gap:0;border-radius:12px;overflow:hidden;border:1px solid var(--border);height:560px}
+.chat-rooms{background:var(--sidebar);overflow-y:auto;border-right:1px solid var(--border)}
+.chat-room-head{padding:.875rem 1rem;font-size:12px;font-weight:700;color:var(--sub);border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.5px}
+.chat-room-item{padding:.875rem 1rem;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04)}
+.chat-room-item:hover{background:rgba(255,255,255,.04)}
+.chat-room-item.active{background:rgba(59,130,246,.1)}
+.cr-name{font-size:13px;font-weight:700;display:flex;justify-content:space-between}
+.cr-preview{font-size:11px;color:var(--sub);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cr-badge{background:var(--red);color:#fff;border-radius:99px;padding:1px 6px;font-size:10px;font-weight:700}
+.cr-time{font-size:10px;color:var(--sub)}
+.chat-main{display:flex;flex-direction:column;background:var(--bg)}
+.chat-main-header{padding:.875rem 1rem;border-bottom:1px solid var(--border);background:var(--card);display:flex;align-items:center;gap:.75rem}
+.chat-main-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.chat-main-name{font-size:14px;font-weight:700}
+.chat-main-body{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.625rem}
+.admin-msg-wrap{display:flex;flex-direction:column;max-width:72%}
+.admin-msg-wrap.me{align-self:flex-end;align-items:flex-end}
+.admin-msg-wrap.user{align-self:flex-start}
+.admin-msg-bubble{padding:.625rem .875rem;border-radius:14px;font-size:13px;line-height:1.45}
+.admin-msg-wrap.me .admin-msg-bubble{background:var(--accent);color:#fff}
+.admin-msg-wrap.user .admin-msg-bubble{background:var(--card);color:var(--text);border:1px solid var(--border)}
+.admin-msg-time{font-size:10px;color:var(--sub);margin-top:3px}
+.chat-main-footer{padding:.75rem 1rem;border-top:1px solid var(--border);display:flex;gap:.625rem;background:var(--card)}
+.chat-admin-inp{flex:1;padding:.75rem;border:1px solid var(--border);border-radius:10px;font-size:14px;background:rgba(255,255,255,.06);color:var(--text);outline:none}
+.chat-admin-inp:focus{border-color:var(--accent)}
+.btn-send{padding:.75rem 1.25rem;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer}
+.no-room{display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:.75rem;color:var(--sub)}
+.no-room-icon{font-size:40px}
+
+/* WD */
+.wd-item{background:rgba(255,255,255,.03);border-radius:10px;padding:.875rem;margin-bottom:.75rem;border:1px solid var(--border)}
+.wd-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem}
+.wd-user{font-size:14px;font-weight:700}
+.wd-amount{font-size:16px;font-weight:800;color:var(--green)}
+.wd-bank{font-size:12px;color:var(--sub);margin-bottom:.75rem}
+.wd-btns{display:flex;gap:8px}
+.btn-approve{padding:7px 16px;background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.4);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer}
+.btn-reject{padding:7px 16px;background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.4);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer}
+.wd-status{padding:4px 10px;border-radius:99px;font-size:11px;font-weight:700}
+.wd-status.pending{background:rgba(245,158,11,.15);color:#fbbf24}
+.wd-status.approved{background:rgba(16,185,129,.15);color:#34d399}
+.wd-status.rejected{background:rgba(239,68,68,.15);color:#f87171}
+
+.empty{text-align:center;padding:2rem;color:var(--sub);font-size:13px}
+.toast{position:fixed;top:16px;right:16px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.625rem 1.25rem;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.4);color:var(--text)}
 .toast.show{opacity:1}
+.unread-dot{width:8px;height:8px;border-radius:50%;background:var(--red);margin-left:auto}
 </style>
 </head>
 <body>
 
-<!-- Login -->
+<!-- LOGIN -->
 <div class="login-overlay" id="login-overlay">
   <div class="login-card">
-    <div class="login-title">🔐 Admin Login</div>
-    <div class="field"><label>Username</label><input type="text" id="a-user" value="admin" placeholder="admin"></div>
-    <div class="field"><label>Password</label><input type="password" id="a-pass" placeholder="รหัสผ่าน" onkeydown="if(event.key==='Enter')doAdminLogin()"></div>
+    <div class="login-logo">
+      <div class="login-logo-icon">📈</div>
+      <div class="login-logo-name">Bitforex168</div>
+      <div class="login-logo-sub">Admin Panel</div>
+    </div>
+    <div class="lf"><label>Username</label><input type="text" id="a-user" value="admin"></div>
+    <div class="lf"><label>Password</label><input type="password" id="a-pass" onkeydown="if(event.key==='Enter')doAdminLogin()"></div>
     <div class="err" id="a-err"></div>
     <button class="btn-login" onclick="doAdminLogin()">เข้าสู่ระบบ</button>
   </div>
 </div>
 
-<!-- Main -->
-<div class="main-content" id="main-content">
-<div class="wrap">
-  <div class="topbar">
-    <div>
-      <span class="title">⚙️ Admin Panel</span>
-      <span class="badge-admin">ADMIN</span>
+<!-- ADMIN LAYOUT -->
+<div class="admin-layout" id="admin-layout">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-name">📈 Bitforex168</div>
+      <div class="sidebar-logo-badge">Admin Dashboard</div>
     </div>
-    <div class="topbar-right">
-      <button class="btn-refresh" onclick="loadUsers()">รีเฟรช</button>
-      <button class="btn-logout" onclick="doLogout()">ออกจากระบบ</button>
-    </div>
-  </div>
-
-  <div class="stats-grid">
-    <div class="stat-card"><div class="stat-label">ผู้เล่นทั้งหมด</div><div class="stat-val" id="stat-total">0</div></div>
-    <div class="stat-card"><div class="stat-label">บังคับกำไร</div><div class="stat-val up" id="stat-win">0</div></div>
-    <div class="stat-card"><div class="stat-label">บังคับขาดทุน</div><div class="stat-val dn" id="stat-lose">0</div></div>
-  </div>
-
-  <!-- CHAT SECTION -->
-  <div class="section">
-    <div class="section-title" style="display:flex;justify-content:space-between;align-items:center">
-      <span>💬 ข้อความจากผู้เล่น</span>
-      <span id="chat-unread-badge" style="display:none;background:#ef4444;color:#fff;border-radius:99px;padding:2px 8px;font-size:11px;font-weight:700"></span>
-      <button onclick="loadChatRooms()" style="background:#e8f0fe;color:#2563eb;border:1px solid #93c5fd;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer">รีเฟรช</button>
-    </div>
-    <div class="chat-sidebar">
-      <div class="chat-rooms-list" id="admin-rooms-list">
-        <div style="padding:1rem;text-align:center;color:#94a3b8;font-size:13px">กำลังโหลด...</div>
+    <div class="sidebar-menu">
+      <div class="menu-item active" onclick="showSection('overview',this)">
+        <span class="menu-icon">📊</span> ภาพรวม
       </div>
-      <div class="chat-main" id="admin-chat-main">
-        <div class="no-room-selected">
-          <div style="font-size:36px">💬</div>
-          <div>เลือกผู้เล่นเพื่อดูข้อความ</div>
+      <div class="menu-item" onclick="showSection('users',this)">
+        <span class="menu-icon">👥</span> จัดการผู้เล่น
+      </div>
+      <div class="menu-item" onclick="showSection('chat',this)" id="menu-chat">
+        <span class="menu-icon">💬</span> ข้อความ
+        <span class="menu-badge" id="chat-badge" style="display:none">0</span>
+      </div>
+      <div class="menu-item" onclick="showSection('withdrawals',this)" id="menu-wd">
+        <span class="menu-icon">💸</span> คำขอถอนเงิน
+        <span class="menu-badge" id="wd-badge" style="display:none">0</span>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <button class="btn-logout-sb" onclick="doLogout()">🚪 ออกจากระบบ</button>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- OVERVIEW -->
+    <div class="content-section active" id="section-overview">
+      <div class="content-header">
+        <div class="content-title">📊 ภาพรวม <span>ข้อมูลแบบ Realtime</span></div>
+        <button class="btn-sm" onclick="refreshAll()">🔄 รีเฟรช</button>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">ผู้เล่นทั้งหมด</div><div class="stat-val" id="stat-total">0</div></div>
+        <div class="stat-card"><div class="stat-label">บังคับกำไร</div><div class="stat-val up" id="stat-win">0</div></div>
+        <div class="stat-card"><div class="stat-label">บังคับขาดทุน</div><div class="stat-val dn" id="stat-lose">0</div></div>
+      </div>
+      <div class="admin-card">
+        <div class="card-header"><div class="card-title">👥 รายชื่อผู้เล่น</div></div>
+        <div class="card-body" style="padding:0;overflow-x:auto">
+          <table>
+            <thead><tr><th>ผู้ใช้</th><th>เงินสด</th><th>บัญชีธนาคาร</th><th>กำหนดผลเทรดเร็ว</th><th>ปรับเงิน</th></tr></thead>
+            <tbody id="users-tbody-ov"></tbody>
+          </table>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Withdrawal Requests -->
-  <div class="section" id="wd-section">
-    <div class="section-title" style="display:flex;justify-content:space-between;align-items:center">
-      <span>💸 คำขอถอนเงิน</span>
-      <button onclick="loadWithdrawals()" style="background:#e8f0fe;color:#2563eb;border:1px solid #93c5fd;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer">รีเฟรช</button>
+    <!-- USERS -->
+    <div class="content-section" id="section-users">
+      <div class="content-header">
+        <div class="content-title">👥 จัดการผู้เล่น</div>
+        <button class="btn-sm" onclick="loadUsers()">🔄 รีเฟรช</button>
+      </div>
+      <div class="admin-card">
+        <div class="card-body" style="padding:0;overflow-x:auto">
+          <table>
+            <thead><tr><th>ผู้ใช้</th><th>เงินสด</th><th>บัญชีธนาคาร</th><th>กำหนดผลเทรดเร็ว</th><th>ปรับเงิน</th></tr></thead>
+            <tbody id="users-tbody"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
-    <div id="wd-list"><div class="port-empty">กำลังโหลด...</div></div>
-  </div>
 
-  <div class="section">
-    <div class="section-title">จัดการผู้เล่น</div>
-    <table>
-      <thead>
-        <tr>
-          <th>ผู้ใช้</th>
-          <th>เงินสด</th>
-          <th>บัญชีธนาคาร</th>
-          <th>กำหนดผลเทรดเร็ว</th>
-          <th>ปรับเงิน</th>
-        </tr>
-      </thead>
-      <tbody id="users-tbody">
-        <tr><td colspan="4" class="empty">กำลังโหลด...</td></tr>
-      </tbody>
-    </table>
+    <!-- CHAT -->
+    <div class="content-section" id="section-chat">
+      <div class="content-header">
+        <div class="content-title">💬 ข้อความจากผู้เล่น</div>
+        <button class="btn-sm" onclick="loadChatRooms()">🔄 รีเฟรช</button>
+      </div>
+      <div class="chat-layout">
+        <div class="chat-rooms">
+          <div class="chat-room-head">รายชื่อ</div>
+          <div id="admin-rooms-list"><div class="empty">กำลังโหลด...</div></div>
+        </div>
+        <div class="chat-main" id="admin-chat-main">
+          <div class="no-room">
+            <div class="no-room-icon">💬</div>
+            <div>เลือกผู้เล่นเพื่อดูข้อความ</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WITHDRAWALS -->
+    <div class="content-section" id="section-withdrawals">
+      <div class="content-header">
+        <div class="content-title">💸 คำขอถอนเงิน</div>
+        <button class="btn-sm" onclick="loadWithdrawals()">🔄 รีเฟรช</button>
+      </div>
+      <div id="wd-list"><div class="empty">กำลังโหลด...</div></div>
+    </div>
+
   </div>
 </div>
-</div>
 
-<!-- Withdraw Requests -->
-<div class="main-content" id="withdraw-section" style="display:none;margin-top:1rem">
-</div>
 <div class="toast" id="toast"></div>
 
 <script>
-// Early definitions for HTML onclick handlers
+const SUPABASE_URL='https://myjawbecdfwwndyrjttx.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15amF3YmVjZGZ3d25keXJqdHR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0OTMxNzksImV4cCI6MjA5OTA2OTE3OX0.CdysmTFeVMErbKd4OqCRoFLdRKenqfvKkoXw4ISIoOs';
+const ADMIN_USER='admin',ADMIN_PASS='admin1234';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+let isAdmin=false,usersData=[];
+let activeRoomId=null,adminMsgChannel=null,adminRoomsChannel=null;
+
 window.doAdminLogin=function(){
   const u=document.getElementById('a-user').value;
   const p=document.getElementById('a-pass').value;
-  if(u===ADMIN_USER && p===ADMIN_PASS){
-    isAdmin=true;
-    sessionStorage.setItem('is_admin','1');
+  if(u===ADMIN_USER&&p===ADMIN_PASS){
+    isAdmin=true;sessionStorage.setItem('is_admin','1');
     document.getElementById('login-overlay').style.display='none';
-    document.getElementById('main-content').style.display='block';
-    loadUsers();loadWithdrawals();loadChatRooms();subscribeRooms();
-  } else {
-    document.getElementById('a-err').textContent='รหัสผ่านไม่ถูกต้อง';
-  }
-}
-
-const SUPABASE_URL = 'https://myjawbecdfwwndyrjttx.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15amF3YmVjZGZ3d25keXJqdHR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0OTMxNzksImV4cCI6MjA5OTA2OTE3OX0.CdysmTFeVMErbKd4OqCRoFLdRKenqfvKkoXw4ISIoOs';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-const ADMIN_USER = 'admin';
-const ADMIN_PASS = 'admin1234';
-
-let usersData = [];
-let isAdmin = false;
-
-function showToast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2200);
-}
-
-function doAdminLogin(){
-  const u=document.getElementById('a-user').value;
-  const p=document.getElementById('a-pass').value;
-  if(u===ADMIN_USER && p===ADMIN_PASS){
-    isAdmin=true;
-    sessionStorage.setItem('is_admin','1');
-    document.getElementById('login-overlay').style.display='none';
-    document.getElementById('main-content').style.display='block';
-    loadUsers();loadWithdrawals();loadChatRooms();subscribeRooms();
+    document.getElementById('admin-layout').style.display='flex';
+    refreshAll();subscribeRooms();
   } else {
     document.getElementById('a-err').textContent='รหัสผ่านไม่ถูกต้อง';
   }
 }
 
 function doLogout(){
-  sessionStorage.removeItem('is_admin');
-  isAdmin=false;
+  sessionStorage.removeItem('is_admin');isAdmin=false;
+  document.getElementById('admin-layout').style.display='none';
   document.getElementById('login-overlay').style.display='flex';
-  document.getElementById('main-content').style.display='none';
 }
 
+// Auto restore
+if(sessionStorage.getItem('is_admin')==='1'){
+  isAdmin=true;
+  document.getElementById('login-overlay').style.display='none';
+  document.getElementById('admin-layout').style.display='flex';
+  setTimeout(()=>{refreshAll();subscribeRooms();},300);
+}
+
+function showSection(id,el){
+  document.querySelectorAll('.content-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.menu-item').forEach(m=>m.classList.remove('active'));
+  document.getElementById('section-'+id).classList.add('active');
+  el.classList.add('active');
+  if(id==='chat') loadChatRooms();
+  if(id==='withdrawals') loadWithdrawals();
+  if(id==='users') loadUsers();
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function refreshAll(){loadUsers();loadChatRooms();loadWithdrawals();}
+
+// ─── USERS ───
 async function loadUsers(){
-  const {data:users} = await sb.from('users').select('id,username,cash,created_at').order('created_at');
-  const {data:overrides} = await sb.from('result_overrides').select('*');
-
-  usersData = (users||[]).map(u=>{
-    const ov = (overrides||[]).find(o=>o.user_id===u.id);
-    return {...u, forced_result: ov?ov.result:'auto'};
+  const {data:users}=await sb.from('users').select('*').order('created_at');
+  const {data:overrides}=await sb.from('result_overrides').select('*');
+  usersData=(users||[]).map(u=>{
+    const ov=overrides?overrides.find(o=>o.user_id===u.id):null;
+    return{...u,forced_result:ov?ov.result:'auto'};
   });
-
-  document.getElementById('stat-total').textContent = usersData.length;
-  document.getElementById('stat-win').textContent = usersData.filter(u=>!isNaN(parseFloat(u.forced_result))?parseFloat(u.forced_result)>0:u.forced_result==='win').length;
-  document.getElementById('stat-lose').textContent = usersData.filter(u=>!isNaN(parseFloat(u.forced_result))?parseFloat(u.forced_result)<0:u.forced_result==='lose').length;
-
-  renderUsers();
+  document.getElementById('stat-total').textContent=usersData.length;
+  document.getElementById('stat-win').textContent=usersData.filter(u=>!isNaN(parseFloat(u.forced_result))?parseFloat(u.forced_result)>0:u.forced_result==='win').length;
+  document.getElementById('stat-lose').textContent=usersData.filter(u=>!isNaN(parseFloat(u.forced_result))?parseFloat(u.forced_result)<0:u.forced_result==='lose').length;
+  const html=renderUsersHTML(usersData);
+  const tb1=document.getElementById('users-tbody');if(tb1)tb1.innerHTML=html;
+  const tb2=document.getElementById('users-tbody-ov');if(tb2)tb2.innerHTML=html;
 }
 
-function renderUsers(){
-  const tbody = document.getElementById('users-tbody');
-  if(!usersData.length){
-    tbody.innerHTML='<tr><td colspan="4" class="empty">ยังไม่มีผู้เล่น</td></tr>';
-    return;
-  }
-  tbody.innerHTML = usersData.map(u=>`
-    <tr>
-      <td><strong>${u.username}</strong><br><span style="font-size:10px;color:#94a3b8">${u.id.slice(0,8)}...</span></td>
-      <td><span style="font-weight:700;color:#16a34a">฿${Math.round(u.cash).toLocaleString()}</span></td>
-      <td style="font-size:12px">
-        ${u.bank_name?`<div style="font-weight:600">${u.bank_name}</div><div style="color:#64748b">${u.bank_number||'-'}</div><div style="color:#64748b">${u.bank_owner||'-'}</div>`:'<span style="color:#94a3b8">-</span>'}
-      </td>
-      <td>
-        <div class="result-btns">
-          <button class="rb auto ${u.forced_result==='auto'?'on':''}" onclick="setResult('${u.id}','auto',this)">สุ่ม</button>
-          <button class="rb win ${u.forced_result==='win'?'on':''}" onclick="setResult('${u.id}','win',this)">+85%</button>
-          <button class="rb lose ${u.forced_result==='lose'?'on':''}" onclick="setResult('${u.id}','lose',this)">-100%</button>
-          <button class="rb pct ${!['auto','win','lose'].includes(u.forced_result)?'on':''}" onclick="setPct('${u.id}',this)">กำหนด%</button>
-        </div>
-        <div class="pct-row">
-          <input type="number" id="pct-${u.id}" placeholder="เช่น 50 หรือ -30" value="${!['auto','win','lose'].includes(u.forced_result)?u.forced_result:''}">
-          <button class="btn-pct" onclick="applyPct('${u.id}')">ตั้ง</button>
-          <span style="font-size:11px;color:#94a3b8" id="pct-label-${u.id}">${!['auto','win','lose'].includes(u.forced_result)?`<span style="color:${parseFloat(u.forced_result)>=0?'#16a34a':'#dc2626'};font-weight:700">${parseFloat(u.forced_result)>=0?'+':''}${u.forced_result}%</span>`:'ยังไม่ตั้ง'}</span>
-        </div>
-      </td>
-      <td>
-        <div class="adj-row">
-          <input type="number" id="adj-${u.id}" placeholder="จำนวน" min="0" step="1000">
-          <button class="btn-add" onclick="adjustCash('${u.id}',1)">+เติม</button>
-          <button class="btn-cut" onclick="adjustCash('${u.id}',-1)">-หัก</button>
-        </div>
-      </td>
-    </tr>
-  `).join('');
+function renderUsersHTML(users){
+  return users.map(u=>`<tr>
+    <td><div style="font-weight:700">${u.username}</div><div style="font-size:10px;color:var(--sub)">${u.id.slice(0,8)}...</div></td>
+    <td><span style="font-weight:700;color:var(--green)">฿${Math.round(u.cash).toLocaleString()}</span></td>
+    <td style="font-size:12px;color:var(--sub)">${u.bank_name?`<div style="font-weight:600;color:var(--text)">${u.bank_name}</div><div>${u.bank_number||''}</div><div>${u.bank_owner||''}</div>`:'<span style="color:var(--sub)">-</span>'}</td>
+    <td>
+      <div class="result-btns">
+        <button class="rb auto ${u.forced_result==='auto'?'on':''}" onclick="setResult('${u.id}','auto',this)">สุ่ม</button>
+        <button class="rb win ${u.forced_result==='win'?'on':''}" onclick="setResult('${u.id}','win',this)">+85%</button>
+        <button class="rb lose ${u.forced_result==='lose'?'on':''}" onclick="setResult('${u.id}','lose',this)">-100%</button>
+        <button class="rb pct ${!['auto','win','lose'].includes(u.forced_result)?'on':''}" onclick="setPct('${u.id}',this)">กำหนด%</button>
+      </div>
+      <div class="pct-row">
+        <input type="number" id="pct-${u.id}" placeholder="เช่น 50 หรือ -30" value="${!['auto','win','lose'].includes(u.forced_result)?u.forced_result:''}">
+        <button class="btn-pct" onclick="applyPct('${u.id}')">ตั้ง</button>
+        <span id="pct-label-${u.id}" style="font-size:11px;color:var(--sub)">${!['auto','win','lose'].includes(u.forced_result)?`<span style="color:${parseFloat(u.forced_result)>=0?'var(--green)':'var(--red)';font-weight:700">${parseFloat(u.forced_result)>=0?'+':''}${u.forced_result}%</span>`:'ยังไม่ตั้ง'}</span>
+      </div>
+    </td>
+    <td>
+      <div class="adj-row">
+        <input type="number" id="adj-${u.id}" placeholder="จำนวน">
+        <button class="btn-add" onclick="adjustCash('${u.id}',1)">+เติม</button>
+        <button class="btn-cut" onclick="adjustCash('${u.id}',-1)">-หัก</button>
+      </div>
+    </td>
+  </tr>`).join('');
 }
 
-async function setResult(userId, result, btn){
-  const res=await sb.from('result_overrides').upsert({user_id:userId,result,updated_at:new Date().toISOString()},{onConflict:'user_id'});
-  const row=btn.closest('tr');
-  row.querySelectorAll('.rb').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
-  const u=usersData.find(u=>u.id===userId);
-  if(u) u.forced_result=result;
-  updateStats();
+async function setResult(userId,result,btn){
+  await sb.from('result_overrides').upsert({user_id:userId,result,updated_at:new Date().toISOString()},{onConflict:'user_id'});
+  const row=btn.closest('tr');row.querySelectorAll('.rb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+  const u=usersData.find(u=>u.id===userId);if(u)u.forced_result=result;
   const labels={auto:'สุ่ม',win:'+85%',lose:'-100%'};
   showToast(`ตั้งผล "${labels[result]||result}" ให้ ${u?u.username:userId}`);
-  // reset pct label
-  const lbl=document.getElementById('pct-label-'+userId);
-  if(lbl) lbl.innerHTML='ยังไม่ตั้ง';
-  const inp=document.getElementById('pct-'+userId);
-  if(inp) inp.value='';
+  loadUsers();
 }
 
 async function applyPct(userId){
@@ -280,180 +370,122 @@ async function applyPct(userId){
   if(isNaN(val)||val<-100||val>1000){showToast('ใส่ % ระหว่าง -100 ถึง 1000');return;}
   const result=String(val);
   await sb.from('result_overrides').upsert({user_id:userId,result,updated_at:new Date().toISOString()},{onConflict:'user_id'});
-  const u=usersData.find(u=>u.id===userId);
-  if(u) u.forced_result=result;
-  // update UI
-  const row=document.getElementById('pct-'+userId).closest('tr');
-  row.querySelectorAll('.rb').forEach(b=>b.classList.remove('on'));
-  row.querySelector('.rb.pct').classList.add('on');
-  const lbl=document.getElementById('pct-label-'+userId);
-  if(lbl) lbl.innerHTML=`<span style="color:${val>=0?'#16a34a':'#dc2626'};font-weight:700">${val>=0?'+':''}${val}%</span>`;
-  updateStats();
-  showToast(`ตั้ง ${val>=0?'+':''}${val}% ให้ ${u?u.username:userId}`);
+  showToast(`ตั้ง ${val>=0?'+':''}${val}% สำเร็จ`);loadUsers();
 }
 
 function setPct(userId,btn){
   btn.closest('tr').querySelectorAll('.rb').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
-  document.getElementById('pct-'+userId).focus();
+  btn.classList.add('on');document.getElementById('pct-'+userId).focus();
 }
 
-async function adjustCash(userId, sign){
-  const input = document.getElementById('adj-'+userId);
-  const amount = parseFloat(input.value);
-  if(!amount||amount<=0){showToast('ใส่จำนวนเงิน');return;}
-
-  const u = usersData.find(u=>u.id===userId);
-  if(!u) return;
-  const newCash = u.cash + amount*sign;
-  if(newCash<0){showToast('เงินติดลบไม่ได้');return;}
-
-  await sb.from('users').update({cash: newCash}).eq('id', userId);
-  u.cash = newCash;
-  input.value='';
-  renderUsers();
+async function adjustCash(userId,sign){
+  const inp=document.getElementById('adj-'+userId);
+  const amount=parseFloat(inp.value)||0;if(!amount){showToast('ใส่จำนวนก่อน');return;}
+  const u=usersData.find(u=>u.id===userId);if(!u)return;
+  const newCash=Math.max(0,u.cash+sign*amount);
+  await sb.from('users').update({cash:newCash}).eq('id',userId);
   showToast(`${sign>0?'เติม':'หัก'} ฿${amount.toLocaleString()} ให้ ${u.username}`);
+  inp.value='';loadUsers();
 }
 
-// Restore session
-if(sessionStorage.getItem('is_admin')==='1'){
-  isAdmin=true;
-  document.getElementById('login-overlay').style.display='none';
-  document.getElementById('main-content').style.display='block';
-  loadUsers();loadWithdrawals();loadChatRooms();subscribeRooms();
-}
-
-/* ─── ADMIN CHAT REALTIME ─── */
-let activeRoomId=null;
-let activeUsername='';
-let adminMsgChannel=null;
-let adminRoomsChannel=null;
-
-function fmtAdminTime(ts){
-  const d=new Date(ts);
-  return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');
-}
-
-function appendAdminMsg(m){
-  const el=document.getElementById('admin-msg-body');
-  if(!el) return;
-  const isAdmin=m.sender==='admin';
-  const div=document.createElement('div');
-  div.className='admin-msg-wrap '+(isAdmin?'me':'user');
-  div.innerHTML=`<div class="admin-msg-bubble">${(m.message||'').split('\n').join('<br>')}</div>
-    <div class="admin-msg-time">${isAdmin?'Admin':'ผู้เล่น'} • ${fmtAdminTime(m.created_at||new Date())}</div>`;
-  el.appendChild(div);
-  el.scrollTop=el.scrollHeight;
-}
+// ─── CHAT ───
+function fmtT(ts){const d=new Date(ts);return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');}
 
 async function loadChatRooms(){
   const {data:rooms}=await sb.from('chat_rooms').select('*').order('last_time',{ascending:false,nullsFirst:false});
-  renderRoomList(rooms||[]);
-}
-
-function renderRoomList(rooms){
   const el=document.getElementById('admin-rooms-list');
-  if(!rooms.length){el.innerHTML='<div style="padding:1rem;text-align:center;color:#94a3b8;font-size:13px">ยังไม่มีข้อความ</div>';return;}
+  if(!rooms||!rooms.length){el.innerHTML='<div class="empty">ยังไม่มีข้อความ</div>';return;}
   const unread=rooms.filter(r=>r.unread_admin).length;
-  const badge=document.getElementById('chat-unread-badge');
-  if(unread>0){badge.style.display='inline';badge.textContent=unread+' ใหม่';}
+  const badge=document.getElementById('chat-badge');
+  if(unread>0){badge.style.display='inline';badge.textContent=unread;}
   else badge.style.display='none';
   el.innerHTML=rooms.map(r=>`
     <div class="chat-room-item ${r.id===activeRoomId?'active':''}" onclick="openAdminRoom('${r.id}','${r.username||'ผู้ใช้'}')">
-      <div class="chat-room-header">
-        <div class="chat-room-name">${r.username||'ผู้ใช้'}${r.unread_admin?'<span class="chat-room-badge">ใหม่</span>':''}</div>
-        <div class="chat-room-time">${r.last_time?fmtAdminTime(r.last_time):''}</div>
-      </div>
-      <div class="chat-room-preview">${r.last_message||'ยังไม่มีข้อความ'}</div>
+      <div class="cr-name">${r.username||'ผู้ใช้'}${r.unread_admin?'<span class="cr-badge">ใหม่</span>':''}</div>
+      <div class="cr-preview">${r.last_message||'ยังไม่มีข้อความ'}</div>
     </div>`).join('');
 }
 
 function subscribeRooms(){
-  if(adminRoomsChannel) sb.removeChannel(adminRoomsChannel);
-  adminRoomsChannel=sb.channel('admin_rooms')
-    .on('postgres_changes',{event:'*',schema:'public',table:'chat_rooms'},()=>{
-      loadChatRooms();
-    }).subscribe();
+  if(adminRoomsChannel)sb.removeChannel(adminRoomsChannel);
+  adminRoomsChannel=sb.channel('admin_rooms_v2').on('postgres_changes',{event:'*',schema:'public',table:'chat_rooms'},()=>{loadChatRooms();}).subscribe();
 }
 
-async function openAdminRoom(roomId, username){
+async function openAdminRoom(roomId,username){
   activeRoomId=roomId;
-  activeUsername=username;
   await sb.from('chat_rooms').update({unread_admin:false}).eq('id',roomId);
   loadChatRooms();
-
   const main=document.getElementById('admin-chat-main');
   main.innerHTML=`
     <div class="chat-main-header">
-      <div style="width:32px;height:32px;border-radius:50%;background:#e8f0fe;color:#2563eb;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">${username[0].toUpperCase()}</div>
+      <div class="chat-main-avatar">${username[0].toUpperCase()}</div>
       <div>
         <div class="chat-main-name">${username}</div>
-        <div style="font-size:11px;color:#16a34a;display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:#16a34a;display:inline-block"></span>Realtime</div>
+        <div style="font-size:11px;color:var(--green);display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block"></span>Realtime</div>
       </div>
     </div>
     <div class="chat-main-body" id="admin-msg-body"></div>
     <div class="chat-main-footer">
       <input class="chat-admin-inp" id="admin-chat-inp" placeholder="พิมพ์ข้อความ..." onkeydown="if(event.key==='Enter')sendAdminMsg()">
-      <button class="btn-send-admin" onclick="sendAdminMsg()">ส่ง ➤</button>
+      <button class="btn-send" onclick="sendAdminMsg()">ส่ง</button>
     </div>`;
-
-  // load history
   const {data:msgs}=await sb.from('chat_messages').select('*').eq('room_id',roomId).order('created_at',{ascending:true}).limit(100);
-  if(msgs) msgs.forEach(m=>appendAdminMsg(m));
-  const body=document.getElementById('admin-msg-body');
-  if(body) body.scrollTop=body.scrollHeight;
-
-  // subscribe to new messages in this room
-  if(adminMsgChannel) sb.removeChannel(adminMsgChannel);
-  adminMsgChannel=sb.channel('admin_msgs_'+roomId)
-    .on('postgres_changes',{
-      event:'INSERT',schema:'public',table:'chat_messages',
-      filter:'room_id=eq.'+roomId
-    },payload=>{
-      // only append messages from user (admin messages are appended optimistically)
-      if(payload.new.sender!=='admin') appendAdminMsg(payload.new);
+  if(msgs)msgs.forEach(m=>appendAdminMsg(m));
+  const body=document.getElementById('admin-msg-body');if(body)body.scrollTop=body.scrollHeight;
+  if(adminMsgChannel)sb.removeChannel(adminMsgChannel);
+  adminMsgChannel=sb.channel('admin_msgs_v2_'+roomId)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'chat_messages',filter:'room_id=eq.'+roomId},p=>{
+      if(p.new.sender!=='admin')appendAdminMsg(p.new);
     }).subscribe();
+}
+
+function appendAdminMsg(m){
+  const el=document.getElementById('admin-msg-body');if(!el)return;
+  const isAdmin=m.sender==='admin';
+  const div=document.createElement('div');div.className='admin-msg-wrap '+(isAdmin?'me':'user');
+  div.innerHTML=`<div class="admin-msg-bubble">${(m.message||'').split('\n').join('<br>')}</div><div class="admin-msg-time">${isAdmin?'Admin':'ผู้เล่น'} • ${fmtT(m.created_at||new Date())}</div>`;
+  el.appendChild(div);el.scrollTop=el.scrollHeight;
 }
 
 async function sendAdminMsg(){
   const inp=document.getElementById('admin-chat-inp');
-  const msg=inp.value.trim();
-  if(!msg||!activeRoomId) return;
+  const msg=inp.value.trim();if(!msg||!activeRoomId)return;
   inp.value='';
-  // optimistic append
   appendAdminMsg({sender:'admin',message:msg,created_at:new Date().toISOString()});
   await sb.from('chat_messages').insert({room_id:activeRoomId,sender:'admin',message:msg});
   await sb.from('chat_rooms').update({last_message:msg,last_time:new Date().toISOString(),unread_user:true}).eq('id',activeRoomId);
 }
 
+// ─── WITHDRAWALS ───
 async function loadWithdrawals(){
   const {data}=await sb.from('withdrawals').select('*').order('created_at',{ascending:false}).limit(50);
   const el=document.getElementById('wd-list');
-  if(!data||!data.length){el.innerHTML='<div class="port-empty">ยังไม่มีคำขอถอนเงิน</div>';return;}
-  el.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:13px">
-    <tr style="background:#f8fafc"><th style="padding:8px;text-align:left;border-bottom:1px solid #e5e7eb">ผู้ใช้</th><th style="padding:8px;text-align:left;border-bottom:1px solid #e5e7eb">จำนวน</th><th style="padding:8px;text-align:left;border-bottom:1px solid #e5e7eb">บัญชี</th><th style="padding:8px;text-align:left;border-bottom:1px solid #e5e7eb">สถานะ</th><th style="padding:8px;border-bottom:1px solid #e5e7eb">จัดการ</th></tr>
-    ${data.map(w=>`<tr style="border-bottom:1px solid #f1f5f9">
-      <td style="padding:8px"><strong>${w.username}</strong></td>
-      <td style="padding:8px;font-weight:700;color:#16a34a">฿${Math.round(w.amount).toLocaleString()}</td>
-      <td style="padding:8px;font-size:12px">${w.bank_name||'-'}<br><span style="color:#64748b">${w.bank_number||'-'}</span><br><span style="color:#64748b">${w.bank_owner||'-'}</span></td>
-      <td style="padding:8px"><span style="padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700;background:${w.status==='pending'?'#fef3c7':w.status==='approved'?'#dcfce7':'#fee2e2'};color:${w.status==='pending'?'#d97706':w.status==='approved'?'#16a34a':'#dc2626'}">${w.status==='pending'?'รอดำเนินการ':w.status==='approved'?'อนุมัติแล้ว':'ปฏิเสธ'}</span></td>
-      <td style="padding:8px;text-align:center">
-        ${w.status==='pending'?`<button onclick="approveWd('${w.id}')" style="background:#dcfce7;color:#16a34a;border:1px solid #86efac;border-radius:4px;padding:3px 8px;font-size:11px;cursor:pointer;margin-right:4px">✓ อนุมัติ</button><button onclick="rejectWd('${w.id}')" style="background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:4px;padding:3px 8px;font-size:11px;cursor:pointer">✗ ปฏิเสธ</button>`:'<span style="color:#94a3b8;font-size:12px">-</span>'}
-      </td>
-    </tr>`).join('')}
-  </table>`;
+  const pending=(data||[]).filter(w=>w.status==='pending').length;
+  const badge=document.getElementById('wd-badge');
+  if(pending>0){badge.style.display='inline';badge.textContent=pending;}
+  else badge.style.display='none';
+  if(!data||!data.length){el.innerHTML='<div class="empty">📭 ยังไม่มีคำขอถอนเงิน</div>';return;}
+  el.innerHTML=data.map(w=>`
+    <div class="wd-item">
+      <div class="wd-top">
+        <div class="wd-user">👤 ${w.username}</div>
+        <div class="wd-amount">฿${Math.round(w.amount).toLocaleString()}</div>
+      </div>
+      <div class="wd-bank">🏦 ${w.bank_name||'-'} | ${w.bank_number||'-'} | ${w.bank_owner||'-'}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:11px;color:var(--sub)">${new Date(w.created_at).toLocaleString('th')}</div>
+        ${w.status==='pending'?
+          `<div class="wd-btns"><button class="btn-approve" onclick="approveWd('${w.id}')">✓ อนุมัติ</button><button class="btn-reject" onclick="rejectWd('${w.id}')">✗ ปฏิเสธ</button></div>`:
+          `<span class="wd-status ${w.status}">${w.status==='approved'?'✓ อนุมัติแล้ว':'✗ ปฏิเสธแล้ว'}</span>`
+        }
+      </div>
+    </div>`).join('');
 }
 
-async function approveWd(id){
-  await sb.from('withdrawals').update({status:'approved'}).eq('id',id);
-  showToast('อนุมัติคำขอถอนแล้ว');loadWithdrawals();
-}
-async function rejectWd(id){
-  await sb.from('withdrawals').update({status:'rejected'}).eq('id',id);
-  showToast('ปฏิเสธคำขอถอนแล้ว');loadWithdrawals();
-}
+async function approveWd(id){await sb.from('withdrawals').update({status:'approved'}).eq('id',id);showToast('อนุมัติแล้ว ✓');loadWithdrawals();}
+async function rejectWd(id){await sb.from('withdrawals').update({status:'rejected'}).eq('id',id);showToast('ปฏิเสธแล้ว');loadWithdrawals();}
 
-setInterval(()=>{if(isAdmin){loadUsers();loadWithdrawals();loadChatRooms();subscribeRooms();}}, 15000);
+setInterval(()=>{if(isAdmin){loadUsers();loadWithdrawals();loadChatRooms();}},15000);
 </script>
 </body>
 </html>
