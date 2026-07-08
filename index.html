@@ -1155,25 +1155,6 @@ canvas#lc{width:100%;display:block}
   </div>
 
 
-
-<!-- BOTTOM NAV -->
-  <nav class="bnav">
-    <button class="bnav-btn active" id="nav-home" onclick="switchPage('home',this)">
-      <span class="bnav-icon">🏠</span><span data-i18n="nav_home">หน้าหลัก</span>
-    </button>
-    <button class="bnav-btn" id="nav-market" onclick="switchPage('market',this)">
-      <span class="bnav-icon">📊</span><span data-i18n="nav_market">ตลาด</span>
-    </button>
-    <button class="bnav-btn" id="nav-trade" onclick="switchPage('trade',this)">
-      <span class="bnav-icon">💱</span><span data-i18n="nav_trade">ซื้อขาย</span>
-    </button>
-    <button class="bnav-btn" id="nav-fast" onclick="switchPage('fast',this)">
-      <span class="bnav-icon">⚡</span><span data-i18n="nav_fast">ฟิวเจอร์ส</span>
-    </button>
-    <button class="bnav-btn" id="nav-port" onclick="switchPage('port',this)">
-      <span class="bnav-icon">💼</span><span data-i18n="nav_wallet">กระเป๋าเงิน</span>
-    </button>
-  </nav>
 </div>
 
 <!-- CHAT PAGE (full page, not overlay) -->
@@ -2013,6 +1994,26 @@ function tick(){
 // INIT
 renderHomeMlist();updateTicker();startSlider();applyLang();restoreSession();setInterval(tick,3000);
 </script>
+
+
+<!-- BOTTOM NAV -->
+  <nav class="bnav">
+    <button class="bnav-btn active" id="nav-home" onclick="switchPage('home',this)">
+      <span class="bnav-icon">🏠</span><span data-i18n="nav_home">หน้าหลัก</span>
+    </button>
+    <button class="bnav-btn" id="nav-market" onclick="switchPage('market',this)">
+      <span class="bnav-icon">📊</span><span data-i18n="nav_market">ตลาด</span>
+    </button>
+    <button class="bnav-btn" id="nav-trade" onclick="switchPage('trade',this)">
+      <span class="bnav-icon">💱</span><span data-i18n="nav_trade">ซื้อขาย</span>
+    </button>
+    <button class="bnav-btn" id="nav-fast" onclick="switchPage('fast',this)">
+      <span class="bnav-icon">⚡</span><span data-i18n="nav_fast">ฟิวเจอร์ส</span>
+    </button>
+    <button class="bnav-btn" id="nav-port" onclick="switchPage('port',this)">
+      <span class="bnav-icon">💼</span><span data-i18n="nav_wallet">กระเป๋าเงิน</span>
+    </button>
+  </nav>
 <div id="lang-picker-container"></div>
 
 </body>
