@@ -1530,6 +1530,14 @@ body.chat-open .bnav{display:none!important}
           <div style="color:var(--sub);font-size:18px">›</div>
         </div>
 
+        <div onclick="switchPage('txhistory',document.getElementById('nav-port'))" style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.875rem 1rem;display:flex;justify-content:space-between;align-items:center;cursor:pointer">
+          <div style="display:flex;align-items:center;gap:.75rem">
+            <div style="width:40px;height:40px;border-radius:10px;background:rgba(0,192,135,.1);display:flex;align-items:center;justify-content:center;font-size:20px">💳</div>
+            <div><div style="font-size:13px;font-weight:700">ประวัติฝาก-ถอนเงิน</div><div style="font-size:10px;color:var(--sub);margin-top:2px">คำขอฝากและถอน</div></div>
+          </div>
+          <div style="color:var(--sub);font-size:18px">›</div>
+        </div>
+
         <!-- Holdings -->
         <div style="font-size:12px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;margin-top:.25rem">หุ้นที่ถืออยู่</div>
         <div id="ph-list"></div>
@@ -1574,6 +1582,20 @@ body.chat-open .bnav{display:none!important}
       </div>
       <div id="cd-body"></div>
     </div>
+  </div>
+
+  <!-- DEPOSIT/WITHDRAW HISTORY PAGE -->
+  <div class="page" id="page-txhistory">
+    <div class="th-header">
+      <button class="th-back" onclick="switchPage('port',document.getElementById('nav-port'))">‹</button>
+      <div class="th-title">ประวัติฝาก-ถอนเงิน</div>
+    </div>
+    <div class="th-filter">
+      <button class="th-fbtn active" onclick="filterTx('all',this)">ทั้งหมด</button>
+      <button class="th-fbtn" onclick="filterTx('deposit',this)">ฝากเงิน</button>
+      <button class="th-fbtn" onclick="filterTx('withdraw',this)">ถอนเงิน</button>
+    </div>
+    <div id="tx-list"><div class="th-empty">กำลังโหลด...</div></div>
   </div>
 
   <!-- TRADE HISTORY PAGE -->
@@ -1943,7 +1965,7 @@ function openContractDetail(idx){
 }
 
 function switchPage(page,el){
-  if(['trade','fast','port','chat','history'].includes(page)&&!requireLogin())return;
+  if(['trade','fast','port','chat','history','txhistory'].includes(page)&&!requireLogin())return;
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
   const pg=document.getElementById('page-'+page);
@@ -1954,6 +1976,7 @@ function switchPage(page,el){
   if(page==='fast'){renderFastSym();loadFastHist();}
   if(page==='port'){renderPort();loadFastHist();}
   if(page==='history'){loadTradeHistory();updateActiveContractCard();}
+  if(page==='txhistory'){loadTxHistory();}
   if(page==='market')renderMarket();
   if(page==='chat'){
     document.body.classList.add('chat-open');
@@ -2493,6 +2516,8 @@ async function sendDepositMessage(){
       .select().single();
     if(inserted){pendingMsgIds.add(inserted.id);appendMsg(inserted);}
     await sb.from('chat_rooms').update({last_message:msg,last_time:new Date().toISOString(),unread_admin:true}).eq('id',chatRoomId);
+    // Log deposit inquiry in tx history
+    recordTransaction('deposit', 0, 'pending', 'ติดต่อผ่านแชท', null);
   }catch(e){}
 }
 
@@ -2585,23 +2610,199 @@ function goAddBank(){
 
 async function confirmWithdraw(){
   const pass=document.getElementById('wd-pass-inp').value;
-  if(!pass){document.getElementById('wd-pass-err').textContent='กรุณากรอกรหัสผ่าน';return;}
-  // Verify password
-  if(pass!==cu.password){
-    document.getElementById('wd-pass-err').textContent='รหัสผ่านไม่ถูกต้อง';
+  const errEl=document.getElementById('wd-pass-err');
+  if(!pass){errEl.textContent='กรุณากรอกรหัสผ่าน';return;}
+  if(pass!==cu.password){errEl.textContent='รหัสผ่านไม่ถูกต้อง';return;}
+
+  const amount=pendingWdAmount;
+  if(amount>cash){errEl.textContent='เงินไม่เพียงพอ';return;}
+
+  const bankRaw=localStorage.getItem('bf168_bank_'+cu.id);
+  if(!bankRaw){errEl.textContent='ไม่พบข้อมูลบัญชี';return;}
+  const b=JSON.parse(bankRaw);
+
+  errEl.textContent='กำลังส่งคำขอ...';
+  errEl.style.color='var(--yellow)';
+
+  // Insert withdrawal request — Supabase returns {error}, does NOT throw
+  const {data:wd,error:insErr}=await sb.from('withdrawals').insert({
+    user_id:cu.id,
+    username:cu.username,
+    amount:amount,
+    bank_name:b.bank,
+    bank_number:b.number,
+    bank_owner:b.owner,
+    status:'pending'
+  }).select().single();
+
+  if(insErr){
+    console.error('[withdraw] insert failed:',insErr.message,insErr.details||'',insErr.hint||'');
+    errEl.textContent='ส่งคำขอไม่สำเร็จ: '+insErr.message;
+    errEl.style.color='var(--red)';
     return;
   }
-  const amount=pendingWdAmount;
-  const bankRaw=localStorage.getItem('bf168_bank_'+cu.id);
-  const b=JSON.parse(bankRaw);
-  try{
-    await sb.from('withdrawals').insert({user_id:cu.id,username:cu.username,amount,bank_name:b.bank,bank_number:b.number,bank_owner:b.owner,status:'pending'});
-    closeWdConfirm();
-    toast(`แจ้งถอน ${fmt(amount)} สำเร็จ รอ Admin อนุมัติ`);
-    document.getElementById('wd-amount').value='';
-  }catch(e){
-    document.getElementById('wd-pass-err').textContent='เกิดข้อผิดพลาด กรุณาลองใหม่';
+
+  // Deduct cash immediately (held until admin approves/rejects)
+  cash-=amount;
+  const {error:cashErr}=await sb.from('users').update({cash}).eq('id',cu.id);
+  if(cashErr)console.error('[withdraw] cash update failed:',cashErr.message);
+
+  // Save to local transaction log
+  recordTransaction('withdraw', amount, 'pending', b.bank+' '+b.number, wd?wd.id:null);
+
+  closeWdConfirm();
+  updateStats();
+  document.getElementById('wd-amount').value='';
+  errEl.style.color='var(--red)';
+  showTxSuccessPopup('withdraw', amount);
+  loadTxHistory();
+}
+
+/* ─── TX HISTORY RENDERING ─── */
+let txFilter='all', txData=[];
+
+function filterTx(f, el){
+  txFilter=f;
+  document.querySelectorAll('#page-txhistory .th-fbtn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderTx();
+}
+
+async function loadTxHistory(){
+  if(!cu)return;
+  const el=document.getElementById('tx-list');
+  // Show local cache instantly
+  txData=readTxLog();
+  renderTx();
+
+  // Fetch withdrawals from Supabase (authoritative status)
+  const {data:wds,error}=await sb.from('withdrawals')
+    .select('*').eq('user_id',cu.id)
+    .order('created_at',{ascending:false}).limit(100);
+
+  if(error){
+    console.log('[tx] withdrawals fetch failed:',error.message);
+    renderTx();
+    return;
   }
+
+  const dbTx=(wds||[]).map(w=>({
+    id:'wd_'+w.id,
+    dbId:w.id,
+    type:'withdraw',
+    amount:w.amount,
+    status:w.status||'pending',
+    detail:(w.bank_name||'')+' '+(w.bank_number||''),
+    time:w.created_at
+  }));
+
+  // Keep local deposits (chat-based, no DB table) + merge DB withdrawals
+  const localDeposits=txData.filter(t=>t.type==='deposit');
+  const merged=[...dbTx,...localDeposits];
+  merged.sort((a,b)=>new Date(b.time)-new Date(a.time));
+  txData=merged;
+  writeTxLog(merged);
+  renderTx();
+}
+
+function renderTx(){
+  const el=document.getElementById('tx-list');
+  if(!el)return;
+  const list = txFilter==='all' ? txData : txData.filter(t=>t.type===txFilter);
+
+  if(!list.length){
+    el.innerHTML='<div class="th-empty">📭 ยังไม่มีรายการฝาก-ถอน</div>';
+    return;
+  }
+
+  function fmtDT(d){
+    const dt=new Date(d);
+    return (dt.getMonth()+1).toString().padStart(2,'0')+'-'+dt.getDate().toString().padStart(2,'0')+' '+
+      dt.getHours().toString().padStart(2,'0')+':'+dt.getMinutes().toString().padStart(2,'0');
+  }
+
+  const statusMap={
+    pending:{txt:'รออนุมัติ',color:'var(--yellow)',bg:'rgba(245,166,35,.12)'},
+    approved:{txt:'อนุมัติแล้ว',color:'var(--green)',bg:'rgba(0,192,135,.12)'},
+    rejected:{txt:'ปฏิเสธ',color:'var(--red)',bg:'rgba(239,68,68,.12)'}
+  };
+
+  el.innerHTML=list.map(t=>{
+    const isWd=t.type==='withdraw';
+    const st=statusMap[t.status]||statusMap.pending;
+    return `<div class="th-item">
+      <div class="th-item-top">
+        <div class="th-sym" style="display:flex;align-items:center;gap:8px">
+          <span style="width:32px;height:32px;border-radius:9px;background:${isWd?'rgba(239,68,68,.1)':'rgba(0,192,135,.1)'};display:flex;align-items:center;justify-content:center;font-size:16px">${isWd?'💸':'💰'}</span>
+          <div>
+            <div style="font-size:14px;font-weight:700">${isWd?'ถอนเงิน':'ฝากเงิน'}</div>
+            <div style="font-size:10px;color:var(--sub);font-weight:400;margin-top:1px">${t.detail||'-'}</div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:15px;font-weight:800;color:${isWd?'var(--red)':'var(--green)'}">${isWd?'−':'+'}${fmt(t.amount)}</div>
+          <div style="font-size:10px;color:var(--sub);margin-top:2px">${fmtDT(t.time)}</div>
+        </div>
+      </div>
+      <div style="margin-top:.625rem;display:flex;justify-content:flex-end">
+        <span style="font-size:11px;font-weight:700;color:${st.color};background:${st.bg};padding:3px 10px;border-radius:99px">${st.txt}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ─── TRANSACTION LOG (deposit / withdraw) ─── */
+function txKey(){ return 'bf168_tx_'+(cu?cu.id:'anon'); }
+
+function readTxLog(){
+  if(!cu)return [];
+  try{
+    const raw=localStorage.getItem(txKey());
+    const arr=raw?JSON.parse(raw):[];
+    return Array.isArray(arr)?arr:[];
+  }catch(e){ return []; }
+}
+function writeTxLog(arr){
+  if(!cu)return;
+  try{ localStorage.setItem(txKey(), JSON.stringify(arr.slice(0,100))); }catch(e){}
+}
+function recordTransaction(type, amount, status, detail, dbId){
+  if(!cu)return;
+  const entry={
+    id:'tx_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),
+    dbId:dbId||null,
+    type, amount, status,
+    detail:detail||'',
+    time:new Date().toISOString()
+  };
+  const cur=readTxLog();
+  cur.unshift(entry);
+  writeTxLog(cur);
+}
+
+function showTxSuccessPopup(type, amount){
+  const isWd=type==='withdraw';
+  const icon=document.getElementById('sp-icon');
+  icon.textContent=isWd?'💸':'💰';
+  icon.className='sp-icon '+(isWd?'sell':'buy');
+  document.getElementById('sp-title').textContent=isWd?'แจ้งถอนเงินสำเร็จ':'แจ้งฝากเงินสำเร็จ';
+  document.getElementById('sp-title').style.color=isWd?'var(--yellow)':'var(--green)';
+  document.getElementById('sp-sub').textContent='รอ Admin ตรวจสอบและอนุมัติ';
+  document.getElementById('sp-amount').textContent=fmt(amount);
+  document.getElementById('sp-amount').className='sp-amount';
+  document.getElementById('sp-amount').style.color=isWd?'var(--yellow)':'var(--green)';
+  document.getElementById('sp-price').textContent='รออนุมัติ';
+  document.getElementById('sp-time').textContent=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('sp-profit').textContent=fmt(cash);
+  document.getElementById('sp-profit').style.color='var(--text)';
+  const viewBtn=document.querySelector('#success-popup .sp-btn-view');
+  if(viewBtn){viewBtn.textContent='📋 ดูประวัติฝาก-ถอน';viewBtn.setAttribute('onclick','goTxHistory()');}
+  document.getElementById('success-popup').classList.add('show');
+}
+
+function goTxHistory(){
+  closeSuccessPopup();
+  switchPage('txhistory',document.getElementById('nav-port'));
 }
 
 function closeWdConfirm(){
