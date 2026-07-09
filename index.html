@@ -3535,9 +3535,13 @@ function resolvePendingTrade(pendingId, pnl, closePrice){
     current[idx].status='done';
     current[idx].pnl=pnl;
     current[idx].closePrice=closePrice;
+  } else {
+    // Pending record missing — nothing to update
+    return;
   }
   tradeHistory=current.slice(0,200);
   writeLocalHist(tradeHistory);
+  renderTH();
 }
 
 /* ─── PENDING CONTRACT PERSISTENCE ─── */
@@ -3585,11 +3589,10 @@ async function resumePendingContract(){
     // Resume in background — show card on history page, no popup, no toast
     startContractSilent(p.openPrice,p.bet,p.duration,p.direction,forced,remaining);
   } else {
-    // Expired while away — settle it right now
-    clearPendingContract();
+    // Expired while away — settle it right now (silently, no result popup)
     const drift=(Math.random()-0.5)*0.004;
     const closePrice=p.openPrice*(1+drift);
-    await resolveContract(p.openPrice,closePrice,p.bet,p.duration,p.direction,forced);
+    await resolveContract(p.openPrice,closePrice,p.bet,p.duration,p.direction,forced,true);
   }
 }
 
@@ -3700,7 +3703,7 @@ function startContract(openPrice, betAmount, duration, direction, forced, resume
 }
 
 let resolvingContract=false;
-async function resolveContract(openPrice, closePrice, betAmount, duration, direction, forced){
+async function resolveContract(openPrice, closePrice, betAmount, duration, direction, forced, silent){
   if(resolvingContract)return;
   resolvingContract=true;
   if(contractTimer){clearInterval(contractTimer);contractTimer=null;}
@@ -3795,8 +3798,11 @@ async function resolveContract(openPrice, closePrice, betAmount, duration, direc
   // Re-render history so the pending item flips to resolved
   renderTH();
 
-  // Show result popup
-  showContractResult(won, profit, openPrice, closePrice, betAmount, duration, direction);
+  if(!silent){
+    showContractResult(won, profit, openPrice, closePrice, betAmount, duration, direction);
+  } else {
+    toast(won?`สัญญาก่อนหน้าสรุปแล้ว: กำไร ${fmt(profit)}`:`สัญญาก่อนหน้าสรุปแล้ว: ขาดทุน ${fmt(profit)}`);
+  }
 
   // Sync with DB in background
   setTimeout(()=>loadTradeHistory(),1200);
@@ -3865,10 +3871,47 @@ function writeLocalHist(arr){
   try{ localStorage.setItem(histKey(), JSON.stringify(arr.slice(0,200))); }catch(e){}
 }
 
+// Clean up pending records that have expired but never resolved
+function reconcileStalePending(){
+  if(!cu)return false;
+  const list=readLocalHist();
+  let changed=false;
+  const now=Date.now();
+
+  list.forEach(t=>{
+    if(t.status!=='pending')return;
+    const started=new Date(t.time).getTime();
+    const elapsed=Math.floor((now-started)/1000);
+    const dur=t.duration||180;
+    // Grace period: 10s past the duration
+    if(elapsed > dur + 10){
+      // The contract ended while the user was away.
+      // Mark it done using auto-result logic (no admin override known here).
+      const drift=(Math.random()-0.5)*0.004;
+      const closeP=t.price*(1+drift);
+      const isBuy=t.dir==='buy';
+      const priceUp=closeP>=t.price;
+      const won=(isBuy&&priceUp)||(!isBuy&&!priceUp);
+      t.status='done';
+      t.pnl=won?Math.round(t.total*0.85):-t.total;
+      t.closePrice=closeP;
+      t.stale=true;
+      changed=true;
+    }
+  });
+
+  if(changed){
+    tradeHistory=list;
+    writeLocalHist(list);
+  }
+  return changed;
+}
+
 async function loadTradeHistory(){
   if(!cu)return;
 
   // 1. Always start from local cache and render immediately
+  reconcileStalePending();
   const localTrades = readLocalHist();
   tradeHistory = localTrades;
   renderTH();
@@ -3967,21 +4010,44 @@ function startHistoryCountdowns(){
   if(histCountdownIv)clearInterval(histCountdownIv);
   const items=document.querySelectorAll('.th-item.pending');
   if(!items.length)return;
+
   histCountdownIv=setInterval(()=>{
     let anyLeft=false;
+    let needsReconcile=false;
+
     document.querySelectorAll('.th-item.pending').forEach(el=>{
       const started=parseInt(el.dataset.started);
       const dur=parseInt(el.dataset.duration);
       const elapsed=Math.floor((Date.now()-started)/1000);
       const rem=Math.max(0,dur-elapsed);
       const cd=el.querySelector('.th-countdown');
-      if(cd){
-        cd.textContent=rem+' วิ';
-        cd.style.color=rem>dur*0.5?'var(--yellow)':rem>dur*0.2?'#f97316':'var(--red)';
+
+      if(rem<=0){
+        // Contract ended
+        if(cd){cd.textContent='กำลังสรุป...';cd.style.color='var(--yellow)';}
+        // If no live contract is running (page was refreshed), reconcile it
+        if(!curContract && elapsed > dur + 3){
+          needsReconcile=true;
+        }
+      } else {
+        anyLeft=true;
+        if(cd){
+          cd.textContent=rem+' วิ';
+          cd.style.color=rem>dur*0.5?'var(--yellow)':rem>dur*0.2?'#f97316':'var(--red)';
+        }
       }
-      if(rem>0)anyLeft=true;
     });
-    if(!anyLeft){clearInterval(histCountdownIv);histCountdownIv=null;}
+
+    if(needsReconcile){
+      clearInterval(histCountdownIv);histCountdownIv=null;
+      if(reconcileStalePending())renderTH();
+      return;
+    }
+
+    if(!anyLeft && !curContract){
+      clearInterval(histCountdownIv);histCountdownIv=null;
+      setTimeout(()=>{ if(reconcileStalePending())renderTH(); },3000);
+    }
   },1000);
 }
 
