@@ -142,6 +142,30 @@ tr:hover td{background:rgba(255,255,255,.02)}
 
 .empty{text-align:center;padding:2rem;color:var(--sub);font-size:13px}
 .toast{position:fixed;top:16px;right:16px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.625rem 1.25rem;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.4);color:var(--text)}
+
+/* Success Center Popup */
+.center-popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);z-index:99998;display:none;align-items:center;justify-content:center}
+.center-popup-overlay.show{display:flex;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.center-popup{background:var(--card);border-radius:20px;padding:2.25rem 2rem;width:360px;text-align:center;border:1px solid var(--border);box-shadow:0 24px 70px rgba(0,0,0,.6);animation:popIn .28s cubic-bezier(.34,1.4,.64,1)}
+@keyframes popIn{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.cp-icon{width:78px;height:78px;border-radius:50%;margin:0 auto 1.25rem;display:flex;align-items:center;justify-content:center;font-size:36px;position:relative}
+.cp-icon.add{background:rgba(16,185,129,.14);border:2px solid rgba(16,185,129,.45)}
+.cp-icon.cut{background:rgba(239,68,68,.14);border:2px solid rgba(239,68,68,.45)}
+.cp-icon::after{content:'';position:absolute;inset:-8px;border-radius:50%;border:2px solid currentColor;opacity:.15;animation:ring 1.5s ease-out infinite}
+@keyframes ring{0%{transform:scale(.9);opacity:.35}100%{transform:scale(1.15);opacity:0}}
+.cp-title{font-size:21px;font-weight:800;margin-bottom:.5rem}
+.cp-sub{font-size:13px;color:var(--sub);margin-bottom:1.5rem}
+.cp-amount{font-size:34px;font-weight:900;margin-bottom:.35rem;letter-spacing:-1px}
+.cp-user{font-size:13px;color:var(--sub);margin-bottom:1.75rem}
+.cp-details{background:rgba(255,255,255,.03);border-radius:12px;padding:.875rem 1rem;margin-bottom:1.75rem;text-align:left}
+.cp-row{display:flex;justify-content:space-between;font-size:13px;padding:.35rem 0}
+.cp-row-label{color:var(--sub)}
+.cp-row-val{font-weight:600}
+.cp-btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;transition:transform .12s}
+.cp-btn:active{transform:scale(.97)}
+.cp-btn.add{background:var(--green);color:#000}
+.cp-btn.cut{background:var(--red);color:#fff}
 .toast.show{opacity:1}
 .unread-dot{width:8px;height:8px;border-radius:50%;background:var(--red);margin-left:auto}
 
@@ -311,6 +335,32 @@ tr:hover td{background:rgba(255,255,255,.02)}
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- CASH ADJUST SUCCESS POPUP -->
+<div class="center-popup-overlay" id="cash-popup" onclick="if(event.target===this)closeCashPopup()">
+  <div class="center-popup">
+    <div class="cp-icon add" id="cp-icon" style="color:var(--green)">✓</div>
+    <div class="cp-title" id="cp-title">เติมเงินสำเร็จ</div>
+    <div class="cp-sub" id="cp-sub">ยอดเงินถูกอัพเดตเรียบร้อยแล้ว</div>
+    <div class="cp-amount" id="cp-amount">+฿1,000</div>
+    <div class="cp-user" id="cp-user">ให้ผู้เล่น asd</div>
+    <div class="cp-details">
+      <div class="cp-row">
+        <span class="cp-row-label">ยอดเดิม</span>
+        <span class="cp-row-val" id="cp-old">฿0</span>
+      </div>
+      <div class="cp-row">
+        <span class="cp-row-label">ยอดใหม่</span>
+        <span class="cp-row-val" id="cp-new" style="color:var(--green)">฿0</span>
+      </div>
+      <div class="cp-row">
+        <span class="cp-row-label">เวลา</span>
+        <span class="cp-row-val" id="cp-time">-</span>
+      </div>
+    </div>
+    <button class="cp-btn add" id="cp-btn" onclick="closeCashPopup()">เรียบร้อย</button>
+  </div>
+</div>
 
 <!-- IMAGE PREVIEW -->
 <div class="img-preview-overlay" id="admin-img-preview" onclick="if(event.target===this)closeAdminImgPreview()">
@@ -577,12 +627,48 @@ function setPct(userId,btn){
 
 async function adjustCash(userId,sign){
   const inp=document.getElementById('adj-'+userId);
-  const amount=parseFloat(inp.value)||0;if(!amount){showToast('ใส่จำนวนก่อน');return;}
+  const amount=parseFloat(inp.value)||0;
+  if(!amount){showToast('ใส่จำนวนก่อน');return;}
   const u=usersData.find(u=>u.id===userId);if(!u)return;
+  const oldCash=u.cash;
   const newCash=Math.max(0,u.cash+sign*amount);
   await sb.from('users').update({cash:newCash}).eq('id',userId);
-  showToast(`${sign>0?'เติม':'หัก'} ฿${amount.toLocaleString()} ให้ ${u.username}`);
-  inp.value='';loadUsers();
+  inp.value='';
+  showCashPopup(sign>0,amount,u.username,oldCash,newCash);
+  loadUsers();
+}
+
+function showCashPopup(isAdd,amount,username,oldCash,newCash){
+  const icon=document.getElementById('cp-icon');
+  icon.textContent=isAdd?'✓':'−';
+  icon.className='cp-icon '+(isAdd?'add':'cut');
+  icon.style.color=isAdd?'var(--green)':'var(--red)';
+
+  document.getElementById('cp-title').textContent=isAdd?'เติมเงินสำเร็จ':'หักเงินสำเร็จ';
+  document.getElementById('cp-title').style.color=isAdd?'var(--green)':'var(--red)';
+  document.getElementById('cp-sub').textContent='ยอดเงินถูกอัพเดตเรียบร้อยแล้ว';
+
+  const amtEl=document.getElementById('cp-amount');
+  amtEl.textContent=(isAdd?'+':'−')+'฿'+Math.round(amount).toLocaleString();
+  amtEl.style.color=isAdd?'var(--green)':'var(--red)';
+
+  document.getElementById('cp-user').textContent=(isAdd?'ให้ผู้เล่น ':'จากผู้เล่น ')+username;
+  document.getElementById('cp-old').textContent='฿'+Math.round(oldCash).toLocaleString();
+  const newEl=document.getElementById('cp-new');
+  newEl.textContent='฿'+Math.round(newCash).toLocaleString();
+  newEl.style.color=isAdd?'var(--green)':'var(--red)';
+
+  const now=new Date();
+  document.getElementById('cp-time').textContent=now.toLocaleString('th-TH',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+
+  const btn=document.getElementById('cp-btn');
+  btn.className='cp-btn '+(isAdd?'add':'cut');
+
+  document.getElementById('cash-popup').classList.add('show');
+}
+
+function closeCashPopup(){
+  document.getElementById('cash-popup').classList.remove('show');
 }
 
 // ─── CHAT ───
