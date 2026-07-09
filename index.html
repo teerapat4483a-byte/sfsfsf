@@ -1865,7 +1865,10 @@ async function restoreSession(){
   const uid=localStorage.getItem('bf168_uid');
   if(!uid)return;
   const {data:u}=await sb.from('users').select('*').eq('id',uid).single();
-  if(u){cu=u;cash=u.cash;showUser();}
+  if(u){
+    cu=u;cash=u.cash;showUser();
+    cleanupOrphanedTrades();
+  }
 }
 function showUser(){
   const lbl=document.getElementById('btn-login-top');
@@ -3399,6 +3402,39 @@ setInterval(async()=>{
   await Promise.allSettled([fetchBinancePrices(),fetchThaiStocks()]);
   updateTicker();renderHomeMlist();updateStats();
 },60000);
+
+// Cleanup active trade on page close
+window.addEventListener('beforeunload',()=>{
+  if(activeTradeId&&cu){
+    // Use sendBeacon for reliable delivery on unload
+    const url=SB_URL+'/rest/v1/active_trades?id=eq.'+activeTradeId;
+    const body=JSON.stringify({status:'abandoned'});
+    try{
+      fetch(url,{
+        method:'PATCH',
+        headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+        body,keepalive:true
+      });
+    }catch(e){}
+  }
+});
+
+// Resume any orphaned active trades on load
+async function cleanupOrphanedTrades(){
+  if(!cu)return;
+  try{
+    const {data}=await sb.from('active_trades').select('*').eq('user_id',cu.id).eq('status','active');
+    if(!data||!data.length)return;
+    const now=Date.now();
+    for(const t of data){
+      const elapsed=Math.floor((now-new Date(t.created_at).getTime())/1000);
+      if(elapsed>t.duration+10){
+        // Expired while away — mark abandoned
+        await sb.from('active_trades').update({status:'abandoned'}).eq('id',t.id);
+      }
+    }
+  }catch(e){}
+}
 
 // INIT
 renderHomeMlist();updateTicker();applyLang();restoreSession();
