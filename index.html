@@ -2400,7 +2400,9 @@ function openContractDetail(idx){
   // Close time = open time + duration (for fast) or open time + 3min
   const openTime = new Date(t.time);
   const closeTime = new Date(openTime.getTime() + (t.duration||180)*1000);
-  const closePrice = t.closePrice || (t.price * (1 + (Math.random()-.5)*0.002));
+  // If a real close price was recorded, use it.
+  // Otherwise derive one that is consistent with the recorded P&L.
+  const closePrice = t.closePrice || deriveClosePrice(t.price, t.dir, pnl >= 0);
   
   document.getElementById('cd-title').textContent = t.sym+'/THB รายละเอียดสัญญา';
   document.getElementById('cd-body').innerHTML = `
@@ -3877,6 +3879,18 @@ function resolvePendingTrade(pendingId, pnl, closePrice){
   renderTH();
 }
 
+/* Derive a close price that is CONSISTENT with the trade outcome.
+   - buy  + win  => close > open
+   - buy  + lose => close < open
+   - sell + win  => close < open
+   - sell + lose => close > open  */
+function deriveClosePrice(openPrice, direction, won){
+  const isBuy = direction==='buy' || direction==='up';
+  const priceMustRise = (isBuy && won) || (!isBuy && !won);
+  const mag = 0.0008 + Math.random()*0.0035;   // 0.08% – 0.43%
+  return +(openPrice * (1 + (priceMustRise ? mag : -mag))).toFixed(6);
+}
+
 /* ─── PENDING CONTRACT PERSISTENCE ─── */
 function pendingKey(){ return 'bf168_pending_'+(cu?cu.id:'anon'); }
 
@@ -3923,10 +3937,12 @@ async function resumePendingContract(){
     miniToast('กำลังดำเนินสัญญาต่อ...');
     startContractSilent(p.openPrice,p.bet,p.duration,p.direction,forced,remaining);
   } else {
-    // Expired while away — settle it right now (silently, no result popup)
+    // Expired while away — settle now. resolveContract will derive a
+    // consistent close price for forced outcomes; for 'auto' we simulate a
+    // small realistic drift.
     const drift=(Math.random()-0.5)*0.004;
-    const closePrice=p.openPrice*(1+drift);
-    await resolveContract(p.openPrice,closePrice,p.bet,p.duration,p.direction,forced,true);
+    const simulatedClose=p.openPrice*(1+drift);
+    await resolveContract(p.openPrice,simulatedClose,p.bet,p.duration,p.direction,forced,true);
   }
 }
 
@@ -4056,12 +4072,16 @@ async function resolveContract(openPrice, closePrice, betAmount, duration, direc
     profit=Math.round(betAmount*pv/100);
     payout=betAmount+profit;
     if(payout<0)payout=0;
+    // Close price must reflect the forced outcome
+    closePrice=deriveClosePrice(openPrice, direction, won);
   } else if(forced==='win'){
     won=true;profit=Math.round(betAmount*0.85);payout=betAmount+profit;
+    closePrice=deriveClosePrice(openPrice, direction, true);
   } else if(forced==='lose'){
     won=false;profit=-betAmount;payout=0;
+    closePrice=deriveClosePrice(openPrice, direction, false);
   } else {
-    // Auto: based on actual price movement
+    // Auto: outcome follows the actual live price movement
     const isBuy=direction==='buy';
     const priceUp=closePrice>=openPrice;
     won=(isBuy&&priceUp)||(!isBuy&&!priceUp);
@@ -4219,16 +4239,12 @@ function reconcileStalePending(){
     const dur=t.duration||180;
     // Grace period: 10s past the duration
     if(elapsed > dur + 10){
-      // The contract ended while the user was away.
-      // Mark it done using auto-result logic (no admin override known here).
-      const drift=(Math.random()-0.5)*0.004;
-      const closeP=t.price*(1+drift);
-      const isBuy=t.dir==='buy';
-      const priceUp=closeP>=t.price;
-      const won=(isBuy&&priceUp)||(!isBuy&&!priceUp);
+      // Contract ended while the user was away. Decide the outcome first,
+      // then derive a close price that matches it.
+      const won = Math.random() >= 0.5;
       t.status='done';
-      t.pnl=won?Math.round(t.total*0.85):-t.total;
-      t.closePrice=closeP;
+      t.pnl = won ? Math.round(t.total*0.85) : -t.total;
+      t.closePrice = deriveClosePrice(t.price, t.dir, won);
       t.stale=true;
       changed=true;
     }
