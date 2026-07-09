@@ -2615,8 +2615,22 @@ async function submitDeposit(){
 
   const amt=depositAmt;
 
+  // Insert into deposits table so admin sees it in the dashboard
+  let depId=null;
+  try{
+    const {data:dep,error:depErr}=await sb.from('deposits').insert({
+      user_id:cu.id,
+      username:cu.username,
+      amount:amt,
+      status:'pending',
+      note:'แจ้งผ่านแอป รอโอนเงิน'
+    }).select().single();
+    if(!depErr&&dep)depId=dep.id;
+    else if(depErr)console.log('[deposit] table missing or error:',depErr.message);
+  }catch(e){}
+
   // Log locally
-  recordTransaction('deposit', amt, 'pending', 'รอโอนเงิน', null);
+  recordTransaction('deposit', amt, 'pending', 'รอโอนเงิน', depId);
 
   // Send message to support chat
   let sent=false;
@@ -2851,30 +2865,38 @@ async function loadTxHistory(){
   txData=readTxLog();
   renderTx();
 
-  // Fetch withdrawals from Supabase (authoritative status)
-  const {data:wds,error}=await sb.from('withdrawals')
+  const dbTx=[];
+
+  // Withdrawals
+  const {data:wds,error:wErr}=await sb.from('withdrawals')
     .select('*').eq('user_id',cu.id)
     .order('created_at',{ascending:false}).limit(100);
-
-  if(error){
-    console.log('[tx] withdrawals fetch failed:',error.message);
-    renderTx();
-    return;
-  }
-
-  const dbTx=(wds||[]).map(w=>({
-    id:'wd_'+w.id,
-    dbId:w.id,
-    type:'withdraw',
-    amount:w.amount,
-    status:w.status||'pending',
+  if(wErr)console.log('[tx] withdrawals fetch failed:',wErr.message);
+  else (wds||[]).forEach(w=>dbTx.push({
+    id:'wd_'+w.id, dbId:w.id, type:'withdraw',
+    amount:w.amount, status:w.status||'pending',
     detail:(w.bank_name||'')+' '+(w.bank_number||''),
     time:w.created_at
   }));
 
-  // Keep local deposits (chat-based, no DB table) + merge DB withdrawals
-  const localDeposits=txData.filter(t=>t.type==='deposit');
-  const merged=[...dbTx,...localDeposits];
+  // Deposits
+  const {data:deps,error:dErr}=await sb.from('deposits')
+    .select('*').eq('user_id',cu.id)
+    .order('created_at',{ascending:false}).limit(100);
+  if(dErr)console.log('[tx] deposits fetch failed (table may not exist):',dErr.message);
+  else (deps||[]).forEach(d=>dbTx.push({
+    id:'dep_'+d.id, dbId:d.id, type:'deposit',
+    amount:d.amount, status:d.status||'pending',
+    detail:d.note||'รอโอนเงิน',
+    time:d.created_at
+  }));
+
+  // Keep local-only entries whose dbId isn't in DB yet
+  const dbIds=new Set(dbTx.map(t=>t.dbId));
+  const localOnly=txData.filter(t=>!t.dbId||!dbIds.has(t.dbId))
+    .filter(t=>!String(t.id).startsWith('wd_')&&!String(t.id).startsWith('dep_'));
+
+  const merged=[...dbTx,...localOnly];
   merged.sort((a,b)=>new Date(b.time)-new Date(a.time));
   txData=merged;
   writeTxLog(merged);
