@@ -311,8 +311,12 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <!-- CHAT -->
     <div class="content-section" id="section-chat">
       <div class="content-header">
-        <div class="content-title">💬 ข้อความจากผู้เล่น</div>
-        <button class="btn-sm" onclick="loadChatRooms()">🔄 รีเฟรช</button>
+        <div class="content-title">💬 ข้อความจากผู้เล่น <span id="autoclean-note">ลบอัตโนมัติทุก 30 นาที</span></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-sm" onclick="loadChatRooms()">🔄 รีเฟรช</button>
+          <button class="btn-sm" onclick="askClearAllChats()" style="background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.35);color:#f87171">🗑️ ลบแชททั้งหมด</button>
+          <button class="btn-sm" id="autoclean-toggle" onclick="toggleAutoClean()">⏱️ Auto: เปิด</button>
+        </div>
       </div>
       <div class="chat-layout">
         <div class="chat-rooms">
@@ -379,6 +383,27 @@ tr:hover td{background:rgba(255,255,255,.02)}
 
 <div class="toast" id="toast"></div>
 
+<!-- CLEAR CHAT CONFIRM POPUP -->
+<div class="center-popup-overlay" id="clear-chat-popup" onclick="if(event.target===this)closeClearPopup()">
+  <div class="center-popup">
+    <div class="cp-icon cut" id="clr-icon" style="color:var(--red)">🗑️</div>
+    <div class="cp-title" id="clr-title" style="color:var(--red)">ลบประวัติแชท?</div>
+    <div class="cp-sub" id="clr-sub">การลบไม่สามารถกู้คืนได้</div>
+    <div class="cp-details">
+      <div class="cp-row">
+        <span class="cp-row-label">เป้าหมาย</span>
+        <span class="cp-row-val" id="clr-target">-</span>
+      </div>
+      <div class="cp-row">
+        <span class="cp-row-label">จำนวนข้อความ</span>
+        <span class="cp-row-val" id="clr-count">-</span>
+      </div>
+    </div>
+    <button class="cp-btn cut" onclick="doClearChat()">ยืนยันลบ</button>
+    <button onclick="closeClearPopup()" style="width:100%;margin-top:10px;padding:12px;border:1px solid var(--border);border-radius:12px;background:transparent;color:var(--sub);font-size:14px;font-weight:600;cursor:pointer">ยกเลิก</button>
+  </div>
+</div>
+
 <!-- CASH ADJUST SUCCESS POPUP -->
 <div class="center-popup-overlay" id="cash-popup" onclick="if(event.target===this)closeCashPopup()">
   <div class="center-popup">
@@ -427,7 +452,7 @@ window.doAdminLogin=function(){
     isAdmin=true;sessionStorage.setItem('is_admin','1');
     document.getElementById('login-overlay').style.display='none';
     document.getElementById('admin-layout').style.display='flex';
-    refreshAll();subscribeRooms();subscribeLiveTrades();updateLiveBadge();
+    refreshAll();subscribeRooms();subscribeLiveTrades();updateLiveBadge();startAutoClean();initAutoCleanUI();
   } else {
     document.getElementById('a-err').textContent='รหัสผ่านไม่ถูกต้อง';
   }
@@ -444,7 +469,7 @@ if(sessionStorage.getItem('is_admin')==='1'){
   isAdmin=true;
   document.getElementById('login-overlay').style.display='none';
   document.getElementById('admin-layout').style.display='flex';
-  setTimeout(()=>{refreshAll();subscribeRooms();subscribeLiveTrades();updateLiveBadge();},300);
+  setTimeout(()=>{refreshAll();subscribeRooms();subscribeLiveTrades();updateLiveBadge();startAutoClean();initAutoCleanUI();},300);
 }
 
 function showSection(id,el){
@@ -462,6 +487,16 @@ function showSection(id,el){
 function showToast(msg){
   const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function initAutoCleanUI(){
+  const btn=document.getElementById('autoclean-toggle');
+  if(btn){
+    btn.textContent=autoCleanEnabled?'⏱️ Auto: เปิด':'⏱️ Auto: ปิด';
+    btn.style.color=autoCleanEnabled?'var(--sub)':'#f87171';
+  }
+  const note=document.getElementById('autoclean-note');
+  if(note)note.textContent=autoCleanEnabled?'ลบอัตโนมัติทุก 30 นาที':'ปิดการลบอัตโนมัติ';
 }
 
 // ─── LIVE TRADES ───
@@ -817,10 +852,14 @@ async function openAdminRoom(roomId,username){
   main.innerHTML=`
     <div class="chat-main-header">
       <div class="chat-main-avatar">${username[0].toUpperCase()}</div>
-      <div>
+      <div style="flex:1">
         <div class="chat-main-name">${username}</div>
         <div style="font-size:11px;color:var(--green);display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block"></span>Realtime</div>
       </div>
+      <button onclick="askClearRoom('${roomId}','${username}')" title="ลบประวัติแชทห้องนี้"
+        style="padding:7px 14px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.35);border-radius:8px;color:#f87171;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">
+        🗑️ ลบแชท
+      </button>
     </div>
     <div class="chat-main-body" id="admin-msg-body"></div>
     <div class="chat-main-footer">
@@ -1030,6 +1069,114 @@ async function updateDepBadge(){
   const count=(data||[]).length;
   if(count>0){badge.style.display='inline';badge.textContent=count;}
   else badge.style.display='none';
+}
+
+// ─── CHAT CLEANUP ───
+let clearTarget=null;   // {mode:'room'|'all', roomId, username}
+let autoCleanEnabled = localStorage.getItem('bf168_autoclean') !== 'off';
+let autoCleanIv=null;
+
+function toggleAutoClean(){
+  autoCleanEnabled=!autoCleanEnabled;
+  localStorage.setItem('bf168_autoclean', autoCleanEnabled?'on':'off');
+  const btn=document.getElementById('autoclean-toggle');
+  if(btn){
+    btn.textContent=autoCleanEnabled?'⏱️ Auto: เปิด':'⏱️ Auto: ปิด';
+    btn.style.color=autoCleanEnabled?'var(--sub)':'#f87171';
+  }
+  const note=document.getElementById('autoclean-note');
+  if(note)note.textContent=autoCleanEnabled?'ลบอัตโนมัติทุก 30 นาที':'ปิดการลบอัตโนมัติ';
+  showToast(autoCleanEnabled?'เปิดลบอัตโนมัติทุก 30 นาที':'ปิดการลบอัตโนมัติแล้ว');
+  if(autoCleanEnabled)startAutoClean();
+  else if(autoCleanIv){clearInterval(autoCleanIv);autoCleanIv=null;}
+}
+
+async function askClearRoom(roomId, username){
+  clearTarget={mode:'room', roomId, username};
+  const {count}=await sb.from('chat_messages').select('*',{count:'exact',head:true}).eq('room_id',roomId);
+  document.getElementById('clr-title').textContent='ลบแชทของ '+username+'?';
+  document.getElementById('clr-sub').textContent='ข้อความทั้งหมดในห้องนี้จะถูกลบถาวร';
+  document.getElementById('clr-target').textContent=username;
+  document.getElementById('clr-count').textContent=(count||0)+' ข้อความ';
+  popupOpen=true;
+  document.getElementById('clear-chat-popup').classList.add('show');
+}
+
+async function askClearAllChats(){
+  clearTarget={mode:'all'};
+  const {count}=await sb.from('chat_messages').select('*',{count:'exact',head:true});
+  document.getElementById('clr-title').textContent='ลบแชททั้งหมด?';
+  document.getElementById('clr-sub').textContent='ข้อความของผู้เล่นทุกคนจะถูกลบถาวร';
+  document.getElementById('clr-target').textContent='ผู้เล่นทุกคน';
+  document.getElementById('clr-count').textContent=(count||0)+' ข้อความ';
+  popupOpen=true;
+  document.getElementById('clear-chat-popup').classList.add('show');
+}
+
+function closeClearPopup(){
+  popupOpen=false;
+  document.getElementById('clear-chat-popup').classList.remove('show');
+  clearTarget=null;
+}
+
+async function doClearChat(){
+  if(!clearTarget)return;
+  const t=clearTarget;
+  closeClearPopup();
+
+  if(t.mode==='room'){
+    const {error}=await sb.from('chat_messages').delete().eq('room_id',t.roomId);
+    if(error){showToast('ลบไม่สำเร็จ: '+error.message);return;}
+    await sb.from('chat_rooms').update({last_message:null,unread_admin:false}).eq('id',t.roomId);
+    showToast('ลบแชทของ '+t.username+' แล้ว');
+    // Clear the visible message list
+    const body=document.getElementById('admin-msg-body');
+    if(body&&activeRoomId===t.roomId)body.innerHTML='<div class="empty" style="margin:auto">ไม่มีข้อความ</div>';
+  } else {
+    // Delete all messages (neq on a UUID column matches every row)
+    const {error}=await sb.from('chat_messages')
+      .delete().neq('id','00000000-0000-0000-0000-000000000000');
+    if(error){showToast('ลบไม่สำเร็จ: '+error.message);return;}
+    await sb.from('chat_rooms')
+      .update({last_message:null,unread_admin:false})
+      .neq('id','00000000-0000-0000-0000-000000000000');
+    showToast('ลบแชททั้งหมดแล้ว');
+    const body=document.getElementById('admin-msg-body');
+    if(body)body.innerHTML='<div class="empty" style="margin:auto">ไม่มีข้อความ</div>';
+  }
+  loadChatRooms();
+}
+
+// Auto-delete messages older than 30 minutes
+async function autoCleanOldMessages(){
+  if(!autoCleanEnabled||!isAdmin)return;
+  const cutoff=new Date(Date.now()-30*60*1000).toISOString();
+  const {error,count}=await sb.from('chat_messages')
+    .delete({count:'exact'}).lt('created_at',cutoff);
+  if(error){console.log('[autoclean] failed:',error.message);return;}
+  if(count>0){
+    console.log('[autoclean] deleted',count,'messages older than 30 min');
+    loadChatRooms();
+    // Refresh open room view
+    if(activeRoomId){
+      const body=document.getElementById('admin-msg-body');
+      if(body){
+        const {data:msgs}=await sb.from('chat_messages')
+          .select('*').eq('room_id',activeRoomId)
+          .order('created_at',{ascending:true}).limit(100);
+        body.innerHTML='';
+        if(msgs&&msgs.length)msgs.forEach(m=>appendAdminMsg(m));
+        else body.innerHTML='<div class="empty" style="margin:auto">ไม่มีข้อความ</div>';
+      }
+    }
+  }
+}
+
+function startAutoClean(){
+  if(autoCleanIv)clearInterval(autoCleanIv);
+  // Run once on start, then every 5 minutes
+  autoCleanOldMessages();
+  autoCleanIv=setInterval(autoCleanOldMessages, 5*60*1000);
 }
 
 // ─── WITHDRAWALS ───
