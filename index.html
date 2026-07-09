@@ -1868,6 +1868,8 @@ async function restoreSession(){
   if(u){
     cu=u;cash=u.cash;showUser();
     cleanupOrphanedTrades();
+    // Resume any contract that was running when the page closed
+    setTimeout(()=>resumePendingContract(),600);
   }
 }
 function showUser(){
@@ -2871,13 +2873,67 @@ async function confirmOrder(){
       status:'active'
     }).select().single();
     if(!atErr&&at) activeTradeId=at.id;
-  }catch(e){/* table may not exist - continue without live tracking */}
-  
+  }catch(e){/* table may not exist */}
+
+  // Persist pending contract so refresh can resume it
+  savePendingContract({
+    activeTradeId,
+    symbol:selSym,
+    openPrice:price,
+    bet:omAmt,
+    duration:omTime,
+    direction:buySell,
+    forced,
+    startedAt:Date.now()
+  });
+
   // Start contract countdown
   startContract(price, omAmt, omTime, buySell, forced);
 }
 
-function startContract(openPrice, betAmount, duration, direction, forced){
+/* ─── PENDING CONTRACT PERSISTENCE ─── */
+function pendingKey(){ return 'bf168_pending_'+(cu?cu.id:'anon'); }
+
+function savePendingContract(obj){
+  if(!cu)return;
+  try{ localStorage.setItem(pendingKey(), JSON.stringify(obj)); }catch(e){}
+}
+function readPendingContract(){
+  if(!cu)return null;
+  try{
+    const raw=localStorage.getItem(pendingKey());
+    return raw?JSON.parse(raw):null;
+  }catch(e){ return null; }
+}
+function clearPendingContract(){
+  if(!cu)return;
+  try{ localStorage.removeItem(pendingKey()); }catch(e){}
+}
+
+async function resumePendingContract(){
+  const p=readPendingContract();
+  if(!p)return;
+  const elapsed=Math.floor((Date.now()-p.startedAt)/1000);
+  const remaining=p.duration-elapsed;
+
+  // Re-select the symbol so resolve uses the right one
+  selSym=p.symbol;
+  activeTradeId=p.activeTradeId||null;
+
+  if(remaining>1){
+    // Still running — resume countdown from where it left off
+    toast('กำลังดำเนินสัญญาต่อ...');
+    startContract(p.openPrice, p.bet, p.duration, p.direction, p.forced, remaining);
+  } else {
+    // Already finished while away — resolve now
+    clearPendingContract();
+    const drift=(Math.random()-0.5)*0.004;
+    const closePrice=p.openPrice*(1+drift);
+    await resolveContract(p.openPrice, closePrice, p.bet, p.duration, p.direction, p.forced);
+  }
+}
+
+function startContract(openPrice, betAmount, duration, direction, forced, resumeFrom){
   const overlay=document.getElementById('contract-active');
   const isBuy=direction==='buy';
   
@@ -2890,7 +2946,7 @@ function startContract(openPrice, betAmount, duration, direction, forced){
   document.getElementById('ca-bet').textContent=fmt(betAmount);
   overlay.classList.add('show');
   
-  let remaining=duration;
+  let remaining=(typeof resumeFrom==='number'&&resumeFrom>0)?resumeFrom:duration;
   let livePrice=openPrice;
   const startTime=Date.now();
   
@@ -2956,8 +3012,9 @@ function startContract(openPrice, betAmount, duration, direction, forced){
 }
 
 async function resolveContract(openPrice, closePrice, betAmount, duration, direction, forced){
+  clearPendingContract();
   const overlay=document.getElementById('contract-active');
-  overlay.classList.remove('show');
+  if(overlay)overlay.classList.remove('show');
   
   // Calculate result
   let won, profit, payout;
@@ -3439,33 +3496,19 @@ setInterval(async()=>{
   updateTicker();renderHomeMlist();updateStats();
 },60000);
 
-// Cleanup active trade on page close
-window.addEventListener('beforeunload',()=>{
-  if(activeTradeId&&cu){
-    // Use sendBeacon for reliable delivery on unload
-    const url=SB_URL+'/rest/v1/active_trades?id=eq.'+activeTradeId;
-    const body=JSON.stringify({status:'abandoned'});
-    try{
-      fetch(url,{
-        method:'PATCH',
-        headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
-        body,keepalive:true
-      });
-    }catch(e){}
-  }
-});
-
-// Resume any orphaned active trades on load
+// Cleanup stale active trades in DB (older than duration + 60s)
 async function cleanupOrphanedTrades(){
   if(!cu)return;
   try{
     const {data}=await sb.from('active_trades').select('*').eq('user_id',cu.id).eq('status','active');
     if(!data||!data.length)return;
     const now=Date.now();
+    const pending=readPendingContract();
     for(const t of data){
+      // Don't touch the one we're about to resume
+      if(pending&&pending.activeTradeId===t.id)continue;
       const elapsed=Math.floor((now-new Date(t.created_at).getTime())/1000);
-      if(elapsed>t.duration+10){
-        // Expired while away — mark abandoned
+      if(elapsed>t.duration+60){
         await sb.from('active_trades').update({status:'abandoned'}).eq('id',t.id);
       }
     }
