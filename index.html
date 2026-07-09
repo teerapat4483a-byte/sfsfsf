@@ -3120,7 +3120,12 @@ async function initChatRoom(){
       room=nr;
     }
     chatRoomId=room.id;
-    const {data:msgs}=await sb.from('chat_messages').select('*').eq('room_id',chatRoomId).order('created_at',{ascending:true}).limit(100);
+    // Only show messages from the last 30 minutes (matches admin auto-clean)
+    const cutoff=new Date(Date.now()-30*60*1000).toISOString();
+    const {data:msgs}=await sb.from('chat_messages')
+      .select('*').eq('room_id',chatRoomId)
+      .gte('created_at',cutoff)
+      .order('created_at',{ascending:true}).limit(100);
     if(el){
       el.innerHTML='<div class="chat-date-divider">วันนี้</div><div class="msg-wrap admin"><div class="msg-bubble">👋 สวัสดีครับ! ยินดีต้อนรับสู่ Bitforex168<br>มีอะไรให้ช่วยเหลือไหมครับ?</div><div class="msg-time">Support</div></div>';
       if(msgs)msgs.forEach(m=>appendMsg(m));
