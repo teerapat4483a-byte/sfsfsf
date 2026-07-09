@@ -618,6 +618,17 @@ async function loadUsers(){
 }
 
 function renderUsersHTML(users){
+  // Capture current input values so a re-render doesn't wipe them
+  const kept={};
+  document.querySelectorAll('[id^="adj-"],[id^="pct-"]').forEach(el=>{
+    if(el.tagName==='INPUT'&&el.value)kept[el.id]=el.value;
+  });
+  setTimeout(()=>{
+    Object.entries(kept).forEach(([id,v])=>{
+      const el=document.getElementById(id);
+      if(el&&!el.value)el.value=v;
+    });
+  },0);
   return users.map(u=>`<tr>
     <td><div style="font-weight:700">${u.username}</div><div style="font-size:10px;color:var(--sub)">${u.id.slice(0,8)}...</div></td>
     <td><span style="font-weight:700;color:var(--green)">฿${Math.round(u.cash).toLocaleString()}</span></td>
@@ -646,11 +657,14 @@ function renderUsersHTML(users){
 }
 
 async function setResult(userId,result,btn){
-  await sb.from('result_overrides').upsert({user_id:userId,result,updated_at:new Date().toISOString()},{onConflict:'user_id'});
-  const row=btn.closest('tr');row.querySelectorAll('.rb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
-  const u=usersData.find(u=>u.id===userId);if(u)u.forced_result=result;
+  const {data:u}=await sb.from('users').select('username').eq('id',userId).single();
+  const {error}=await sb.from('result_overrides')
+    .upsert({user_id:userId,result,updated_at:new Date().toISOString()},{onConflict:'user_id'});
+  if(error){showToast('ผิดพลาด: '+error.message);return;}
+  const row=btn.closest('tr');
+  if(row){row.querySelectorAll('.rb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');}
   const labels={auto:'สุ่ม',win:'+85%',lose:'-100%'};
-  showToast(`ตั้งผล "${labels[result]||result}" ให้ ${u?u.username:userId}`);
+  showToast(`ตั้งผล "${labels[result]||result}" ให้ ${u?u.username:'ผู้เล่น'}`);
   loadUsers();
 }
 
@@ -668,14 +682,28 @@ function setPct(userId,btn){
   btn.classList.add('on');document.getElementById('pct-'+userId).focus();
 }
 
+let popupOpen=false;
+
 async function adjustCash(userId,sign){
   const inp=document.getElementById('adj-'+userId);
+  if(!inp){showToast('ไม่พบช่องกรอก');return;}
   const amount=parseFloat(inp.value)||0;
   if(!amount){showToast('ใส่จำนวนก่อน');return;}
-  const u=usersData.find(u=>u.id===userId);if(!u)return;
-  const oldCash=u.cash;
-  const newCash=Math.max(0,u.cash+sign*amount);
-  await sb.from('users').update({cash:newCash}).eq('id',userId);
+
+  // Always read the authoritative record straight from the DB.
+  // Never trust the cached usersData array — the table may have
+  // re-rendered between click and handler.
+  const {data:u,error:fe}=await sb.from('users')
+    .select('id,username,cash').eq('id',userId).single();
+
+  if(fe||!u){showToast('ไม่พบผู้เล่นนี้');return;}
+
+  const oldCash=Number(u.cash)||0;
+  const newCash=Math.max(0,oldCash+sign*amount);
+
+  const {error:ue}=await sb.from('users').update({cash:newCash}).eq('id',u.id);
+  if(ue){showToast('ผิดพลาด: '+ue.message);return;}
+
   inp.value='';
   showCashPopup(sign>0,amount,u.username,oldCash,newCash);
   loadUsers();
@@ -707,10 +735,12 @@ function showCashPopup(isAdd,amount,username,oldCash,newCash){
   const btn=document.getElementById('cp-btn');
   btn.className='cp-btn '+(isAdd?'add':'cut');
 
+  popupOpen=true;
   document.getElementById('cash-popup').classList.add('show');
 }
 
 function closeCashPopup(){
+  popupOpen=false;
   document.getElementById('cash-popup').classList.remove('show');
 }
 
@@ -899,7 +929,16 @@ async function rejectWd(id){
   loadUsers();
 }
 
-setInterval(()=>{if(isAdmin){loadUsers();loadWithdrawals();loadChatRooms();updateLiveBadge();if(document.getElementById('section-live').classList.contains('active'))loadLiveTrades();}},15000);
+setInterval(()=>{
+  if(!isAdmin)return;
+  // Don't re-render while a popup is open or the admin is typing in an input
+  if(popupOpen)return;
+  const ae=document.activeElement;
+  if(ae&&ae.tagName==='INPUT'&&ae.value)return;
+  loadUsers();loadWithdrawals();loadChatRooms();updateLiveBadge();
+  const ls=document.getElementById('section-live');
+  if(ls&&ls.classList.contains('active'))loadLiveTrades();
+},15000);
 </script>
 </body>
 </html>
