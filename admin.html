@@ -173,6 +173,8 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .live-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1rem}
 .live-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;position:relative;overflow:hidden}
 .live-card.pulse{animation:livePulse 2s infinite}
+.live-card.ending{border-color:rgba(245,158,11,.4);opacity:.85;transition:opacity .2s,transform .2s}
+.live-card.ending .live-badge-dot::before{background:var(--yellow);animation:none}
 @keyframes livePulse{0%,100%{border-color:var(--border)}50%{border-color:rgba(16,185,129,.5)}}
 .live-badge-dot{position:absolute;top:1rem;right:1rem;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--green);font-weight:700}
 .live-badge-dot::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--green);animation:blink 1s infinite}
@@ -442,25 +444,43 @@ async function loadLiveTrades(){
     return;
   }
   
+  // Separate live vs expired (grace period 15s after duration ends)
+  const now=Date.now();
+  const live=[],expired=[];
+  (data||[]).forEach(t=>{
+    const elapsed=Math.floor((now-new Date(t.created_at).getTime())/1000);
+    if(elapsed > t.duration + 15) expired.push(t);
+    else live.push(t);
+  });
+  
+  // Auto-cleanup expired trades (user likely closed the page)
+  if(expired.length){
+    const ids=expired.map(t=>t.id);
+    sb.from('active_trades').update({status:'abandoned'}).in('id',ids).then(()=>{});
+  }
+  
   const badge=document.getElementById('live-badge');
-  const count=(data||[]).length;
+  const count=live.length;
   if(count>0){badge.style.display='inline';badge.textContent=count;}
   else badge.style.display='none';
   
-  if(!data||!data.length){
+  if(!live.length){
     el.innerHTML='<div class="live-empty"><div class="live-empty-icon">💤</div><div>ยังไม่มีใครกำลังเทรดอยู่</div></div>';
     return;
   }
   
-  el.innerHTML='<div class="live-grid">'+data.map(t=>{
+  const dataToRender=live;
+  
+  el.innerHTML='<div class="live-grid">'+dataToRender.map(t=>{
     const isBuy=t.direction==='buy';
     const elapsed=Math.floor((Date.now()-new Date(t.created_at).getTime())/1000);
     const remaining=Math.max(0,t.duration-elapsed);
+    const isEnding=remaining<=0;
     const forced=t.forced_result||'auto';
     const curLabel=forced==='win'?'✓ ให้กำไร':forced==='lose'?'✗ ให้ขาดทุน':!isNaN(parseFloat(forced))?(parseFloat(forced)>=0?'+':'')+forced+'%':'🎲 สุ่ม/อัตโนมัติ';
     const curClass=forced==='win'||(!isNaN(parseFloat(forced))&&parseFloat(forced)>=0)?'win':forced==='lose'||(!isNaN(parseFloat(forced))&&parseFloat(forced)<0)?'lose':'auto';
-    return `<div class="live-card pulse" id="live-card-${t.id}">
-      <div class="live-badge-dot">LIVE</div>
+    return `<div class="live-card ${isEnding?'ending':'pulse'}" id="live-card-${t.id}">
+      <div class="live-badge-dot" style="${isEnding?'color:var(--yellow)':''}">${isEnding?'กำลังสรุป':'LIVE'}</div>
       <div class="lc-user">👤 ${t.username}</div>
       <div class="lc-uid">ID: ${t.user_id.slice(0,8)}...</div>
       <div class="lc-detail"><span class="lc-detail-label">เหรียญ</span><span class="lc-detail-val">${t.symbol}/THB</span></div>
@@ -469,13 +489,14 @@ async function loadLiveTrades(){
       <div class="lc-detail"><span class="lc-detail-label">ราคาเปิด</span><span class="lc-detail-val">฿${Math.round(t.open_price).toLocaleString()}</span></div>
       <div class="lc-timer-box">
         <div class="lc-timer-num" id="live-timer-${t.id}" data-remaining="${remaining}" data-total="${t.duration}">${remaining}</div>
-        <div class="lc-timer-lbl">วินาทีที่เหลือ</div>
+        <div class="lc-timer-lbl">${isEnding?'กำลังสรุปผล...':'วินาทีที่เหลือ'}</div>
       </div>
       <div class="lc-controls">
-        <button class="lc-btn-win ${forced==='win'?'active':''}" onclick="setLiveResult('${t.id}','win')">💰 ให้กำไร</button>
-        <button class="lc-btn-lose ${forced==='lose'?'active':''}" onclick="setLiveResult('${t.id}','lose')">📉 ให้ขาดทุน</button>
+        <button class="lc-btn-win ${forced==='win'?'active':''}" onclick="setLiveResult('${t.id}','win')" ${isEnding?'disabled style="opacity:.35;cursor:not-allowed"':''}>💰 ให้กำไร</button>
+        <button class="lc-btn-lose ${forced==='lose'?'active':''}" onclick="setLiveResult('${t.id}','lose')" ${isEnding?'disabled style="opacity:.35;cursor:not-allowed"':''}>📉 ให้ขาดทุน</button>
       </div>
       <div class="lc-current ${curClass}" id="live-current-${t.id}">ปัจจุบัน: ${curLabel}</div>
+      ${isEnding?`<button onclick="forceCloseTrade('${t.id}')" style="width:100%;margin-top:8px;padding:9px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;color:var(--sub);font-size:12px;font-weight:600;cursor:pointer">🗑️ ปิดการ์ดนี้</button>`:''}
     </div>`;
   }).join('')+'</div>';
   
@@ -495,8 +516,22 @@ function startLiveTimers(){
       if(rem<=0){
         clearInterval(liveTimers[id]);
         el.textContent='0';
-        // Reload after trade completes
-        setTimeout(loadLiveTrades,2000);
+        el.style.color='var(--yellow)';
+        // Disable controls on this card
+        const card=document.getElementById('live-card-'+id);
+        if(card){
+          card.classList.remove('pulse');
+          card.classList.add('ending');
+          card.querySelectorAll('.lc-btn-win,.lc-btn-lose').forEach(b=>{
+            b.disabled=true;b.style.opacity='.35';b.style.cursor='not-allowed';
+          });
+          const lbl=card.querySelector('.lc-timer-lbl');
+          if(lbl)lbl.textContent='กำลังสรุปผล...';
+          const dot=card.querySelector('.live-badge-dot');
+          if(dot){dot.textContent='กำลังสรุป';dot.style.color='var(--yellow)';}
+        }
+        // Reload to check if trade completed
+        setTimeout(loadLiveTrades,4000);
         return;
       }
       el.dataset.remaining=rem;
@@ -507,6 +542,14 @@ function startLiveTimers(){
       el.style.color=pct>50?'var(--text)':pct>20?'#f59e0b':'var(--red)';
     },1000);
   });
+}
+
+async function forceCloseTrade(tradeId){
+  await sb.from('active_trades').update({status:'abandoned'}).eq('id',tradeId);
+  const card=document.getElementById('live-card-'+tradeId);
+  if(card){card.style.opacity='0';card.style.transform='scale(.95)';setTimeout(()=>card.remove(),200);}
+  showToast('ปิดการ์ดแล้ว');
+  setTimeout(loadLiveTrades,300);
 }
 
 async function setLiveResult(tradeId, result){
