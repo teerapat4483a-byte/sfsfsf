@@ -1635,13 +1635,13 @@ body.chat-open .bnav{display:none!important}
       </div>
 
       <div style="background:rgba(245,166,35,.06);border:1px solid rgba(245,166,35,.2);border-radius:10px;padding:.875rem;margin-top:1.25rem">
-        <div style="font-size:12px;font-weight:700;color:var(--yellow);margin-bottom:.5rem">📌 วิธีการฝากเงิน</div>
-        <div style="font-size:11px;color:var(--sub);line-height:1.7">
-          1. เลือกจำนวนเงินที่ต้องการฝาก<br>
-          2. กด "แจ้งฝากเงิน" ระบบจะแจ้ง Admin<br>
-          3. Admin จะส่งเลขบัญชีให้ทางแชท<br>
-          4. โอนเงินและส่งสลิปยืนยัน<br>
-          5. เงินเข้าบัญชีภายใน 5-10 นาที
+        <div style="font-size:12px;font-weight:700;color:var(--yellow);margin-bottom:.625rem">📌 ขั้นตอนการฝากเงิน</div>
+        <div style="font-size:11px;color:var(--sub);line-height:1.85">
+          <div style="display:flex;gap:8px;margin-bottom:4px"><span style="color:var(--yellow);font-weight:700">1.</span> เลือกจำนวนเงินที่ต้องการฝาก</div>
+          <div style="display:flex;gap:8px;margin-bottom:4px"><span style="color:var(--yellow);font-weight:700">2.</span> กด "แจ้งฝากเงิน" — ระบบพาไปแชทอัตโนมัติ</div>
+          <div style="display:flex;gap:8px;margin-bottom:4px"><span style="color:var(--yellow);font-weight:700">3.</span> <strong style="color:var(--text)">เจ้าหน้าที่จะส่งเลขบัญชีให้ในแชท</strong></div>
+          <div style="display:flex;gap:8px;margin-bottom:4px"><span style="color:var(--yellow);font-weight:700">4.</span> โอนเงินแล้ว <strong style="color:var(--text)">ส่งสลิปในแชท</strong> (กดปุ่ม 📎)</div>
+          <div style="display:flex;gap:8px"><span style="color:var(--yellow);font-weight:700">5.</span> เงินเข้าบัญชีภายใน 5-10 นาที</div>
         </div>
       </div>
     </div>
@@ -2613,25 +2613,66 @@ async function submitDeposit(){
   const btn=document.getElementById('btn-submit-deposit');
   if(btn){btn.disabled=true;btn.textContent='กำลังส่งคำขอ...';}
 
+  const amt=depositAmt;
+
   // Log locally
-  recordTransaction('deposit', depositAmt, 'pending', 'รอโอนเงิน', null);
+  recordTransaction('deposit', amt, 'pending', 'รอโอนเงิน', null);
 
   // Send message to support chat
+  let sent=false;
   await ensureChatRoomThen(async()=>{
-    const msg=`💰 ขอฝากเงินจำนวน ${fmt(depositAmt)}\nกรุณาแจ้งบัญชีสำหรับโอนเงินครับ`;
-    const {data:inserted}=await sb.from('chat_messages')
+    const msg=`💰 ขอฝากเงินจำนวน ${fmt(amt)}\nกรุณาแจ้งบัญชีสำหรับโอนเงินครับ`;
+    const {data:inserted,error}=await sb.from('chat_messages')
       .insert({room_id:chatRoomId,user_id:cu.id,sender:'user',message:msg})
       .select().single();
-    if(inserted)pendingMsgIds.add(inserted.id);
-    await sb.from('chat_rooms').update({last_message:'💰 ขอฝากเงิน '+fmt(depositAmt),last_time:new Date().toISOString(),unread_admin:true}).eq('id',chatRoomId);
+    if(!error){
+      if(inserted)pendingMsgIds.add(inserted.id);
+      await sb.from('chat_rooms').update({
+        last_message:'💰 ขอฝากเงิน '+fmt(amt),
+        last_time:new Date().toISOString(),
+        unread_admin:true
+      }).eq('id',chatRoomId);
+      sent=true;
+    }
   });
 
   if(btn){btn.disabled=false;btn.textContent='แจ้งฝากเงิน';}
   document.getElementById('dep-custom').value='';
-  const amt=depositAmt;
   depositAmt=0;
   updateDepositSummary();
-  showTxSuccessPopup('deposit', amt);
+
+  if(sent){
+    showDepositSentPopup(amt);
+  } else {
+    toast('ส่งคำขอไม่สำเร็จ กรุณาติดต่อฝ่ายสนับสนุน');
+  }
+}
+
+function showDepositSentPopup(amount){
+  const icon=document.getElementById('sp-icon');
+  icon.textContent='💬';
+  icon.className='sp-icon buy';
+  document.getElementById('sp-title').textContent='ส่งคำขอฝากเงินแล้ว';
+  document.getElementById('sp-title').style.color='var(--green)';
+  document.getElementById('sp-sub').textContent='เจ้าหน้าที่จะแจ้งเลขบัญชีให้ทางแชท';
+  document.getElementById('sp-amount').textContent=fmt(amount);
+  document.getElementById('sp-amount').style.color='var(--green)';
+  document.getElementById('sp-price').textContent='รอเจ้าหน้าที่ตอบ';
+  document.getElementById('sp-time').textContent=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('sp-profit').textContent='5-10 นาที';
+  document.getElementById('sp-profit').style.color='var(--yellow)';
+
+  const viewBtn=document.querySelector('#success-popup .sp-btn-view');
+  if(viewBtn){
+    viewBtn.textContent='💬 ไปที่แชทเจ้าหน้าที่';
+    viewBtn.setAttribute('onclick','goChatFromDeposit()');
+  }
+  document.getElementById('success-popup').classList.add('show');
+}
+
+function goChatFromDeposit(){
+  closeSuccessPopup();
+  switchPage('chat',document.getElementById('nav-port'));
 }
 
 // Ensure chat room exists before sending
