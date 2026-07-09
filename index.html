@@ -456,19 +456,6 @@ body.chat-open .bnav{display:none!important}
 .ca-info-label{color:var(--sub)}
 .ca-info-val{font-weight:600}
 
-/* Success Popup */
-.success-popup-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.7);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(4px)}
-.success-popup-overlay.show{top:0!important}
-.success-popup{background:#1a1d2e;border-radius:20px;padding:2rem 1.5rem;width:300px;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 20px 60px rgba(0,0,0,.5)}
-.sp-icon{width:72px;height:72px;border-radius:50%;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:32px}
-.sp-icon.buy{background:rgba(0,192,135,.15);border:2px solid rgba(0,192,135,.4)}
-.sp-icon.sell{background:rgba(239,68,68,.15);border:2px solid rgba(239,68,68,.4)}
-.sp-title{font-size:20px;font-weight:800;margin-bottom:.5rem}
-.sp-sub{font-size:13px;color:#6b7280;margin-bottom:.5rem;line-height:1.5}
-.sp-amount{font-size:24px;font-weight:800;margin-bottom:1.25rem}
-.sp-btns{display:flex;flex-direction:column;gap:.75rem}
-.sp-btn-view{width:100%;padding:13px;border:none;border-radius:10px;background:var(--yellow);color:#000;font-size:15px;font-weight:700;cursor:pointer}
-.sp-btn-close{width:100%;padding:13px;border:1px solid rgba(255,255,255,.15);border-radius:10px;background:transparent;color:#aaa;font-size:14px;font-weight:600;cursor:pointer}
 
 /* Contract Detail Page */
 .contract-detail-page{background:var(--bg);min-height:100vh;padding-bottom:70px}
@@ -482,6 +469,33 @@ body.chat-open .bnav{display:none!important}
 .cd-value.sell{color:var(--red)}
 .cd-value.profit{color:var(--green);font-weight:800}
 .cd-value.loss{color:var(--red);font-weight:800}
+
+/* ══ UNIFIED ALERT POPUP SYSTEM ══ */
+.alert-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.72);z-index:99997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(6px);padding:1rem}
+.alert-overlay.show{top:0!important}
+.alert-box{background:#1a1d2e;border-radius:22px;padding:2rem 1.5rem 1.5rem;width:100%;max-width:330px;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 24px 70px rgba(0,0,0,.6);animation:alertPop .3s cubic-bezier(.34,1.42,.64,1)}
+@keyframes alertPop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.alert-icon{width:76px;height:76px;border-radius:50%;margin:0 auto 1.125rem;display:flex;align-items:center;justify-content:center;font-size:34px;position:relative}
+.alert-icon::after{content:'';position:absolute;inset:-7px;border-radius:50%;border:2px solid currentColor;opacity:.16;animation:alertRing 1.6s ease-out infinite}
+@keyframes alertRing{0%{transform:scale(.92);opacity:.35}100%{transform:scale(1.16);opacity:0}}
+.alert-icon.success{background:rgba(0,192,135,.14);border:2px solid rgba(0,192,135,.42);color:var(--green)}
+.alert-icon.error{background:rgba(239,68,68,.14);border:2px solid rgba(239,68,68,.42);color:var(--red)}
+.alert-icon.warn{background:rgba(245,166,35,.14);border:2px solid rgba(245,166,35,.42);color:var(--yellow)}
+.alert-icon.info{background:rgba(59,130,246,.14);border:2px solid rgba(59,130,246,.42);color:#60a5fa}
+.alert-title{font-size:20px;font-weight:800;margin-bottom:.5rem;line-height:1.3}
+.alert-msg{font-size:13.5px;color:var(--sub);line-height:1.6;margin-bottom:1.5rem}
+.alert-amount{font-size:30px;font-weight:900;margin:-.25rem 0 1rem;letter-spacing:-1px}
+.alert-details{background:rgba(255,255,255,.035);border-radius:12px;padding:.875rem 1rem;margin-bottom:1.5rem;text-align:left}
+.alert-row{display:flex;justify-content:space-between;font-size:12.5px;padding:.35rem 0}
+.alert-row-label{color:var(--sub)}
+.alert-row-val{font-weight:600;color:var(--text)}
+.alert-btns{display:flex;flex-direction:column;gap:.625rem}
+.alert-btn{width:100%;padding:13px;border:none;border-radius:12px;font-size:14.5px;font-weight:700;cursor:pointer;transition:transform .12s}
+.alert-btn:active{transform:scale(.97)}
+.alert-btn.primary{background:var(--yellow);color:#000}
+.alert-btn.success{background:var(--green);color:#000}
+.alert-btn.danger{background:var(--red);color:#fff}
+.alert-btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.15);color:#9ca3af}
 
 .toast{position:fixed;top:auto;bottom:90px;left:50%@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
 /* Active Contract Countdown */
@@ -502,19 +516,6 @@ body.chat-open .bnav{display:none!important}
 .ca-info-label{color:var(--sub)}
 .ca-info-val{font-weight:600}
 
-/* Success Popup */
-.success-popup-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.7);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(4px)}
-.success-popup-overlay.show{top:0!important}
-.success-popup{background:#1a1d2e;border-radius:20px;padding:2rem 1.5rem;width:300px;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 20px 60px rgba(0,0,0,.5)}
-.sp-icon{width:72px;height:72px;border-radius:50%;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:32px}
-.sp-icon.buy{background:rgba(0,192,135,.15);border:2px solid rgba(0,192,135,.4)}
-.sp-icon.sell{background:rgba(239,68,68,.15);border:2px solid rgba(239,68,68,.4)}
-.sp-title{font-size:20px;font-weight:800;margin-bottom:.5rem}
-.sp-sub{font-size:13px;color:#6b7280;margin-bottom:.5rem;line-height:1.5}
-.sp-amount{font-size:24px;font-weight:800;margin-bottom:1.25rem}
-.sp-btns{display:flex;flex-direction:column;gap:.75rem}
-.sp-btn-view{width:100%;padding:13px;border:none;border-radius:10px;background:var(--yellow);color:#000;font-size:15px;font-weight:700;cursor:pointer}
-.sp-btn-close{width:100%;padding:13px;border:1px solid rgba(255,255,255,.15);border-radius:10px;background:transparent;color:#aaa;font-size:14px;font-weight:600;cursor:pointer}
 
 /* Contract Detail Page */
 .contract-detail-page{background:var(--bg);min-height:100vh;padding-bottom:70px}
@@ -528,6 +529,33 @@ body.chat-open .bnav{display:none!important}
 .cd-value.sell{color:var(--red)}
 .cd-value.profit{color:var(--green);font-weight:800}
 .cd-value.loss{color:var(--red);font-weight:800}
+
+/* ══ UNIFIED ALERT POPUP SYSTEM ══ */
+.alert-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.72);z-index:99997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(6px);padding:1rem}
+.alert-overlay.show{top:0!important}
+.alert-box{background:#1a1d2e;border-radius:22px;padding:2rem 1.5rem 1.5rem;width:100%;max-width:330px;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 24px 70px rgba(0,0,0,.6);animation:alertPop .3s cubic-bezier(.34,1.42,.64,1)}
+@keyframes alertPop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.alert-icon{width:76px;height:76px;border-radius:50%;margin:0 auto 1.125rem;display:flex;align-items:center;justify-content:center;font-size:34px;position:relative}
+.alert-icon::after{content:'';position:absolute;inset:-7px;border-radius:50%;border:2px solid currentColor;opacity:.16;animation:alertRing 1.6s ease-out infinite}
+@keyframes alertRing{0%{transform:scale(.92);opacity:.35}100%{transform:scale(1.16);opacity:0}}
+.alert-icon.success{background:rgba(0,192,135,.14);border:2px solid rgba(0,192,135,.42);color:var(--green)}
+.alert-icon.error{background:rgba(239,68,68,.14);border:2px solid rgba(239,68,68,.42);color:var(--red)}
+.alert-icon.warn{background:rgba(245,166,35,.14);border:2px solid rgba(245,166,35,.42);color:var(--yellow)}
+.alert-icon.info{background:rgba(59,130,246,.14);border:2px solid rgba(59,130,246,.42);color:#60a5fa}
+.alert-title{font-size:20px;font-weight:800;margin-bottom:.5rem;line-height:1.3}
+.alert-msg{font-size:13.5px;color:var(--sub);line-height:1.6;margin-bottom:1.5rem}
+.alert-amount{font-size:30px;font-weight:900;margin:-.25rem 0 1rem;letter-spacing:-1px}
+.alert-details{background:rgba(255,255,255,.035);border-radius:12px;padding:.875rem 1rem;margin-bottom:1.5rem;text-align:left}
+.alert-row{display:flex;justify-content:space-between;font-size:12.5px;padding:.35rem 0}
+.alert-row-label{color:var(--sub)}
+.alert-row-val{font-weight:600;color:var(--text)}
+.alert-btns{display:flex;flex-direction:column;gap:.625rem}
+.alert-btn{width:100%;padding:13px;border:none;border-radius:12px;font-size:14.5px;font-weight:700;cursor:pointer;transition:transform .12s}
+.alert-btn:active{transform:scale(.97)}
+.alert-btn.primary{background:var(--yellow);color:#000}
+.alert-btn.success{background:var(--green);color:#000}
+.alert-btn.danger{background:var(--red);color:#fff}
+.alert-btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.15);color:#9ca3af}
 
 .toast{position:fixed;top:auto;bottom:90px;left:50%/* Trade History */
 .trade-hist-page{background:var(--bg);min-height:100vh;padding-bottom:2rem}
@@ -571,19 +599,6 @@ body.chat-open .bnav{display:none!important}
 .ca-info-label{color:var(--sub)}
 .ca-info-val{font-weight:600}
 
-/* Success Popup */
-.success-popup-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.7);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(4px)}
-.success-popup-overlay.show{top:0!important}
-.success-popup{background:#1a1d2e;border-radius:20px;padding:2rem 1.5rem;width:300px;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 20px 60px rgba(0,0,0,.5)}
-.sp-icon{width:72px;height:72px;border-radius:50%;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:32px}
-.sp-icon.buy{background:rgba(0,192,135,.15);border:2px solid rgba(0,192,135,.4)}
-.sp-icon.sell{background:rgba(239,68,68,.15);border:2px solid rgba(239,68,68,.4)}
-.sp-title{font-size:20px;font-weight:800;margin-bottom:.5rem}
-.sp-sub{font-size:13px;color:#6b7280;margin-bottom:.5rem;line-height:1.5}
-.sp-amount{font-size:24px;font-weight:800;margin-bottom:1.25rem}
-.sp-btns{display:flex;flex-direction:column;gap:.75rem}
-.sp-btn-view{width:100%;padding:13px;border:none;border-radius:10px;background:var(--yellow);color:#000;font-size:15px;font-weight:700;cursor:pointer}
-.sp-btn-close{width:100%;padding:13px;border:1px solid rgba(255,255,255,.15);border-radius:10px;background:transparent;color:#aaa;font-size:14px;font-weight:600;cursor:pointer}
 
 /* Contract Detail Page */
 .contract-detail-page{background:var(--bg);min-height:100vh;padding-bottom:70px}
@@ -597,6 +612,33 @@ body.chat-open .bnav{display:none!important}
 .cd-value.sell{color:var(--red)}
 .cd-value.profit{color:var(--green);font-weight:800}
 .cd-value.loss{color:var(--red);font-weight:800}
+
+/* ══ UNIFIED ALERT POPUP SYSTEM ══ */
+.alert-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.72);z-index:99997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(6px);padding:1rem}
+.alert-overlay.show{top:0!important}
+.alert-box{background:#1a1d2e;border-radius:22px;padding:2rem 1.5rem 1.5rem;width:100%;max-width:330px;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 24px 70px rgba(0,0,0,.6);animation:alertPop .3s cubic-bezier(.34,1.42,.64,1)}
+@keyframes alertPop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.alert-icon{width:76px;height:76px;border-radius:50%;margin:0 auto 1.125rem;display:flex;align-items:center;justify-content:center;font-size:34px;position:relative}
+.alert-icon::after{content:'';position:absolute;inset:-7px;border-radius:50%;border:2px solid currentColor;opacity:.16;animation:alertRing 1.6s ease-out infinite}
+@keyframes alertRing{0%{transform:scale(.92);opacity:.35}100%{transform:scale(1.16);opacity:0}}
+.alert-icon.success{background:rgba(0,192,135,.14);border:2px solid rgba(0,192,135,.42);color:var(--green)}
+.alert-icon.error{background:rgba(239,68,68,.14);border:2px solid rgba(239,68,68,.42);color:var(--red)}
+.alert-icon.warn{background:rgba(245,166,35,.14);border:2px solid rgba(245,166,35,.42);color:var(--yellow)}
+.alert-icon.info{background:rgba(59,130,246,.14);border:2px solid rgba(59,130,246,.42);color:#60a5fa}
+.alert-title{font-size:20px;font-weight:800;margin-bottom:.5rem;line-height:1.3}
+.alert-msg{font-size:13.5px;color:var(--sub);line-height:1.6;margin-bottom:1.5rem}
+.alert-amount{font-size:30px;font-weight:900;margin:-.25rem 0 1rem;letter-spacing:-1px}
+.alert-details{background:rgba(255,255,255,.035);border-radius:12px;padding:.875rem 1rem;margin-bottom:1.5rem;text-align:left}
+.alert-row{display:flex;justify-content:space-between;font-size:12.5px;padding:.35rem 0}
+.alert-row-label{color:var(--sub)}
+.alert-row-val{font-weight:600;color:var(--text)}
+.alert-btns{display:flex;flex-direction:column;gap:.625rem}
+.alert-btn{width:100%;padding:13px;border:none;border-radius:12px;font-size:14.5px;font-weight:700;cursor:pointer;transition:transform .12s}
+.alert-btn:active{transform:scale(.97)}
+.alert-btn.primary{background:var(--yellow);color:#000}
+.alert-btn.success{background:var(--green);color:#000}
+.alert-btn.danger{background:var(--red);color:#fff}
+.alert-btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.15);color:#9ca3af}
 
 .toast{position:fixed;top:auto;bottom:90px;left:50%@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
 /* Active Contract Countdown */
@@ -617,19 +659,6 @@ body.chat-open .bnav{display:none!important}
 .ca-info-label{color:var(--sub)}
 .ca-info-val{font-weight:600}
 
-/* Success Popup */
-.success-popup-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.7);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(4px)}
-.success-popup-overlay.show{top:0!important}
-.success-popup{background:#1a1d2e;border-radius:20px;padding:2rem 1.5rem;width:300px;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 20px 60px rgba(0,0,0,.5)}
-.sp-icon{width:72px;height:72px;border-radius:50%;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:32px}
-.sp-icon.buy{background:rgba(0,192,135,.15);border:2px solid rgba(0,192,135,.4)}
-.sp-icon.sell{background:rgba(239,68,68,.15);border:2px solid rgba(239,68,68,.4)}
-.sp-title{font-size:20px;font-weight:800;margin-bottom:.5rem}
-.sp-sub{font-size:13px;color:#6b7280;margin-bottom:.5rem;line-height:1.5}
-.sp-amount{font-size:24px;font-weight:800;margin-bottom:1.25rem}
-.sp-btns{display:flex;flex-direction:column;gap:.75rem}
-.sp-btn-view{width:100%;padding:13px;border:none;border-radius:10px;background:var(--yellow);color:#000;font-size:15px;font-weight:700;cursor:pointer}
-.sp-btn-close{width:100%;padding:13px;border:1px solid rgba(255,255,255,.15);border-radius:10px;background:transparent;color:#aaa;font-size:14px;font-weight:600;cursor:pointer}
 
 /* Contract Detail Page */
 .contract-detail-page{background:var(--bg);min-height:100vh;padding-bottom:70px}
@@ -643,6 +672,33 @@ body.chat-open .bnav{display:none!important}
 .cd-value.sell{color:var(--red)}
 .cd-value.profit{color:var(--green);font-weight:800}
 .cd-value.loss{color:var(--red);font-weight:800}
+
+/* ══ UNIFIED ALERT POPUP SYSTEM ══ */
+.alert-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.72);z-index:99997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(6px);padding:1rem}
+.alert-overlay.show{top:0!important}
+.alert-box{background:#1a1d2e;border-radius:22px;padding:2rem 1.5rem 1.5rem;width:100%;max-width:330px;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 24px 70px rgba(0,0,0,.6);animation:alertPop .3s cubic-bezier(.34,1.42,.64,1)}
+@keyframes alertPop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.alert-icon{width:76px;height:76px;border-radius:50%;margin:0 auto 1.125rem;display:flex;align-items:center;justify-content:center;font-size:34px;position:relative}
+.alert-icon::after{content:'';position:absolute;inset:-7px;border-radius:50%;border:2px solid currentColor;opacity:.16;animation:alertRing 1.6s ease-out infinite}
+@keyframes alertRing{0%{transform:scale(.92);opacity:.35}100%{transform:scale(1.16);opacity:0}}
+.alert-icon.success{background:rgba(0,192,135,.14);border:2px solid rgba(0,192,135,.42);color:var(--green)}
+.alert-icon.error{background:rgba(239,68,68,.14);border:2px solid rgba(239,68,68,.42);color:var(--red)}
+.alert-icon.warn{background:rgba(245,166,35,.14);border:2px solid rgba(245,166,35,.42);color:var(--yellow)}
+.alert-icon.info{background:rgba(59,130,246,.14);border:2px solid rgba(59,130,246,.42);color:#60a5fa}
+.alert-title{font-size:20px;font-weight:800;margin-bottom:.5rem;line-height:1.3}
+.alert-msg{font-size:13.5px;color:var(--sub);line-height:1.6;margin-bottom:1.5rem}
+.alert-amount{font-size:30px;font-weight:900;margin:-.25rem 0 1rem;letter-spacing:-1px}
+.alert-details{background:rgba(255,255,255,.035);border-radius:12px;padding:.875rem 1rem;margin-bottom:1.5rem;text-align:left}
+.alert-row{display:flex;justify-content:space-between;font-size:12.5px;padding:.35rem 0}
+.alert-row-label{color:var(--sub)}
+.alert-row-val{font-weight:600;color:var(--text)}
+.alert-btns{display:flex;flex-direction:column;gap:.625rem}
+.alert-btn{width:100%;padding:13px;border:none;border-radius:12px;font-size:14.5px;font-weight:700;cursor:pointer;transition:transform .12s}
+.alert-btn:active{transform:scale(.97)}
+.alert-btn.primary{background:var(--yellow);color:#000}
+.alert-btn.success{background:var(--green);color:#000}
+.alert-btn.danger{background:var(--red);color:#fff}
+.alert-btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.15);color:#9ca3af}
 
 .toast{position:fixed;top:auto;bottom:90px;left:50%/* Order Confirm Modal */
 .order-modal-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.6);z-index:9998;display:flex!important;align-items:flex-end;justify-content:center;transition:top .01s}
@@ -714,19 +770,6 @@ body.chat-open .bnav{display:none!important}
 .ca-info-label{color:var(--sub)}
 .ca-info-val{font-weight:600}
 
-/* Success Popup */
-.success-popup-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.7);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(4px)}
-.success-popup-overlay.show{top:0!important}
-.success-popup{background:#1a1d2e;border-radius:20px;padding:2rem 1.5rem;width:300px;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 20px 60px rgba(0,0,0,.5)}
-.sp-icon{width:72px;height:72px;border-radius:50%;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:32px}
-.sp-icon.buy{background:rgba(0,192,135,.15);border:2px solid rgba(0,192,135,.4)}
-.sp-icon.sell{background:rgba(239,68,68,.15);border:2px solid rgba(239,68,68,.4)}
-.sp-title{font-size:20px;font-weight:800;margin-bottom:.5rem}
-.sp-sub{font-size:13px;color:#6b7280;margin-bottom:.5rem;line-height:1.5}
-.sp-amount{font-size:24px;font-weight:800;margin-bottom:1.25rem}
-.sp-btns{display:flex;flex-direction:column;gap:.75rem}
-.sp-btn-view{width:100%;padding:13px;border:none;border-radius:10px;background:var(--yellow);color:#000;font-size:15px;font-weight:700;cursor:pointer}
-.sp-btn-close{width:100%;padding:13px;border:1px solid rgba(255,255,255,.15);border-radius:10px;background:transparent;color:#aaa;font-size:14px;font-weight:600;cursor:pointer}
 
 /* Contract Detail Page */
 .contract-detail-page{background:var(--bg);min-height:100vh;padding-bottom:70px}
@@ -740,6 +783,33 @@ body.chat-open .bnav{display:none!important}
 .cd-value.sell{color:var(--red)}
 .cd-value.profit{color:var(--green);font-weight:800}
 .cd-value.loss{color:var(--red);font-weight:800}
+
+/* ══ UNIFIED ALERT POPUP SYSTEM ══ */
+.alert-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.72);z-index:99997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(6px);padding:1rem}
+.alert-overlay.show{top:0!important}
+.alert-box{background:#1a1d2e;border-radius:22px;padding:2rem 1.5rem 1.5rem;width:100%;max-width:330px;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 24px 70px rgba(0,0,0,.6);animation:alertPop .3s cubic-bezier(.34,1.42,.64,1)}
+@keyframes alertPop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.alert-icon{width:76px;height:76px;border-radius:50%;margin:0 auto 1.125rem;display:flex;align-items:center;justify-content:center;font-size:34px;position:relative}
+.alert-icon::after{content:'';position:absolute;inset:-7px;border-radius:50%;border:2px solid currentColor;opacity:.16;animation:alertRing 1.6s ease-out infinite}
+@keyframes alertRing{0%{transform:scale(.92);opacity:.35}100%{transform:scale(1.16);opacity:0}}
+.alert-icon.success{background:rgba(0,192,135,.14);border:2px solid rgba(0,192,135,.42);color:var(--green)}
+.alert-icon.error{background:rgba(239,68,68,.14);border:2px solid rgba(239,68,68,.42);color:var(--red)}
+.alert-icon.warn{background:rgba(245,166,35,.14);border:2px solid rgba(245,166,35,.42);color:var(--yellow)}
+.alert-icon.info{background:rgba(59,130,246,.14);border:2px solid rgba(59,130,246,.42);color:#60a5fa}
+.alert-title{font-size:20px;font-weight:800;margin-bottom:.5rem;line-height:1.3}
+.alert-msg{font-size:13.5px;color:var(--sub);line-height:1.6;margin-bottom:1.5rem}
+.alert-amount{font-size:30px;font-weight:900;margin:-.25rem 0 1rem;letter-spacing:-1px}
+.alert-details{background:rgba(255,255,255,.035);border-radius:12px;padding:.875rem 1rem;margin-bottom:1.5rem;text-align:left}
+.alert-row{display:flex;justify-content:space-between;font-size:12.5px;padding:.35rem 0}
+.alert-row-label{color:var(--sub)}
+.alert-row-val{font-weight:600;color:var(--text)}
+.alert-btns{display:flex;flex-direction:column;gap:.625rem}
+.alert-btn{width:100%;padding:13px;border:none;border-radius:12px;font-size:14.5px;font-weight:700;cursor:pointer;transition:transform .12s}
+.alert-btn:active{transform:scale(.97)}
+.alert-btn.primary{background:var(--yellow);color:#000}
+.alert-btn.success{background:var(--green);color:#000}
+.alert-btn.danger{background:var(--red);color:#fff}
+.alert-btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.15);color:#9ca3af}
 
 .toast{position:fixed;top:auto;bottom:90px;left:50%@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
 /* Active Contract Countdown */
@@ -760,19 +830,6 @@ body.chat-open .bnav{display:none!important}
 .ca-info-label{color:var(--sub)}
 .ca-info-val{font-weight:600}
 
-/* Success Popup */
-.success-popup-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.7);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(4px)}
-.success-popup-overlay.show{top:0!important}
-.success-popup{background:#1a1d2e;border-radius:20px;padding:2rem 1.5rem;width:300px;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 20px 60px rgba(0,0,0,.5)}
-.sp-icon{width:72px;height:72px;border-radius:50%;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:32px}
-.sp-icon.buy{background:rgba(0,192,135,.15);border:2px solid rgba(0,192,135,.4)}
-.sp-icon.sell{background:rgba(239,68,68,.15);border:2px solid rgba(239,68,68,.4)}
-.sp-title{font-size:20px;font-weight:800;margin-bottom:.5rem}
-.sp-sub{font-size:13px;color:#6b7280;margin-bottom:.5rem;line-height:1.5}
-.sp-amount{font-size:24px;font-weight:800;margin-bottom:1.25rem}
-.sp-btns{display:flex;flex-direction:column;gap:.75rem}
-.sp-btn-view{width:100%;padding:13px;border:none;border-radius:10px;background:var(--yellow);color:#000;font-size:15px;font-weight:700;cursor:pointer}
-.sp-btn-close{width:100%;padding:13px;border:1px solid rgba(255,255,255,.15);border-radius:10px;background:transparent;color:#aaa;font-size:14px;font-weight:600;cursor:pointer}
 
 /* Contract Detail Page */
 .contract-detail-page{background:var(--bg);min-height:100vh;padding-bottom:70px}
@@ -786,6 +843,33 @@ body.chat-open .bnav{display:none!important}
 .cd-value.sell{color:var(--red)}
 .cd-value.profit{color:var(--green);font-weight:800}
 .cd-value.loss{color:var(--red);font-weight:800}
+
+/* ══ UNIFIED ALERT POPUP SYSTEM ══ */
+.alert-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.72);z-index:99997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(6px);padding:1rem}
+.alert-overlay.show{top:0!important}
+.alert-box{background:#1a1d2e;border-radius:22px;padding:2rem 1.5rem 1.5rem;width:100%;max-width:330px;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 24px 70px rgba(0,0,0,.6);animation:alertPop .3s cubic-bezier(.34,1.42,.64,1)}
+@keyframes alertPop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.alert-icon{width:76px;height:76px;border-radius:50%;margin:0 auto 1.125rem;display:flex;align-items:center;justify-content:center;font-size:34px;position:relative}
+.alert-icon::after{content:'';position:absolute;inset:-7px;border-radius:50%;border:2px solid currentColor;opacity:.16;animation:alertRing 1.6s ease-out infinite}
+@keyframes alertRing{0%{transform:scale(.92);opacity:.35}100%{transform:scale(1.16);opacity:0}}
+.alert-icon.success{background:rgba(0,192,135,.14);border:2px solid rgba(0,192,135,.42);color:var(--green)}
+.alert-icon.error{background:rgba(239,68,68,.14);border:2px solid rgba(239,68,68,.42);color:var(--red)}
+.alert-icon.warn{background:rgba(245,166,35,.14);border:2px solid rgba(245,166,35,.42);color:var(--yellow)}
+.alert-icon.info{background:rgba(59,130,246,.14);border:2px solid rgba(59,130,246,.42);color:#60a5fa}
+.alert-title{font-size:20px;font-weight:800;margin-bottom:.5rem;line-height:1.3}
+.alert-msg{font-size:13.5px;color:var(--sub);line-height:1.6;margin-bottom:1.5rem}
+.alert-amount{font-size:30px;font-weight:900;margin:-.25rem 0 1rem;letter-spacing:-1px}
+.alert-details{background:rgba(255,255,255,.035);border-radius:12px;padding:.875rem 1rem;margin-bottom:1.5rem;text-align:left}
+.alert-row{display:flex;justify-content:space-between;font-size:12.5px;padding:.35rem 0}
+.alert-row-label{color:var(--sub)}
+.alert-row-val{font-weight:600;color:var(--text)}
+.alert-btns{display:flex;flex-direction:column;gap:.625rem}
+.alert-btn{width:100%;padding:13px;border:none;border-radius:12px;font-size:14.5px;font-weight:700;cursor:pointer;transition:transform .12s}
+.alert-btn:active{transform:scale(.97)}
+.alert-btn.primary{background:var(--yellow);color:#000}
+.alert-btn.success{background:var(--green);color:#000}
+.alert-btn.danger{background:var(--red);color:#fff}
+.alert-btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.15);color:#9ca3af}
 
 .toast{position:fixed;top:auto;bottom:90px;left:50%/* Trade History */
 .trade-hist-page{background:var(--bg);min-height:100vh;padding-bottom:2rem}
@@ -829,19 +913,6 @@ body.chat-open .bnav{display:none!important}
 .ca-info-label{color:var(--sub)}
 .ca-info-val{font-weight:600}
 
-/* Success Popup */
-.success-popup-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.7);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(4px)}
-.success-popup-overlay.show{top:0!important}
-.success-popup{background:#1a1d2e;border-radius:20px;padding:2rem 1.5rem;width:300px;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 20px 60px rgba(0,0,0,.5)}
-.sp-icon{width:72px;height:72px;border-radius:50%;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:32px}
-.sp-icon.buy{background:rgba(0,192,135,.15);border:2px solid rgba(0,192,135,.4)}
-.sp-icon.sell{background:rgba(239,68,68,.15);border:2px solid rgba(239,68,68,.4)}
-.sp-title{font-size:20px;font-weight:800;margin-bottom:.5rem}
-.sp-sub{font-size:13px;color:#6b7280;margin-bottom:.5rem;line-height:1.5}
-.sp-amount{font-size:24px;font-weight:800;margin-bottom:1.25rem}
-.sp-btns{display:flex;flex-direction:column;gap:.75rem}
-.sp-btn-view{width:100%;padding:13px;border:none;border-radius:10px;background:var(--yellow);color:#000;font-size:15px;font-weight:700;cursor:pointer}
-.sp-btn-close{width:100%;padding:13px;border:1px solid rgba(255,255,255,.15);border-radius:10px;background:transparent;color:#aaa;font-size:14px;font-weight:600;cursor:pointer}
 
 /* Contract Detail Page */
 .contract-detail-page{background:var(--bg);min-height:100vh;padding-bottom:70px}
@@ -855,6 +926,33 @@ body.chat-open .bnav{display:none!important}
 .cd-value.sell{color:var(--red)}
 .cd-value.profit{color:var(--green);font-weight:800}
 .cd-value.loss{color:var(--red);font-weight:800}
+
+/* ══ UNIFIED ALERT POPUP SYSTEM ══ */
+.alert-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.72);z-index:99997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(6px);padding:1rem}
+.alert-overlay.show{top:0!important}
+.alert-box{background:#1a1d2e;border-radius:22px;padding:2rem 1.5rem 1.5rem;width:100%;max-width:330px;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 24px 70px rgba(0,0,0,.6);animation:alertPop .3s cubic-bezier(.34,1.42,.64,1)}
+@keyframes alertPop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.alert-icon{width:76px;height:76px;border-radius:50%;margin:0 auto 1.125rem;display:flex;align-items:center;justify-content:center;font-size:34px;position:relative}
+.alert-icon::after{content:'';position:absolute;inset:-7px;border-radius:50%;border:2px solid currentColor;opacity:.16;animation:alertRing 1.6s ease-out infinite}
+@keyframes alertRing{0%{transform:scale(.92);opacity:.35}100%{transform:scale(1.16);opacity:0}}
+.alert-icon.success{background:rgba(0,192,135,.14);border:2px solid rgba(0,192,135,.42);color:var(--green)}
+.alert-icon.error{background:rgba(239,68,68,.14);border:2px solid rgba(239,68,68,.42);color:var(--red)}
+.alert-icon.warn{background:rgba(245,166,35,.14);border:2px solid rgba(245,166,35,.42);color:var(--yellow)}
+.alert-icon.info{background:rgba(59,130,246,.14);border:2px solid rgba(59,130,246,.42);color:#60a5fa}
+.alert-title{font-size:20px;font-weight:800;margin-bottom:.5rem;line-height:1.3}
+.alert-msg{font-size:13.5px;color:var(--sub);line-height:1.6;margin-bottom:1.5rem}
+.alert-amount{font-size:30px;font-weight:900;margin:-.25rem 0 1rem;letter-spacing:-1px}
+.alert-details{background:rgba(255,255,255,.035);border-radius:12px;padding:.875rem 1rem;margin-bottom:1.5rem;text-align:left}
+.alert-row{display:flex;justify-content:space-between;font-size:12.5px;padding:.35rem 0}
+.alert-row-label{color:var(--sub)}
+.alert-row-val{font-weight:600;color:var(--text)}
+.alert-btns{display:flex;flex-direction:column;gap:.625rem}
+.alert-btn{width:100%;padding:13px;border:none;border-radius:12px;font-size:14.5px;font-weight:700;cursor:pointer;transition:transform .12s}
+.alert-btn:active{transform:scale(.97)}
+.alert-btn.primary{background:var(--yellow);color:#000}
+.alert-btn.success{background:var(--green);color:#000}
+.alert-btn.danger{background:var(--red);color:#fff}
+.alert-btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.15);color:#9ca3af}
 
 .toast{position:fixed;top:auto;bottom:90px;left:50%@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
 /* Active Contract Countdown */
@@ -875,19 +973,6 @@ body.chat-open .bnav{display:none!important}
 .ca-info-label{color:var(--sub)}
 .ca-info-val{font-weight:600}
 
-/* Success Popup */
-.success-popup-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.7);z-index:9997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(4px)}
-.success-popup-overlay.show{top:0!important}
-.success-popup{background:#1a1d2e;border-radius:20px;padding:2rem 1.5rem;width:300px;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 20px 60px rgba(0,0,0,.5)}
-.sp-icon{width:72px;height:72px;border-radius:50%;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:32px}
-.sp-icon.buy{background:rgba(0,192,135,.15);border:2px solid rgba(0,192,135,.4)}
-.sp-icon.sell{background:rgba(239,68,68,.15);border:2px solid rgba(239,68,68,.4)}
-.sp-title{font-size:20px;font-weight:800;margin-bottom:.5rem}
-.sp-sub{font-size:13px;color:#6b7280;margin-bottom:.5rem;line-height:1.5}
-.sp-amount{font-size:24px;font-weight:800;margin-bottom:1.25rem}
-.sp-btns{display:flex;flex-direction:column;gap:.75rem}
-.sp-btn-view{width:100%;padding:13px;border:none;border-radius:10px;background:var(--yellow);color:#000;font-size:15px;font-weight:700;cursor:pointer}
-.sp-btn-close{width:100%;padding:13px;border:1px solid rgba(255,255,255,.15);border-radius:10px;background:transparent;color:#aaa;font-size:14px;font-weight:600;cursor:pointer}
 
 /* Contract Detail Page */
 .contract-detail-page{background:var(--bg);min-height:100vh;padding-bottom:70px}
@@ -901,6 +986,33 @@ body.chat-open .bnav{display:none!important}
 .cd-value.sell{color:var(--red)}
 .cd-value.profit{color:var(--green);font-weight:800}
 .cd-value.loss{color:var(--red);font-weight:800}
+
+/* ══ UNIFIED ALERT POPUP SYSTEM ══ */
+.alert-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.72);z-index:99997;display:flex!important;align-items:center;justify-content:center;transition:top .01s;backdrop-filter:blur(6px);padding:1rem}
+.alert-overlay.show{top:0!important}
+.alert-box{background:#1a1d2e;border-radius:22px;padding:2rem 1.5rem 1.5rem;width:100%;max-width:330px;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 24px 70px rgba(0,0,0,.6);animation:alertPop .3s cubic-bezier(.34,1.42,.64,1)}
+@keyframes alertPop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.alert-icon{width:76px;height:76px;border-radius:50%;margin:0 auto 1.125rem;display:flex;align-items:center;justify-content:center;font-size:34px;position:relative}
+.alert-icon::after{content:'';position:absolute;inset:-7px;border-radius:50%;border:2px solid currentColor;opacity:.16;animation:alertRing 1.6s ease-out infinite}
+@keyframes alertRing{0%{transform:scale(.92);opacity:.35}100%{transform:scale(1.16);opacity:0}}
+.alert-icon.success{background:rgba(0,192,135,.14);border:2px solid rgba(0,192,135,.42);color:var(--green)}
+.alert-icon.error{background:rgba(239,68,68,.14);border:2px solid rgba(239,68,68,.42);color:var(--red)}
+.alert-icon.warn{background:rgba(245,166,35,.14);border:2px solid rgba(245,166,35,.42);color:var(--yellow)}
+.alert-icon.info{background:rgba(59,130,246,.14);border:2px solid rgba(59,130,246,.42);color:#60a5fa}
+.alert-title{font-size:20px;font-weight:800;margin-bottom:.5rem;line-height:1.3}
+.alert-msg{font-size:13.5px;color:var(--sub);line-height:1.6;margin-bottom:1.5rem}
+.alert-amount{font-size:30px;font-weight:900;margin:-.25rem 0 1rem;letter-spacing:-1px}
+.alert-details{background:rgba(255,255,255,.035);border-radius:12px;padding:.875rem 1rem;margin-bottom:1.5rem;text-align:left}
+.alert-row{display:flex;justify-content:space-between;font-size:12.5px;padding:.35rem 0}
+.alert-row-label{color:var(--sub)}
+.alert-row-val{font-weight:600;color:var(--text)}
+.alert-btns{display:flex;flex-direction:column;gap:.625rem}
+.alert-btn{width:100%;padding:13px;border:none;border-radius:12px;font-size:14.5px;font-weight:700;cursor:pointer;transition:transform .12s}
+.alert-btn:active{transform:scale(.97)}
+.alert-btn.primary{background:var(--yellow);color:#000}
+.alert-btn.success{background:var(--green);color:#000}
+.alert-btn.danger{background:var(--red);color:#fff}
+.alert-btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.15);color:#9ca3af}
 
 .toast{position:fixed;top:auto;bottom:90px;left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:.625rem 1.25rem;font-size:13px;color:var(--text);opacity:0;transition:opacity .25s;pointer-events:none;z-index:9999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.3)}
 .toast.show{opacity:1}
@@ -1763,14 +1875,7 @@ body.chat-open .bnav{display:none!important}
 <!-- lang-picker moved to bottom -->
 
 <!-- POPUPS -->
-<div class="popup-overlay" id="reg-popup">
-  <div class="popup-box">
-    <div class="popup-emoji">🎉</div>
-    <div class="popup-title">ลงทะเบียนสำเร็จ!</div>
-    <div class="popup-sub" id="reg-popup-msg">ยินดีต้อนรับ! กรุณาเข้าสู่ระบบเพื่อเริ่มเทรด</div>
-    <button class="popup-btn" onclick="document.getElementById('reg-popup').classList.remove('show');switchAuthTab('login',document.querySelector('.auth-tab'))">เข้าสู่ระบบเลย</button>
-  </div>
-</div>
+
 
 <div class="toast" id="toast"></div><script>
 // Early definitions for HTML onclick handlers
@@ -1845,6 +1950,81 @@ function toast(msg){
   t.textContent=msg;t.classList.add('show');
   clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);
 }
+
+/* ══ UNIFIED ALERT POPUP API ══
+   showAlert({
+     type:'success'|'error'|'warn'|'info',
+     icon:'✓',                       // optional, defaults per type
+     title:'หัวข้อ',
+     msg:'ข้อความ',
+     amount:'฿1,000',                // optional big number
+     amountColor:'var(--green)',     // optional
+     rows:[['ราคาเปิด','฿100']],     // optional detail rows
+     buttons:[{text:'ตกลง',style:'primary',onClick:fn}],
+     dismissable:true
+   })
+*/
+const ALERT_DEFAULT_ICONS={success:'✓',error:'✕',warn:'⚠️',info:'ℹ️'};
+
+function showAlert(opt){
+  const type=opt.type||'info';
+  const box=document.getElementById('alert-popup');
+  if(!box)return;
+
+  const icon=document.getElementById('alert-icon');
+  icon.textContent=opt.icon||ALERT_DEFAULT_ICONS[type];
+  icon.className='alert-icon '+type;
+
+  const titleEl=document.getElementById('alert-title');
+  titleEl.textContent=opt.title||'';
+  const titleColors={success:'var(--green)',error:'var(--red)',warn:'var(--yellow)',info:'#60a5fa'};
+  titleEl.style.color=opt.titleColor||titleColors[type];
+
+  document.getElementById('alert-msg').innerHTML=opt.msg||'';
+
+  const amtEl=document.getElementById('alert-amount');
+  if(opt.amount){
+    amtEl.style.display='block';
+    amtEl.textContent=opt.amount;
+    amtEl.style.color=opt.amountColor||titleColors[type];
+  } else amtEl.style.display='none';
+
+  const detEl=document.getElementById('alert-details');
+  if(opt.rows&&opt.rows.length){
+    detEl.style.display='block';
+    detEl.innerHTML=opt.rows.map(([l,v,c])=>
+      `<div class="alert-row"><span class="alert-row-label">${l}</span><span class="alert-row-val" ${c?`style="color:${c}"`:''}>${v}</span></div>`
+    ).join('');
+  } else detEl.style.display='none';
+
+  const btnWrap=document.getElementById('alert-btns');
+  const buttons=opt.buttons||[{text:'ตกลง',style:'primary'}];
+  btnWrap.innerHTML='';
+  buttons.forEach((b,i)=>{
+    const el=document.createElement('button');
+    el.className='alert-btn '+(b.style||'ghost');
+    el.textContent=b.text;
+    el.onclick=()=>{ closeAlert(); if(b.onClick)b.onClick(); };
+    btnWrap.appendChild(el);
+  });
+
+  window.__alertDismissable = opt.dismissable!==false;
+  box.classList.add('show');
+}
+
+function closeAlert(){
+  const box=document.getElementById('alert-popup');
+  if(box)box.classList.remove('show');
+}
+
+// Convenience wrappers
+function alertSuccess(title,msg,buttons){ showAlert({type:'success',title,msg,buttons}); }
+function alertError(title,msg,buttons){ showAlert({type:'error',title,msg,buttons}); }
+function alertWarn(title,msg,buttons){ showAlert({type:'warn',title,msg,buttons}); }
+function alertInfo(title,msg,buttons){ showAlert({type:'info',title,msg,buttons}); }
+
+// Backwards-compat stub
+function closeSuccessPopup(){ closeAlert(); }
 function authMsg(id,msg,err){
   const el=document.getElementById(id);
   el.textContent=msg;el.className='auth-msg '+(err?'err':'ok');
@@ -1942,8 +2122,12 @@ async function doRegister(){
   const {error}=await sb.from('users').insert({username:u,password:p,cash:0});
   if(error){authMsg('r-msg','เกิดข้อผิดพลาด',true);return;}
   closeLogin();
-  document.getElementById('reg-popup-msg').textContent=`ยินดีต้อนรับ ${u}! กรุณาเข้าสู่ระบบเพื่อเริ่มเทรด`;
-  document.getElementById('reg-popup').classList.add('show');
+  showAlert({
+    type:'success', icon:'🎉',
+    title:'ลงทะเบียนสำเร็จ!',
+    msg:`ยินดีต้อนรับ <strong style="color:var(--yellow)">${u}</strong><br>กรุณาเข้าสู่ระบบเพื่อเริ่มเทรด`,
+    buttons:[{text:'เข้าสู่ระบบเลย', style:'success', onClick:()=>{openLogin();switchAuthTab('login',document.querySelector('.auth-tab'));}}]
+  });
 }
 async function doLogin(){
   const u=document.getElementById('l-user').value.trim();
@@ -1953,7 +2137,11 @@ async function doLogin(){
   if(!user){authMsg('l-msg','ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง',true);return;}
   cu=user;cash=user.cash;
   localStorage.setItem('bf168_uid',user.id);
-  closeLogin();showUser();toast('เข้าสู่ระบบสำเร็จ');
+  closeLogin();showUser();
+  showAlert({type:'success',icon:'👋',title:'ยินดีต้อนรับกลับ!',
+    msg:`สวัสดี <strong style="color:var(--yellow)">${user.username}</strong>`,
+    rows:[['ยอดคงเหลือ',fmt(cash),'var(--green)']],
+    buttons:[{text:'เริ่มเทรด',style:'success'}]});
 }
 async function restoreSession(){
   const uid=localStorage.getItem('bf168_uid');
@@ -2396,7 +2584,11 @@ function setBet(v){document.getElementById('f-bet').value=v;}
 async function startFast(){
   if(!requireLogin()||running)return;
   const bet=parseInt(document.getElementById('f-bet').value)||0;
-  if(bet<=0||bet>cash){toast('เดิมพันไม่ถูกต้องหรือเงินไม่พอ');return;}
+  if(bet<=0){alertWarn('กรุณาใส่เงินเดิมพัน','เลือกจำนวนเงินที่ต้องการเดิมพัน');return;}
+  if(bet>cash){alertError('เงินไม่เพียงพอ',`ยอดคงเหลือ <strong style="color:var(--yellow)">${fmt(cash)}</strong>`,[
+    {text:'💰 ไปฝากเงิน',style:'success',onClick:()=>switchPage('deposit',document.getElementById('nav-port'))},
+    {text:'ปิด',style:'ghost'}
+  ]);return;}
   const {data:ov}=await sb.from('result_overrides').select('result').eq('user_id',cu.id).single();
   const forced=ov?ov.result:'auto';
   running=true;cash-=bet;updateStats();
@@ -2607,8 +2799,8 @@ function updateDepositSummary(){
 
 async function submitDeposit(){
   if(!cu){toast('กรุณาเข้าสู่ระบบ');return;}
-  if(depositAmt<=0){toast('กรุณาเลือกหรือกรอกจำนวนเงิน');return;}
-  if(depositAmt<100){toast('ฝากขั้นต่ำ ฿100');return;}
+  if(depositAmt<=0){alertWarn('กรุณาเลือกจำนวนเงิน','เลือกจากปุ่มด่วน หรือกรอกจำนวนเงินเอง');return;}
+  if(depositAmt<100){alertWarn('ยอดฝากขั้นต่ำ ฿100','กรุณาเพิ่มจำนวนเงินที่ต้องการฝาก');return;}
 
   const btn=document.getElementById('btn-submit-deposit');
   if(btn){btn.disabled=true;btn.textContent='กำลังส่งคำขอ...';}
@@ -2663,30 +2855,22 @@ async function submitDeposit(){
 }
 
 function showDepositSentPopup(amount){
-  const icon=document.getElementById('sp-icon');
-  icon.textContent='💬';
-  icon.className='sp-icon buy';
-  document.getElementById('sp-title').textContent='ส่งคำขอฝากเงินแล้ว';
-  document.getElementById('sp-title').style.color='var(--green)';
-  document.getElementById('sp-sub').textContent='เจ้าหน้าที่จะแจ้งเลขบัญชีให้ทางแชท';
-  document.getElementById('sp-amount').textContent=fmt(amount);
-  document.getElementById('sp-amount').style.color='var(--green)';
-  document.getElementById('sp-price').textContent='รอเจ้าหน้าที่ตอบ';
-  document.getElementById('sp-time').textContent=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-  document.getElementById('sp-profit').textContent='5-10 นาที';
-  document.getElementById('sp-profit').style.color='var(--yellow)';
-
-  const viewBtn=document.querySelector('#success-popup .sp-btn-view');
-  if(viewBtn){
-    viewBtn.textContent='💬 ไปที่แชทเจ้าหน้าที่';
-    viewBtn.setAttribute('onclick','goChatFromDeposit()');
-  }
-  document.getElementById('success-popup').classList.add('show');
-}
-
-function goChatFromDeposit(){
-  closeSuccessPopup();
-  switchPage('chat',document.getElementById('nav-port'));
+  showAlert({
+    type:'success',
+    icon:'💬',
+    title:'ส่งคำขอฝากเงินแล้ว',
+    msg:'เจ้าหน้าที่จะแจ้งเลขบัญชีให้ทางแชท',
+    amount: fmt(amount),
+    rows:[
+      ['สถานะ','รอเจ้าหน้าที่ตอบ','var(--yellow)'],
+      ['เวลาโดยประมาณ','5-10 นาที'],
+      ['เวลาที่ส่ง', new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})]
+    ],
+    buttons:[
+      {text:'💬 ไปที่แชทเจ้าหน้าที่', style:'success', onClick:()=>switchPage('chat',document.getElementById('nav-port'))},
+      {text:'ปิด', style:'ghost'}
+    ]
+  });
 }
 
 // Ensure chat room exists before sending
@@ -2733,10 +2917,10 @@ function showWithdrawSection(){
 }
 function saveFullname(){
   if(!cu)return;const v=document.getElementById('fullname-inp').value.trim();
-  if(!v){toast('กรุณากรอกชื่อ-นามสกุล');return;}
+  if(!v){alertWarn('กรุณากรอกชื่อ-นามสกุล','ระบุชื่อจริงและนามสกุลของคุณ');return;}
   localStorage.setItem('bf168_fullname_'+cu.id,v);
   const fnShow=document.getElementById('profile-fullname-show');if(fnShow)fnShow.textContent=v;
-  toast('บันทึกชื่อ-นามสกุลสำเร็จ ✓');
+  showAlert({type:'success',title:'บันทึกสำเร็จ',msg:`ชื่อ-นามสกุลของคุณคือ<br><strong style="color:var(--yellow)">${v}</strong>`,buttons:[{text:'เรียบร้อย',style:'success'}]});
 }
 const BANK_ICONS={'กสิกรไทย':'🟢','ไทยพาณิชย์':'🟣','กรุงเทพ':'🔵','กรุงไทย':'🔷','ทหารไทยธนชาต':'🟠','กรุงศรีอยุธยา':'🟡','ออมสิน':'💚','ธ.ก.ส.':'🌾'};
 function loadBankInfo(){
@@ -2756,23 +2940,34 @@ function showBankInfo(b){
 function toggleBankForm(){showBankSection();}
 async function saveBankInfo(){
   const sel=document.getElementById('bank-select').value,num=document.getElementById('bank-number-inp').value.trim(),owner=document.getElementById('bank-owner-inp').value.trim();
-  if(!sel||!num||!owner){toast('กรุณากรอกข้อมูลให้ครบ');return;}
+  if(!sel||!num||!owner){alertWarn('กรอกข้อมูลไม่ครบ','กรุณาเลือกธนาคาร กรอกเลขบัญชี และชื่อเจ้าของบัญชี');return;}
   const [bankName]=sel.split('|'),bankData={bank:bankName,number:num,owner};
   localStorage.setItem('bf168_bank_'+cu.id,JSON.stringify(bankData));
   await sb.from('users').update({bank_name:bankName,bank_number:num,bank_owner:owner}).eq('id',cu.id);
-  showBankInfo(bankData);document.getElementById('bank-form').classList.remove('show');
-  toast('บันทึกข้อมูลธนาคารสำเร็จ ✓');
+  showBankInfo(bankData);
+  const bf=document.getElementById('bank-form');if(bf)bf.classList.remove('show');
+  const bs=document.getElementById('bank-section');if(bs)bs.style.display='none';
+  showAlert({type:'success',icon:'🏦',title:'บันทึกบัญชีสำเร็จ',msg:'ข้อมูลบัญชีธนาคารถูกบันทึกแล้ว',
+    rows:[['ธนาคาร',bankName],['เลขบัญชี',num],['ชื่อบัญชี',owner]],
+    buttons:[{text:'เรียบร้อย',style:'success'}]});
 }
 let pendingWdAmount=0;
 async function submitWithdraw(){
   if(!cu)return;
   const amount=parseInt(document.getElementById('wd-amount').value)||0;
-  if(amount<=0){toast('กรุณาใส่จำนวนเงิน');return;}
-  if(amount>cash){toast('เงินไม่เพียงพอ');return;}
+  if(amount<=0){alertWarn('กรุณาใส่จำนวนเงิน','ระบุจำนวนเงินที่ต้องการถอน');return;}
+  if(amount>cash){alertError('เงินไม่เพียงพอ',`ยอดคงเหลือของคุณคือ <strong style="color:var(--yellow)">${fmt(cash)}</strong>`);return;}
   const bankRaw=localStorage.getItem('bf168_bank_'+cu.id);
   if(!bankRaw){
-    // Show bank required popup instead of toast
-    document.getElementById('bank-required-popup').classList.add('show');
+    showAlert({
+      type:'warn', icon:'🏦',
+      title:'ยังไม่มีบัญชีธนาคาร',
+      msg:'กรุณาเพิ่มข้อมูลบัญชีธนาคารก่อน<br>เพื่อใช้ในการถอนเงิน',
+      buttons:[
+        {text:'➕ เพิ่มบัญชีธนาคาร', style:'primary', onClick:goAddBank},
+        {text:'ปิด', style:'ghost'}
+      ]
+    });
     return;
   }
   // Open password confirm popup
@@ -2980,27 +3175,23 @@ function recordTransaction(type, amount, status, detail, dbId){
 
 function showTxSuccessPopup(type, amount){
   const isWd=type==='withdraw';
-  const icon=document.getElementById('sp-icon');
-  icon.textContent=isWd?'💸':'💰';
-  icon.className='sp-icon '+(isWd?'sell':'buy');
-  document.getElementById('sp-title').textContent=isWd?'แจ้งถอนเงินสำเร็จ':'แจ้งฝากเงินสำเร็จ';
-  document.getElementById('sp-title').style.color=isWd?'var(--yellow)':'var(--green)';
-  document.getElementById('sp-sub').textContent='รอ Admin ตรวจสอบและอนุมัติ';
-  document.getElementById('sp-amount').textContent=fmt(amount);
-  document.getElementById('sp-amount').className='sp-amount';
-  document.getElementById('sp-amount').style.color=isWd?'var(--yellow)':'var(--green)';
-  document.getElementById('sp-price').textContent='รออนุมัติ';
-  document.getElementById('sp-time').textContent=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-  document.getElementById('sp-profit').textContent=fmt(cash);
-  document.getElementById('sp-profit').style.color='var(--text)';
-  const viewBtn=document.querySelector('#success-popup .sp-btn-view');
-  if(viewBtn){viewBtn.textContent='📋 ดูประวัติฝาก-ถอน';viewBtn.setAttribute('onclick','goTxHistory()');}
-  document.getElementById('success-popup').classList.add('show');
-}
-
-function goTxHistory(){
-  closeSuccessPopup();
-  switchPage('txhistory',document.getElementById('nav-port'));
+  showAlert({
+    type: isWd?'warn':'success',
+    icon: isWd?'💸':'💰',
+    title: isWd?'แจ้งถอนเงินสำเร็จ':'แจ้งฝากเงินสำเร็จ',
+    msg:'รอ Admin ตรวจสอบและอนุมัติ',
+    amount: fmt(amount),
+    amountColor: isWd?'var(--yellow)':'var(--green)',
+    rows:[
+      ['สถานะ','รออนุมัติ','var(--yellow)'],
+      ['เวลาที่แจ้ง', new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})],
+      ['ยอดคงเหลือ', fmt(cash)]
+    ],
+    buttons:[
+      {text:'📋 ดูประวัติฝาก-ถอน', style:'primary', onClick:()=>switchPage('txhistory',document.getElementById('nav-port'))},
+      {text:'ปิด', style:'ghost'}
+    ]
+  });
 }
 
 function closeWdConfirm(){
@@ -3259,8 +3450,11 @@ let activeTradeId=null;
 
 async function confirmOrder(){
   const price=prices[selSym];
-  if(omAmt<=0){toast('ใส่จำนวนเงิน');return;}
-  if(omAmt>cash){toast('เงินไม่พอ!');return;}
+  if(omAmt<=0){alertWarn('กรุณาใส่จำนวนเงิน','เลือกจำนวนเงินที่ต้องการลงทุน');return;}
+  if(omAmt>cash){alertError('เงินไม่เพียงพอ',`ยอดคงเหลือของคุณคือ <strong style="color:var(--yellow)">${fmt(cash)}</strong><br>กรุณาเติมเงินก่อนเทรด`,[
+    {text:'💰 ไปฝากเงิน',style:'success',onClick:()=>switchPage('deposit',document.getElementById('nav-port'))},
+    {text:'ปิด',style:'ghost'}
+  ]);return;}
   
   // Deduct bet immediately
   cash-=omAmt;
@@ -3610,45 +3804,30 @@ async function resolveContract(openPrice, closePrice, betAmount, duration, direc
 
 function showContractResult(won, profit, openPrice, closePrice, betAmount, duration, direction){
   const isBuy=direction==='buy';
-  const icon=document.getElementById('sp-icon');
-  icon.textContent=won?'🎉':'😔';
-  icon.className='sp-icon '+(won?'buy':'sell');
-  document.getElementById('sp-title').textContent=won?'กำไร!':'ขาดทุน';
-  document.getElementById('sp-title').style.color=won?'var(--green)':'var(--red)';
-  document.getElementById('sp-sub').textContent=selSym+'/THB | '+(isBuy?'▲ ซื้อ':'▼ ขาย')+' | '+duration+' วินาที';
-  document.getElementById('sp-amount').textContent=(profit>=0?'+':'')+fmt(profit);
-  document.getElementById('sp-amount').className='sp-amount '+(won?'up':'dn');
-  document.getElementById('sp-price').textContent='฿'+Math.round(openPrice).toLocaleString();
-  document.getElementById('sp-time').textContent='฿'+Math.round(closePrice).toLocaleString();
-  // Change label to show close price
-  const rows=document.querySelectorAll('#success-popup .sp-sub');
-  document.getElementById('sp-profit').textContent=(profit>=0?'+':'')+fmt(profit);
-  document.getElementById('sp-profit').style.color=won?'var(--green)':'var(--red)';
-  document.getElementById('success-popup').classList.add('show');
+  showAlert({
+    type: won?'success':'error',
+    icon: won?'🎉':'😔',
+    title: won?'กำไร!':'ขาดทุน',
+    msg: `${selSym}/THB · ${isBuy?'▲ ซื้อ':'▼ ขาย'} · ${duration} วินาที`,
+    amount: (profit>=0?'+':'')+fmt(profit),
+    amountColor: won?'var(--green)':'var(--red)',
+    rows: [
+      ['เงินลงทุน', fmt(betAmount)],
+      ['ราคาเปิด', '฿'+Math.round(openPrice).toLocaleString()],
+      ['ราคาปิด', '฿'+Math.round(closePrice).toLocaleString()],
+      ['ยอดคงเหลือ', fmt(cash), 'var(--green)']
+    ],
+    buttons: [
+      {text:'📋 ดูประวัติการทำธุรกรรม', style:'primary', onClick:()=>switchPage('history',document.getElementById('nav-port'))},
+      {text:'ปิด', style:'ghost'}
+    ]
+  });
 }
 
-function showSuccessPopup(side,price){
-  const isBuy=side==='buy';
-  const icon=document.getElementById('sp-icon');
-  icon.textContent=isBuy?'✓':'↑';
-  icon.className='sp-icon '+(isBuy?'buy':'sell');
-  document.getElementById('sp-title').textContent=isBuy?'ซื้อสำเร็จ!':'ขายสำเร็จ!';
-  document.getElementById('sp-title').style.color=isBuy?'var(--green)':'var(--red)';
-  document.getElementById('sp-sub').textContent=selSym+'/THB | '+omTime+' วินาที';
-  document.getElementById('sp-amount').textContent='฿'+omAmt.toLocaleString();
-  document.getElementById('sp-amount').className='sp-amount '+(isBuy?'up':'dn');
-  document.getElementById('sp-price').textContent='฿'+Math.round(price).toLocaleString();
-  document.getElementById('sp-time').textContent=omTime+' วินาที';
-  document.getElementById('sp-profit').textContent='฿'+Math.round(omAmt*0.85).toLocaleString();
-  document.getElementById('success-popup').classList.add('show');
-}
 
-function closeSuccessPopup(){
-  document.getElementById('success-popup').classList.remove('show');
-}
 
 function viewContract(){
-  closeSuccessPopup();
+  closeAlert();
   switchPage('history',document.getElementById('nav-port'));
 }
 
@@ -4184,56 +4363,30 @@ setInterval(tick,3000);
 
 
 
-<!-- SUCCESS POPUP -->
-<div class="success-popup-overlay" id="success-popup">
-  <div class="success-popup">
-    <div class="sp-icon buy" id="sp-icon">✓</div>
-    <div class="sp-title" id="sp-title">ซื้อสำเร็จ!</div>
-    <div class="sp-sub" id="sp-sub">BTC/THB | 180 วินาที</div>
-    <div class="sp-amount up" id="sp-amount">฿1,000</div>
-    <div style="background:rgba(255,255,255,.04);border-radius:10px;padding:.75rem;margin-bottom:1.25rem;font-size:12px;color:#6b7280;text-align:left">
-      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-        <span>ราคาเปิด</span><span style="color:#fff;font-weight:600" id="sp-price">฿0</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-        <span>ราคาปิด</span><span style="color:#fff;font-weight:600" id="sp-time">฿0</span>
-      </div>
-      <div style="display:flex;justify-content:space-between">
-        <span>กำไร/ขาดทุน</span><span style="font-weight:700" id="sp-profit">฿0</span>
-      </div>
-    </div>
-    <div class="sp-btns">
-      <button class="sp-btn-view" onclick="viewContract()">📋 ดูประวัติการทำธุรกรรม</button>
-      <button class="sp-btn-close" onclick="closeSuccessPopup()">ปิด</button>
-    </div>
+<!-- UNIFIED ALERT POPUP -->
+<div class="alert-overlay" id="alert-popup" onclick="if(event.target===this&&window.__alertDismissable)closeAlert()">
+  <div class="alert-box">
+    <div class="alert-icon success" id="alert-icon">✓</div>
+    <div class="alert-title" id="alert-title">สำเร็จ</div>
+    <div class="alert-msg" id="alert-msg">ดำเนินการเรียบร้อย</div>
+    <div class="alert-amount" id="alert-amount" style="display:none">฿0</div>
+    <div class="alert-details" id="alert-details" style="display:none"></div>
+    <div class="alert-btns" id="alert-btns"></div>
   </div>
 </div>
-<!-- BANK REQUIRED POPUP -->
-<div class="success-popup-overlay" id="bank-required-popup" onclick="if(event.target===this)closeBankRequired()">
-  <div class="success-popup" style="width:320px">
-    <div class="sp-icon" style="background:rgba(245,166,35,.15);border:2px solid rgba(245,166,35,.4)">🏦</div>
-    <div class="sp-title" style="color:var(--yellow)">ยังไม่มีบัญชีธนาคาร</div>
-    <div class="sp-sub" style="margin-bottom:1.5rem">กรุณาเพิ่มข้อมูลบัญชีธนาคารก่อน<br>เพื่อใช้ในการถอนเงิน</div>
-    <div class="sp-btns">
-      <button class="sp-btn-view" onclick="goAddBank()">➕ เพิ่มบัญชีธนาคาร</button>
-      <button class="sp-btn-close" onclick="closeBankRequired()">ปิด</button>
-    </div>
-  </div>
-</div>
-
 <!-- WITHDRAW PASSWORD CONFIRM POPUP -->
-<div class="success-popup-overlay" id="wd-confirm-popup" onclick="if(event.target===this)closeWdConfirm()">
-  <div class="success-popup" style="width:320px">
-    <div class="sp-icon" style="background:rgba(239,68,68,.15);border:2px solid rgba(239,68,68,.4)">🔐</div>
-    <div class="sp-title" style="color:var(--text)">ยืนยันการถอนเงิน</div>
-    <div class="sp-sub">กรุณากรอกรหัสผ่านเพื่อยืนยัน</div>
+<div class="alert-overlay" id="wd-confirm-popup" onclick="if(event.target===this)closeWdConfirm()">
+  <div class="alert-box">
+    <div class="alert-icon error">🔐</div>
+    <div class="alert-title" style="color:var(--text)">ยืนยันการถอนเงิน</div>
+    <div class="alert-msg">กรุณากรอกรหัสผ่านเพื่อยืนยัน</div>
     <div style="font-size:24px;font-weight:800;color:var(--red);margin-bottom:1.25rem" id="wd-confirm-amount">฿0</div>
     <input type="password" id="wd-pass-inp" placeholder="รหัสผ่านของคุณ" onkeydown="if(event.key==='Enter')confirmWithdraw()"
       style="width:100%;padding:12px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:15px;color:#fff;outline:none;margin-bottom:.5rem;text-align:center">
     <div id="wd-pass-err" style="color:var(--red);font-size:12px;margin-bottom:1rem;min-height:16px"></div>
-    <div class="sp-btns">
-      <button class="sp-btn-view" style="background:var(--red);color:#fff" onclick="confirmWithdraw()">✓ ยืนยันถอนเงิน</button>
-      <button class="sp-btn-close" onclick="closeWdConfirm()">ยกเลิก</button>
+    <div class="alert-btns">
+      <button class="alert-btn danger" onclick="confirmWithdraw()">✓ ยืนยันถอนเงิน</button>
+      <button class="alert-btn ghost" onclick="closeWdConfirm()">ยกเลิก</button>
     </div>
   </div>
 </div>
