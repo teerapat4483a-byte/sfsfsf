@@ -88,8 +88,8 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .result-btns{display:flex;gap:4px;flex-wrap:wrap}
 
 /* CHAT */
-.chat-layout{display:grid;grid-template-columns:240px 1fr;gap:0;border-radius:12px;overflow:hidden;border:1px solid var(--border);height:560px}
-.chat-rooms{background:var(--sidebar);overflow-y:auto;border-right:1px solid var(--border)}
+.chat-layout{display:grid;grid-template-columns:240px 1fr;gap:0;border-radius:12px;overflow:hidden;border:1px solid var(--border);height:calc(100vh - 180px);min-height:500px}
+.chat-rooms{background:var(--sidebar);overflow-y:auto;border-right:1px solid var(--border);min-height:0}
 .chat-room-head{padding:.875rem 1rem;font-size:12px;font-weight:700;color:var(--sub);border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.5px}
 .chat-room-item{padding:.875rem 1rem;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04)}
 .chat-room-item:hover{background:rgba(255,255,255,.04)}
@@ -98,11 +98,11 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .cr-preview{font-size:11px;color:var(--sub);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cr-badge{background:var(--red);color:#fff;border-radius:99px;padding:1px 6px;font-size:10px;font-weight:700}
 .cr-time{font-size:10px;color:var(--sub)}
-.chat-main{display:flex;flex-direction:column;background:var(--bg)}
-.chat-main-header{padding:.875rem 1rem;border-bottom:1px solid var(--border);background:var(--card);display:flex;align-items:center;gap:.75rem}
+.chat-main{display:flex;flex-direction:column;background:var(--bg);min-height:0;overflow:hidden}
+.chat-main-header{padding:.875rem 1rem;border-bottom:1px solid var(--border);background:var(--card);display:flex;align-items:center;gap:.75rem;flex-shrink:0}
 .chat-main-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
 .chat-main-name{font-size:14px;font-weight:700}
-.chat-main-body{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.625rem}
+.chat-main-body{flex:1 1 auto;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.625rem;min-height:0}
 .admin-msg-wrap{display:flex;flex-direction:column;max-width:72%}
 .admin-msg-wrap.me{align-self:flex-end;align-items:flex-end}
 .admin-msg-wrap.user{align-self:flex-start}
@@ -119,7 +119,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .admin-msg-wrap.me .admin-msg-bubble{background:var(--accent);color:#fff}
 .admin-msg-wrap.user .admin-msg-bubble{background:var(--card);color:var(--text);border:1px solid var(--border)}
 .admin-msg-time{font-size:10px;color:var(--sub);margin-top:3px}
-.chat-main-footer{padding:.75rem 1rem;border-top:1px solid var(--border);display:flex;gap:.625rem;background:var(--card)}
+.chat-main-footer{padding:.75rem 1rem;border-top:1px solid var(--border);display:flex;gap:.625rem;background:var(--card);flex-shrink:0;align-items:center}
 .chat-admin-inp{flex:1;padding:.75rem;border:1px solid var(--border);border-radius:10px;font-size:14px;background:rgba(255,255,255,.06);color:var(--text);outline:none}
 .chat-admin-inp:focus{border-color:var(--accent)}
 .btn-send{padding:.75rem 1.25rem;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer}
@@ -242,6 +242,10 @@ tr:hover td{background:rgba(255,255,255,.02)}
         <span class="menu-icon">💬</span> ข้อความ
         <span class="menu-badge" id="chat-badge" style="display:none">0</span>
       </div>
+      <div class="menu-item" onclick="showSection('deposits',this)" id="menu-dep">
+        <span class="menu-icon">💰</span> คำขอฝากเงิน
+        <span class="menu-badge" id="dep-badge" style="display:none;background:#10b981">0</span>
+      </div>
       <div class="menu-item" onclick="showSection('withdrawals',this)" id="menu-wd">
         <span class="menu-icon">💸</span> คำขอถอนเงิน
         <span class="menu-badge" id="wd-badge" style="display:none">0</span>
@@ -320,6 +324,43 @@ tr:hover td{background:rgba(255,255,255,.02)}
             <div class="no-room-icon">💬</div>
             <div>เลือกผู้เล่นเพื่อดูข้อความ</div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEPOSITS -->
+    <div class="content-section" id="section-deposits">
+      <div class="content-header">
+        <div class="content-title">💰 คำขอฝากเงิน <span>อนุมัติแล้วเงินเข้าบัญชีผู้เล่นทันที</span></div>
+        <button class="btn-sm" onclick="loadDeposits()">🔄 รีเฟรช</button>
+      </div>
+
+      <!-- Manual deposit form -->
+      <div class="admin-card">
+        <div class="card-header"><div class="card-title">➕ เติมเงินให้ผู้เล่นโดยตรง</div></div>
+        <div class="card-body">
+          <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+            <div style="flex:1;min-width:180px">
+              <label style="display:block;font-size:11px;color:var(--sub);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px">เลือกผู้เล่น</label>
+              <select id="dep-user-select" style="width:100%;padding:9px 12px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;outline:none">
+                <option value="">— เลือกผู้เล่น —</option>
+              </select>
+            </div>
+            <div style="flex:1;min-width:140px">
+              <label style="display:block;font-size:11px;color:var(--sub);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px">จำนวนเงิน</label>
+              <input type="number" id="dep-amount-inp" placeholder="เช่น 5000" style="width:100%;padding:9px 12px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;outline:none">
+            </div>
+            <button onclick="manualDeposit()" style="padding:10px 22px;background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.4);border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">
+              ✓ เติมเงิน
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <div class="card-header"><div class="card-title">📋 รายการคำขอฝากเงิน</div></div>
+        <div class="card-body">
+          <div id="dep-list"><div class="empty">กำลังโหลด...</div></div>
         </div>
       </div>
     </div>
@@ -415,6 +456,7 @@ function showSection(id,el){
   if(id==='withdrawals') loadWithdrawals();
   if(id==='users') loadUsers();
   if(id==='live') loadLiveTrades();
+  if(id==='deposits') loadDeposits();
 }
 
 function showToast(msg){
@@ -599,7 +641,7 @@ async function updateLiveBadge(){
   else badge.style.display='none';
 }
 
-function refreshAll(){loadUsers();loadChatRooms();loadWithdrawals();}
+function refreshAll(){loadUsers();loadChatRooms();loadWithdrawals();updateDepBadge();}
 
 // ─── USERS ───
 async function loadUsers(){
@@ -876,6 +918,120 @@ async function sendAdminMsg(){
   await sb.from('chat_rooms').update({last_message:msg,last_time:new Date().toISOString(),unread_user:true}).eq('id',activeRoomId);
 }
 
+// ─── DEPOSITS ───
+let depTableMissing=false;
+
+async function loadDeposits(){
+  const el=document.getElementById('dep-list');
+  if(!el)return;
+
+  // Fill the user dropdown
+  const sel=document.getElementById('dep-user-select');
+  if(sel && usersData.length){
+    const cur=sel.value;
+    sel.innerHTML='<option value="">— เลือกผู้เล่น —</option>'+
+      usersData.map(u=>`<option value="${u.id}">${u.username} (฿${Math.round(u.cash).toLocaleString()})</option>`).join('');
+    if(cur)sel.value=cur;
+  }
+
+  if(depTableMissing){
+    el.innerHTML='<div class="empty">⚠️ ยังไม่ได้สร้างตาราง <code style="background:rgba(255,255,255,.08);padding:2px 6px;border-radius:4px">deposits</code><br><span style="font-size:11px">ใช้ฟอร์มด้านบนเติมเงินโดยตรงได้เลย</span></div>';
+    return;
+  }
+
+  const {data,error}=await sb.from('deposits').select('*').order('created_at',{ascending:false}).limit(50);
+  if(error){
+    depTableMissing=true;
+    document.getElementById('dep-badge').style.display='none';
+    loadDeposits();
+    return;
+  }
+
+  const pending=(data||[]).filter(d=>d.status==='pending').length;
+  const badge=document.getElementById('dep-badge');
+  if(pending>0){badge.style.display='inline';badge.textContent=pending;}
+  else badge.style.display='none';
+
+  if(!data||!data.length){
+    el.innerHTML='<div class="empty">📭 ยังไม่มีคำขอฝากเงิน</div>';
+    return;
+  }
+
+  el.innerHTML=data.map(d=>`
+    <div class="wd-item">
+      <div class="wd-top">
+        <div class="wd-user">👤 ${d.username}</div>
+        <div class="wd-amount">+฿${Math.round(d.amount).toLocaleString()}</div>
+      </div>
+      <div class="wd-bank">${d.note||'รอโอนเงิน'}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:11px;color:var(--sub)">${new Date(d.created_at).toLocaleString('th')}</div>
+        ${d.status==='pending'?
+          `<div class="wd-btns"><button class="btn-approve" onclick="approveDep('${d.id}')">✓ อนุมัติ (เงินเข้า)</button><button class="btn-reject" onclick="rejectDep('${d.id}')">✗ ปฏิเสธ</button></div>`:
+          `<span class="wd-status ${d.status}">${d.status==='approved'?'✓ อนุมัติแล้ว':'✗ ปฏิเสธแล้ว'}</span>`
+        }
+      </div>
+    </div>`).join('');
+}
+
+async function manualDeposit(){
+  const sel=document.getElementById('dep-user-select');
+  const inp=document.getElementById('dep-amount-inp');
+  const userId=sel.value;
+  const amount=parseFloat(inp.value)||0;
+
+  if(!userId){showToast('เลือกผู้เล่นก่อน');return;}
+  if(amount<=0){showToast('ใส่จำนวนเงิน');return;}
+
+  const {data:u,error:fe}=await sb.from('users').select('id,username,cash').eq('id',userId).single();
+  if(fe||!u){showToast('ไม่พบผู้เล่น');return;}
+
+  const oldCash=Number(u.cash)||0;
+  const newCash=oldCash+amount;
+  const {error:ue}=await sb.from('users').update({cash:newCash}).eq('id',userId);
+  if(ue){showToast('ผิดพลาด: '+ue.message);return;}
+
+  inp.value='';
+  sel.value='';
+  showCashPopup(true,amount,u.username,oldCash,newCash);
+  loadUsers();
+  loadDeposits();
+}
+
+async function approveDep(id){
+  const {data:d,error:fe}=await sb.from('deposits').select('*').eq('id',id).single();
+  if(fe||!d){showToast('ไม่พบคำขอ');return;}
+
+  // Credit the user
+  const {data:u}=await sb.from('users').select('cash,username').eq('id',d.user_id).single();
+  if(u){
+    const oldCash=Number(u.cash)||0;
+    const newCash=oldCash+Number(d.amount||0);
+    await sb.from('users').update({cash:newCash}).eq('id',d.user_id);
+    await sb.from('deposits').update({status:'approved'}).eq('id',id);
+    showCashPopup(true,Number(d.amount),u.username,oldCash,newCash);
+  }
+  loadDeposits();
+  loadUsers();
+}
+
+async function rejectDep(id){
+  const {error}=await sb.from('deposits').update({status:'rejected'}).eq('id',id);
+  if(error){showToast('ผิดพลาด: '+error.message);return;}
+  showToast('ปฏิเสธคำขอฝากเงินแล้ว');
+  loadDeposits();
+}
+
+async function updateDepBadge(){
+  if(depTableMissing)return;
+  const {data,error}=await sb.from('deposits').select('id').eq('status','pending');
+  if(error){depTableMissing=true;return;}
+  const badge=document.getElementById('dep-badge');
+  const count=(data||[]).length;
+  if(count>0){badge.style.display='inline';badge.textContent=count;}
+  else badge.style.display='none';
+}
+
 // ─── WITHDRAWALS ───
 async function loadWithdrawals(){
   const {data,error}=await sb.from('withdrawals').select('*').order('created_at',{ascending:false}).limit(50);
@@ -935,9 +1091,11 @@ setInterval(()=>{
   if(popupOpen)return;
   const ae=document.activeElement;
   if(ae&&ae.tagName==='INPUT'&&ae.value)return;
-  loadUsers();loadWithdrawals();loadChatRooms();updateLiveBadge();
+  loadUsers();loadWithdrawals();loadChatRooms();updateLiveBadge();updateDepBadge();
   const ls=document.getElementById('section-live');
   if(ls&&ls.classList.contains('active'))loadLiveTrades();
+  const ds=document.getElementById('section-deposits');
+  if(ds&&ds.classList.contains('active'))loadDeposits();
 },15000);
 </script>
 </body>
