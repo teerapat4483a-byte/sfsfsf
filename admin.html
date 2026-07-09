@@ -107,6 +107,15 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .admin-msg-wrap.me{align-self:flex-end;align-items:flex-end}
 .admin-msg-wrap.user{align-self:flex-start}
 .admin-msg-bubble{padding:.625rem .875rem;border-radius:14px;font-size:13px;line-height:1.45}
+.admin-msg-bubble.img{padding:4px;background:transparent!important;border:none!important}
+.admin-msg-img{max-width:220px;max-height:280px;border-radius:10px;cursor:pointer;display:block;object-fit:cover}
+.chat-attach-btn-admin{width:42px;height:42px;border-radius:10px;background:var(--card);border:1px solid var(--border);color:var(--sub);font-size:20px;cursor:pointer;flex-shrink:0}
+.chat-attach-btn-admin:hover{background:var(--border);color:var(--text)}
+.img-preview-overlay{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:99999;display:none;align-items:center;justify-content:center}
+.img-preview-overlay.show{display:flex}
+.img-preview-overlay img{max-width:92%;max-height:92%;border-radius:8px}
+.img-preview-close{position:absolute;top:1.5rem;right:1.5rem;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:26px;cursor:pointer}
+.upload-progress-admin{font-size:12px;color:var(--accent);text-align:center;padding:.5rem}
 .admin-msg-wrap.me .admin-msg-bubble{background:var(--accent);color:#fff}
 .admin-msg-wrap.user .admin-msg-bubble{background:var(--card);color:var(--text);border:1px solid var(--border)}
 .admin-msg-time{font-size:10px;color:var(--sub);margin-top:3px}
@@ -302,6 +311,12 @@ tr:hover td{background:rgba(255,255,255,.02)}
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- IMAGE PREVIEW -->
+<div class="img-preview-overlay" id="admin-img-preview" onclick="if(event.target===this)closeAdminImgPreview()">
+  <button class="img-preview-close" onclick="closeAdminImgPreview()">×</button>
+  <img id="admin-img-preview-src" src="">
+</div>
 
 <script>
 const SUPABASE_URL='https://myjawbecdfwwndyrjttx.supabase.co';
@@ -591,6 +606,8 @@ async function openAdminRoom(roomId,username){
     </div>
     <div class="chat-main-body" id="admin-msg-body"></div>
     <div class="chat-main-footer">
+      <button class="chat-attach-btn-admin" onclick="document.getElementById('admin-img-input').click()" title="ส่งรูป">📎</button>
+      <input type="file" id="admin-img-input" accept="image/*" style="display:none" onchange="handleAdminImage(event)">
       <input class="chat-admin-inp" id="admin-chat-inp" placeholder="พิมพ์ข้อความ..." onkeydown="if(event.key==='Enter')sendAdminMsg()">
       <button class="btn-send" onclick="sendAdminMsg()">ส่ง</button>
     </div>`;
@@ -608,8 +625,53 @@ function appendAdminMsg(m){
   const el=document.getElementById('admin-msg-body');if(!el)return;
   const isAdmin=m.sender==='admin';
   const div=document.createElement('div');div.className='admin-msg-wrap '+(isAdmin?'me':'user');
-  div.innerHTML=`<div class="admin-msg-bubble">${(m.message||'').split('\n').join('<br>')}</div><div class="admin-msg-time">${isAdmin?'Admin':'ผู้เล่น'} • ${fmtT(m.created_at||new Date())}</div>`;
+  const isImage=m.image_url&&m.image_url.length>0;
+  const bubbleContent=isImage
+    ? `<div class="admin-msg-bubble img"><img src="${m.image_url}" class="admin-msg-img" onclick="openAdminImgPreview('${m.image_url}')" loading="lazy"></div>`
+    : `<div class="admin-msg-bubble">${(m.message||'').split('\n').join('<br>')}</div>`;
+  div.innerHTML=bubbleContent+`<div class="admin-msg-time">${isAdmin?'Admin':'ผู้เล่น'} • ${fmtT(m.created_at||new Date())}</div>`;
   el.appendChild(div);el.scrollTop=el.scrollHeight;
+}
+
+function openAdminImgPreview(url){
+  document.getElementById('admin-img-preview-src').src=url;
+  document.getElementById('admin-img-preview').classList.add('show');
+}
+function closeAdminImgPreview(){
+  document.getElementById('admin-img-preview').classList.remove('show');
+}
+
+async function handleAdminImage(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  e.target.value='';
+  if(!activeRoomId){showToast('เลือกห้องแชทก่อน');return;}
+  if(file.size>5*1024*1024){showToast('รูปใหญ่เกินไป (สูงสุด 5MB)');return;}
+  
+  const el=document.getElementById('admin-msg-body');
+  const loading=document.createElement('div');
+  loading.className='upload-progress-admin';
+  loading.textContent='📤 กำลังอัปโหลดรูป...';
+  el.appendChild(loading);
+  el.scrollTop=el.scrollHeight;
+  
+  try{
+    const ext=file.name.split('.').pop();
+    const fileName=`admin_${Date.now()}.${ext}`;
+    const {data:upData,error:upErr}=await sb.storage.from('chat-images').upload(fileName,file,{cacheControl:'3600',upsert:false});
+    if(upErr)throw upErr;
+    const {data:urlData}=sb.storage.from('chat-images').getPublicUrl(fileName);
+    const imageUrl=urlData.publicUrl;
+    loading.remove();
+    
+    appendAdminMsg({sender:'admin',image_url:imageUrl,created_at:new Date().toISOString()});
+    await sb.from('chat_messages').insert({room_id:activeRoomId,sender:'admin',message:'[รูปภาพ]',image_url:imageUrl});
+    await sb.from('chat_rooms').update({last_message:'📷 รูปภาพ',last_time:new Date().toISOString(),unread_user:true}).eq('id',activeRoomId);
+  }catch(err){
+    loading.remove();
+    showToast('อัปโหลดไม่สำเร็จ');
+    console.error(err);
+  }
 }
 
 async function sendAdminMsg(){
