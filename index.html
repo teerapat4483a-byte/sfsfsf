@@ -307,6 +307,15 @@ canvas#lc{width:100%;display:block}
 .msg-wrap.me{align-self:flex-end;align-items:flex-end}
 .msg-wrap.admin{align-self:flex-start;align-items:flex-start}
 .msg-bubble{padding:.625rem .875rem;border-radius:16px;font-size:14px;line-height:1.45;word-break:break-word}
+.msg-bubble.img{padding:4px;background:transparent!important;border:none!important}
+.msg-img{max-width:200px;max-height:250px;border-radius:12px;cursor:pointer;display:block;object-fit:cover}
+.chat-attach-btn{width:40px;height:40px;border-radius:50%;background:var(--card2);border:1px solid var(--border);color:var(--sub);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.chat-attach-btn:hover{background:var(--border);color:var(--text)}
+.img-preview-overlay{position:fixed!important;top:-200vh!important;left:0;right:0;height:100vh;background:rgba(0,0,0,.95);z-index:99999;display:flex!important;align-items:center;justify-content:center;transition:top .01s}
+.img-preview-overlay.show{top:0!important}
+.img-preview-overlay img{max-width:95%;max-height:90%;border-radius:8px}
+.img-preview-close{position:absolute;top:1rem;right:1rem;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:24px;cursor:pointer}
+.upload-progress{font-size:11px;color:var(--yellow);text-align:center;padding:.5rem}
 .msg-wrap.me .msg-bubble{background:var(--yellow);color:#000;border-bottom-right-radius:4px}
 .msg-wrap.admin .msg-bubble{background:var(--card);color:var(--text);border-bottom-left-radius:4px;border:1px solid var(--border)}
 .msg-time{font-size:10px;color:var(--sub);margin-top:3px;padding:0 2px}
@@ -1505,6 +1514,8 @@ canvas#lc{width:100%;display:block}
     </div>
     <div class="chat-typing" id="chat-typing">Support กำลังพิมพ์ <span class="dot-anim"><span></span><span></span><span></span></span></div>
     <div class="chat-input-wrap" style="flex-shrink:0">
+      <button class="chat-attach-btn" onclick="document.getElementById('chat-img-input').click()" title="ส่งรูป">📎</button>
+      <input type="file" id="chat-img-input" accept="image/*" style="display:none" onchange="handleChatImage(event)">
       <textarea class="chat-inp" id="chat-inp" placeholder="พิมพ์ข้อความ..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}" oninput="autoResize(this)"></textarea>
       <button class="chat-send-btn" onclick="sendChat()">➤</button>
     </div>
@@ -1693,14 +1704,40 @@ function authMsg(id,msg,err){
 }
 
 function goldSVG(type,size){
-  const s=size,r=s/2;
+  const s=size,r=s/2,id=Math.random().toString(36).slice(2,7);
   if(type==='xau'||type==='gold96'){
-    return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}" style="flex-shrink:0"><defs><radialGradient id="gg${s}" cx="40%" cy="35%"><stop offset="0%" stop-color="#fff7a1"/><stop offset="40%" stop-color="#ffd700"/><stop offset="100%" stop-color="#b8860b"/></radialGradient></defs><circle cx="${r}" cy="${r}" r="${r}" fill="#1a1200"/><rect x="${s*0.18}" y="${s*0.32}" width="${s*0.64}" height="${s*0.36}" rx="${s*0.06}" fill="url(#gg${s})"/><circle cx="${r}" cy="${r}" r="${r-1.5}" fill="none" stroke="#ffd700" stroke-width="1.5" opacity=".4"/></svg>`;
+    // Beautiful gold coin with shine
+    return `<svg width="${s}" height="${s}" viewBox="0 0 100 100" style="flex-shrink:0">
+      <defs>
+        <radialGradient id="gc${id}" cx="38%" cy="32%" r="75%">
+          <stop offset="0%" stop-color="#fff9d6"/>
+          <stop offset="35%" stop-color="#ffe066"/>
+          <stop offset="70%" stop-color="#f0b90b"/>
+          <stop offset="100%" stop-color="#a67c00"/>
+        </radialGradient>
+        <linearGradient id="gr${id}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ffd700"/>
+          <stop offset="100%" stop-color="#c99700"/>
+        </linearGradient>
+      </defs>
+      <circle cx="50" cy="50" r="48" fill="url(#gr${id})"/>
+      <circle cx="50" cy="50" r="42" fill="url(#gc${id})"/>
+      <circle cx="50" cy="50" r="42" fill="none" stroke="#a67c00" stroke-width="1.5" opacity="0.5"/>
+      <circle cx="50" cy="50" r="34" fill="none" stroke="#fff9d6" stroke-width="1" opacity="0.4"/>
+      <path d="M50 26 L54.5 42 L71 42 L57.5 52 L62 68 L50 58 L38 68 L42.5 52 L29 42 L45.5 42 Z" fill="#a67c00" opacity="0.35"/>
+      <text x="50" y="60" text-anchor="middle" font-size="30" font-weight="900" fill="#8a6600" font-family="Georgia,serif" opacity="0.85">Au</text>
+      <ellipse cx="38" cy="34" rx="14" ry="9" fill="#fff9d6" opacity="0.45" transform="rotate(-30 38 34)"/>
+    </svg>`;
   }
   if(type==='silver'){
-    return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}" style="flex-shrink:0"><defs><radialGradient id="sg${s}" cx="35%" cy="30%"><stop offset="0%" stop-color="#ffffff"/><stop offset="50%" stop-color="#c0c0c0"/><stop offset="100%" stop-color="#707070"/></radialGradient></defs><circle cx="${r}" cy="${r}" r="${r}" fill="#111"/><circle cx="${r}" cy="${r}" r="${r*0.72}" fill="url(#sg${s})"/><text x="${r}" y="${r*1.15}" text-anchor="middle" font-size="${s*0.28}" font-weight="900" fill="#555" font-family="Arial">Ag</text></svg>`;
+    return `<svg width="${s}" height="${s}" viewBox="0 0 100 100" style="flex-shrink:0">
+      <defs><radialGradient id="sc${id}" cx="38%" cy="32%" r="75%"><stop offset="0%" stop-color="#ffffff"/><stop offset="50%" stop-color="#d4d4d4"/><stop offset="100%" stop-color="#8a8a8a"/></radialGradient></defs>
+      <circle cx="50" cy="50" r="48" fill="#b0b0b0"/><circle cx="50" cy="50" r="42" fill="url(#sc${id})"/>
+      <text x="50" y="62" text-anchor="middle" font-size="30" font-weight="900" fill="#666" font-family="Georgia,serif">Ag</text>
+      <ellipse cx="38" cy="34" rx="14" ry="9" fill="#fff" opacity="0.5" transform="rotate(-30 38 34)"/>
+    </svg>`;
   }
-  return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}" style="flex-shrink:0"><circle cx="${r}" cy="${r}" r="${r}" fill="#ffd700"/></svg>`;
+  return `<svg width="${s}" height="${s}" viewBox="0 0 100 100" style="flex-shrink:0"><circle cx="50" cy="50" r="48" fill="#ffd700"/></svg>`;
 }
 
 function logoImg(a,cls,size=32){
@@ -2482,15 +2519,68 @@ function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrol
 function fmtMsgTime(ts){const d=new Date(ts);return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');}
 function appendMsg(m, isOptimistic){
   const el=document.getElementById('chat-messages');if(!el)return;
-  // Prevent duplicates: if realtime fires for a message we already optimistically added
   if(m.id && pendingMsgIds.has(m.id)){pendingMsgIds.delete(m.id);return;}
   if(m.id && m.sender==='user'){pendingMsgIds.add(m.id);}
   const isMe=m.sender==='user';
   const div=document.createElement('div');
   div.className='msg-wrap '+(isMe?'me':'admin');
   if(m.id) div.dataset.msgId=m.id;
-  div.innerHTML=`<div class="msg-bubble">${(m.message||'').split('\n').join('<br>')}</div><div class="msg-time">${isMe?(cu?cu.username:'ฉัน'):'Support'} • ${fmtMsgTime(m.created_at||new Date())}</div>`;
+  
+  const isImage=m.image_url&&m.image_url.length>0;
+  const bubbleContent=isImage
+    ? `<div class="msg-bubble img"><img src="${m.image_url}" class="msg-img" onclick="openImgPreview('${m.image_url}')" loading="lazy"></div>`
+    : `<div class="msg-bubble">${(m.message||'').split('\n').join('<br>')}</div>`;
+  
+  div.innerHTML=bubbleContent+`<div class="msg-time">${isMe?(cu?cu.username:'ฉัน'):'Support'} • ${fmtMsgTime(m.created_at||new Date())}</div>`;
   el.appendChild(div);el.scrollTop=el.scrollHeight;
+}
+
+function openImgPreview(url){
+  document.getElementById('img-preview-src').src=url;
+  document.getElementById('img-preview').classList.add('show');
+}
+function closeImgPreview(){
+  document.getElementById('img-preview').classList.remove('show');
+}
+
+async function handleChatImage(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  e.target.value=''; // reset
+  if(!chatRoomId){toast('กำลังเชื่อมต่อ...');return;}
+  if(file.size>5*1024*1024){toast('รูปใหญ่เกินไป (สูงสุด 5MB)');return;}
+  
+  const el=document.getElementById('chat-messages');
+  const loadingDiv=document.createElement('div');
+  loadingDiv.className='upload-progress';
+  loadingDiv.textContent='📤 กำลังอัปโหลดรูป...';
+  el.appendChild(loadingDiv);
+  el.scrollTop=el.scrollHeight;
+  
+  try{
+    // Upload to Supabase Storage
+    const ext=file.name.split('.').pop();
+    const fileName=`${cu.id}_${Date.now()}.${ext}`;
+    const {data:upData,error:upErr}=await sb.storage.from('chat-images').upload(fileName,file,{cacheControl:'3600',upsert:false});
+    if(upErr)throw upErr;
+    
+    // Get public URL
+    const {data:urlData}=sb.storage.from('chat-images').getPublicUrl(fileName);
+    const imageUrl=urlData.publicUrl;
+    
+    loadingDiv.remove();
+    
+    // Insert message with image
+    const {data:inserted}=await sb.from('chat_messages')
+      .insert({room_id:chatRoomId,user_id:cu.id,sender:'user',message:'[รูปภาพ]',image_url:imageUrl})
+      .select().single();
+    if(inserted){pendingMsgIds.add(inserted.id);appendMsg(inserted);}
+    await sb.from('chat_rooms').update({last_message:'📷 รูปภาพ',last_time:new Date().toISOString(),unread_admin:true}).eq('id',chatRoomId);
+  }catch(err){
+    loadingDiv.remove();
+    toast('อัปโหลดไม่สำเร็จ: '+(err.message||'ลองใหม่'));
+    console.error('Upload error:',err);
+  }
 }
 function openContact(){switchPage('chat',document.getElementById('nav-port'));}
 function closeContact(){goBack();if(chatChannel){sb.removeChannel(chatChannel);chatChannel=null;}pendingMsgIds.clear();}
@@ -3218,6 +3308,11 @@ setInterval(tick,3000);
       <button class="sp-btn-close" onclick="closeWdConfirm()">ยกเลิก</button>
     </div>
   </div>
+</div>
+<!-- IMAGE PREVIEW OVERLAY -->
+<div class="img-preview-overlay" id="img-preview" onclick="if(event.target===this)closeImgPreview()">
+  <button class="img-preview-close" onclick="closeImgPreview()">×</button>
+  <img id="img-preview-src" src="">
 </div>
 </body>
 </html>
