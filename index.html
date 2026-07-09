@@ -1582,6 +1582,31 @@ body.chat-open .bnav{display:none!important}
       <button class="th-back" onclick="goBack()">‹</button>
       <div class="th-title">ประวัติการทำธุรกรรม</div>
     </div>
+
+    <!-- ACTIVE CONTRACT CARD (shown when a contract is running) -->
+    <div id="active-contract-card" style="display:none;margin:.875rem;background:linear-gradient(135deg,#1a2035,#141a2e);border:1px solid rgba(245,166,35,.3);border-radius:14px;padding:1rem;cursor:pointer" onclick="restoreContract()">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--yellow);animation:blink 1s infinite"></span>
+          <span style="font-size:11px;font-weight:700;color:var(--yellow);letter-spacing:.5px">กำลังดำเนินการ</span>
+        </div>
+        <span style="font-size:11px;color:var(--sub)">แตะเพื่อดู ›</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-end">
+        <div>
+          <div style="font-size:16px;font-weight:800;margin-bottom:3px" id="acc-sym">BTC/THB</div>
+          <div style="font-size:12px;color:var(--sub)"><span id="acc-dir">▲ ซื้อ</span> · <span id="acc-bet">฿1,000</span></div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:28px;font-weight:900;color:var(--yellow);font-variant-numeric:tabular-nums;line-height:1" id="acc-timer">180</div>
+          <div style="font-size:10px;color:var(--sub);margin-top:2px">วินาทีที่เหลือ</div>
+        </div>
+      </div>
+      <div style="height:4px;background:rgba(255,255,255,.08);border-radius:99px;margin-top:.875rem;overflow:hidden">
+        <div id="acc-progress" style="height:100%;width:100%;background:var(--yellow);border-radius:99px;transition:width 1s linear"></div>
+      </div>
+    </div>
+
     <div class="th-filter">
       <button class="th-fbtn active" onclick="filterTH('all',this)">ทั้งหมด</button>
       <button class="th-fbtn" onclick="filterTH('buy',this)">ซื้อ</button>
@@ -1952,7 +1977,7 @@ function switchPage(page,el){
   if(page==='trade'){renderSymScroll();updateTradeCard();}
   if(page==='fast'){renderFastSym();loadFastHist();}
   if(page==='port'){renderPort();loadFastHist();}
-  if(page==='history'){loadTradeHistory();}
+  if(page==='history'){loadTradeHistory();updateActiveContractCard();}
   if(page==='market')renderMarket();
   if(page==='chat'){
     document.body.classList.add('chat-open');
@@ -2958,24 +2983,39 @@ let curContract=null;
 
 function minimizeContract(){
   document.getElementById('contract-active').classList.remove('show');
-  const pill=document.getElementById('contract-pill');
-  if(pill&&curContract){
-    pill.style.display='flex';
-    document.getElementById('pill-sym').textContent=curContract.symbol+'/THB';
-  }
+  updateActiveContractCard();
+  // Go to history page so user sees the running contract
+  switchPage('history',document.getElementById('nav-port'));
 }
+
 function restoreContract(){
-  const pill=document.getElementById('contract-pill');
-  if(pill)pill.style.display='none';
+  if(!curContract)return;
   document.getElementById('contract-active').classList.add('show');
+}
+
+function updateActiveContractCard(){
+  const card=document.getElementById('active-contract-card');
+  if(!card)return;
+  if(!curContract){card.style.display='none';return;}
+  card.style.display='block';
+  const isBuy=curContract.direction==='buy';
+  document.getElementById('acc-sym').textContent=curContract.symbol+'/THB';
+  const dirEl=document.getElementById('acc-dir');
+  dirEl.textContent=isBuy?'▲ ซื้อ':'▼ ขาย';
+  dirEl.style.color=isBuy?'var(--green)':'var(--red)';
+  document.getElementById('acc-bet').textContent=fmt(curContract.bet);
+}
+
+function hideActiveContractCard(){
+  const card=document.getElementById('active-contract-card');
+  if(card)card.style.display='none';
 }
 function startContract(openPrice, betAmount, duration, direction, forced, resumeFrom){
   // Clear any lingering timers from a previous contract
   if(contractTimer){clearInterval(contractTimer);contractTimer=null;}
   if(contractLiveTimer){clearInterval(contractLiveTimer);contractLiveTimer=null;}
   curContract={symbol:selSym,openPrice,bet:betAmount,duration,direction,forced};
-  const pill=document.getElementById('contract-pill');
-  if(pill)pill.style.display='none';
+  updateActiveContractCard();
   const overlay=document.getElementById('contract-active');
   const isBuy=direction==='buy';
   
@@ -3024,9 +3064,15 @@ function startContract(openPrice, betAmount, duration, direction, forced, resume
   contractTimer=setInterval(async()=>{
     remaining--;
     document.getElementById('ca-timer').textContent=remaining;
-    const pt=document.getElementById('pill-timer');
-    if(pt)pt.textContent=remaining;
     const progress=(remaining/duration)*100;
+    // Sync history page card
+    const accT=document.getElementById('acc-timer');
+    if(accT)accT.textContent=remaining;
+    const accP=document.getElementById('acc-progress');
+    if(accP){
+      accP.style.width=progress+'%';
+      accP.style.background=progress>50?'var(--yellow)':progress>20?'#f97316':'var(--red)';
+    }
     document.getElementById('ca-progress-fill').style.width=progress+'%';
     const fill=document.getElementById('ca-progress-fill');
     fill.style.background=progress>50?'var(--yellow)':progress>20?'#f97316':'var(--red)';
@@ -3064,10 +3110,9 @@ async function resolveContract(openPrice, closePrice, betAmount, duration, direc
   if(contractLiveTimer){clearInterval(contractLiveTimer);contractLiveTimer=null;}
   clearPendingContract();
   curContract=null;
+  hideActiveContractCard();
   const overlay=document.getElementById('contract-active');
   if(overlay)overlay.classList.remove('show');
-  const pill=document.getElementById('contract-pill');
-  if(pill)pill.style.display='none';
   
   // Calculate result
   let won, profit, payout;
@@ -3681,15 +3726,7 @@ setInterval(tick,3000);
   </div>
 </div>
 
-<!-- MINIMIZED CONTRACT PILL -->
-<div id="contract-pill" onclick="restoreContract()"
-  style="display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:9996;background:#1a1d2e;border:1px solid var(--border);border-radius:99px;padding:10px 18px;box-shadow:0 8px 30px rgba(0,0,0,.5);cursor:pointer;align-items:center;gap:10px;max-width:90%">
-  <span style="width:8px;height:8px;border-radius:50%;background:var(--yellow);animation:blink 1s infinite;flex-shrink:0"></span>
-  <span style="font-size:12px;color:var(--sub)" id="pill-sym">BTC/THB</span>
-  <span style="font-size:15px;font-weight:800;color:var(--yellow);font-variant-numeric:tabular-nums" id="pill-timer">180</span>
-  <span style="font-size:11px;color:var(--sub)">วิ</span>
-  <span style="color:var(--sub);font-size:14px">›</span>
-</div>
+
 
 
 <!-- SUCCESS POPUP -->
