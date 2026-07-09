@@ -91,10 +91,11 @@ body{max-width:480px;margin:0 auto;position:relative;overflow-x:hidden}
 .buycrypto-sub{font-size:9.5px;color:var(--sub);margin-top:2px}
 .buycrypto-icons{display:flex;align-items:center;gap:2px;flex-shrink:0}
 
-.qm-new{background:var(--card);padding:1.125rem .5rem;display:grid;grid-template-columns:repeat(5,1fr);margin:0 .75rem;border-radius:14px}
-.qm-new-item{display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer}
-.qm-new-icon{width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:22px}
-.qm-new-label{font-size:10.5px;color:var(--sub);font-weight:500}
+.qm-new{background:var(--card);padding:1.25rem .5rem;display:grid;grid-template-columns:repeat(5,1fr);margin:0 .75rem;border-radius:14px}
+.qm-new-item{display:flex;flex-direction:column;align-items:center;gap:9px;cursor:pointer;transition:transform .15s}
+.qm-new-item:active{transform:scale(.94)}
+.qm-new-icon{width:44px;height:44px;border-radius:12px;background:rgba(0,214,143,.07);display:flex;align-items:center;justify-content:center;border:1px solid rgba(0,214,143,.12)}
+.qm-new-label{font-size:11px;color:var(--sub);font-weight:500;letter-spacing:-.1px}
 
 .ticker3{background:var(--card);margin:8px .75rem 0;border-radius:14px;display:grid;grid-template-columns:repeat(3,1fr);padding:1rem .5rem}
 .ticker3-item{text-align:center}
@@ -1086,23 +1087,53 @@ body.chat-open .bnav{display:none!important}
     <!-- QUICK MENU -->
     <div class="qm-new">
       <div class="qm-new-item" onclick="goDeposit()">
-        <div class="qm-new-icon">🚀</div>
+        <div class="qm-new-icon">
+          <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
+            <rect x="3" y="8" width="22" height="15" rx="3" stroke="#00d68f" stroke-width="1.6"/>
+            <path d="M14 12v7M11 15.5l3-3 3 3" stroke="#00d68f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8 8V6.5A2.5 2.5 0 0110.5 4h7A2.5 2.5 0 0120 6.5V8" stroke="#00d68f" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </div>
         <div class="qm-new-label">เงินฝาก</div>
       </div>
       <div class="qm-new-item" onclick="goWithdraw()">
-        <div class="qm-new-icon">💼</div>
+        <div class="qm-new-icon">
+          <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
+            <rect x="3" y="8" width="22" height="15" rx="3" stroke="#00d68f" stroke-width="1.6"/>
+            <path d="M14 19v-7M11 15.5l3 3 3-3" stroke="#00d68f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8 8V6.5A2.5 2.5 0 0110.5 4h7A2.5 2.5 0 0120 6.5V8" stroke="#00d68f" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </div>
         <div class="qm-new-label">ถอน</div>
       </div>
       <div class="qm-new-item" onclick="requireLogin()">
-        <div class="qm-new-icon">🎯</div>
+        <div class="qm-new-icon">
+          <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
+            <circle cx="14" cy="14" r="10.5" stroke="#00d68f" stroke-width="1.6"/>
+            <circle cx="14" cy="14" r="6" stroke="#00d68f" stroke-width="1.6"/>
+            <circle cx="14" cy="14" r="2" fill="#00d68f"/>
+          </svg>
+        </div>
         <div class="qm-new-label">IEO</div>
       </div>
       <div class="qm-new-item" onclick="requireLogin()">
-        <div class="qm-new-icon">🔨</div>
+        <div class="qm-new-icon">
+          <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
+            <ellipse cx="14" cy="7" rx="8.5" ry="3.2" stroke="#00d68f" stroke-width="1.6"/>
+            <path d="M5.5 7v7c0 1.8 3.8 3.2 8.5 3.2s8.5-1.4 8.5-3.2V7" stroke="#00d68f" stroke-width="1.6"/>
+            <path d="M5.5 14v7c0 1.8 3.8 3.2 8.5 3.2s8.5-1.4 8.5-3.2v-7" stroke="#00d68f" stroke-width="1.6"/>
+          </svg>
+        </div>
         <div class="qm-new-label">Staking</div>
       </div>
       <div class="qm-new-item" onclick="switchPage('chat',document.getElementById('nav-port'))">
-        <div class="qm-new-icon">🎧</div>
+        <div class="qm-new-icon">
+          <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
+            <path d="M5 16v-2a9 9 0 0118 0v2" stroke="#00d68f" stroke-width="1.6" stroke-linecap="round"/>
+            <rect x="3" y="15" width="4.5" height="7.5" rx="2.2" stroke="#00d68f" stroke-width="1.6"/>
+            <rect x="20.5" y="15" width="4.5" height="7.5" rx="2.2" stroke="#00d68f" stroke-width="1.6"/>
+          </svg>
+        </div>
         <div class="qm-new-label">ติดต่อ</div>
       </div>
     </div>
