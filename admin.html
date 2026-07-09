@@ -848,7 +848,8 @@ async function sendAdminMsg(){
 
 // ─── WITHDRAWALS ───
 async function loadWithdrawals(){
-  const {data}=await sb.from('withdrawals').select('*').order('created_at',{ascending:false}).limit(50);
+  const {data,error}=await sb.from('withdrawals').select('*').order('created_at',{ascending:false}).limit(50);
+  if(error)console.error('[admin] withdrawals fetch failed:',error.message);
   const el=document.getElementById('wd-list');
   const pending=(data||[]).filter(w=>w.status==='pending').length;
   const badge=document.getElementById('wd-badge');
@@ -872,8 +873,31 @@ async function loadWithdrawals(){
     </div>`).join('');
 }
 
-async function approveWd(id){await sb.from('withdrawals').update({status:'approved'}).eq('id',id);showToast('อนุมัติแล้ว ✓');loadWithdrawals();}
-async function rejectWd(id){await sb.from('withdrawals').update({status:'rejected'}).eq('id',id);showToast('ปฏิเสธแล้ว');loadWithdrawals();}
+async function approveWd(id){
+  const {error}=await sb.from('withdrawals').update({status:'approved'}).eq('id',id);
+  if(error){showToast('ผิดพลาด: '+error.message);return;}
+  showToast('อนุมัติแล้ว ✓ (เงินถูกหักไปแล้วตอนแจ้งถอน)');
+  loadWithdrawals();
+}
+
+async function rejectWd(id){
+  // Fetch the withdrawal to refund the user
+  const {data:wd,error:fe}=await sb.from('withdrawals').select('*').eq('id',id).single();
+  if(fe||!wd){showToast('ไม่พบคำขอ');return;}
+
+  const {error:ue}=await sb.from('withdrawals').update({status:'rejected'}).eq('id',id);
+  if(ue){showToast('ผิดพลาด: '+ue.message);return;}
+
+  // Refund cash back to the user
+  const {data:u}=await sb.from('users').select('cash').eq('id',wd.user_id).single();
+  if(u){
+    const newCash=(u.cash||0)+Number(wd.amount||0);
+    await sb.from('users').update({cash:newCash}).eq('id',wd.user_id);
+  }
+  showToast(`ปฏิเสธแล้ว — คืนเงิน ฿${Math.round(wd.amount).toLocaleString()} ให้ ${wd.username}`);
+  loadWithdrawals();
+  loadUsers();
+}
 
 setInterval(()=>{if(isAdmin){loadUsers();loadWithdrawals();loadChatRooms();updateLiveBadge();if(document.getElementById('section-live').classList.contains('active'))loadLiveTrades();}},15000);
 </script>
