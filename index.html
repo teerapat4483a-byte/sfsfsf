@@ -1584,6 +1584,69 @@ body.chat-open .bnav{display:none!important}
     </div>
   </div>
 
+  <!-- DEPOSIT PAGE -->
+  <div class="page" id="page-deposit">
+    <div class="th-header">
+      <button class="th-back" onclick="switchPage('port',document.getElementById('nav-port'))">‹</button>
+      <div class="th-title">ฝากเงิน</div>
+    </div>
+
+    <div style="padding:1rem">
+      <!-- Balance card -->
+      <div style="background:linear-gradient(135deg,#0d1a12,#0f2318);border:1px solid rgba(0,192,135,.25);border-radius:14px;padding:1.25rem;margin-bottom:1.25rem;text-align:center">
+        <div style="font-size:11px;color:var(--sub);margin-bottom:6px;letter-spacing:.5px">ยอดเงินคงเหลือ</div>
+        <div style="font-size:30px;font-weight:900;color:var(--green)" id="dep-balance">฿0</div>
+      </div>
+
+      <!-- Amount presets -->
+      <div style="font-size:12px;color:var(--sub);font-weight:600;margin-bottom:.75rem">เลือกจำนวนเงินที่ต้องการฝาก</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:.75rem">
+        <button class="dep-amt-btn" onclick="setDepositAmt(500,this)" style="padding:14px 4px;background:var(--card2);color:#fff;border:1px solid var(--border);border-radius:10px;font-size:14px;font-weight:800;cursor:pointer">500฿</button>
+        <button class="dep-amt-btn" onclick="setDepositAmt(1000,this)" style="padding:14px 4px;background:var(--card2);color:#fff;border:1px solid var(--border);border-radius:10px;font-size:14px;font-weight:800;cursor:pointer">1,000฿</button>
+        <button class="dep-amt-btn" onclick="setDepositAmt(3000,this)" style="padding:14px 4px;background:var(--card2);color:#fff;border:1px solid var(--border);border-radius:10px;font-size:14px;font-weight:800;cursor:pointer">3,000฿</button>
+        <button class="dep-amt-btn" onclick="setDepositAmt(5000,this)" style="padding:14px 4px;background:var(--card2);color:#fff;border:1px solid var(--border);border-radius:10px;font-size:14px;font-weight:800;cursor:pointer">5,000฿</button>
+        <button class="dep-amt-btn" onclick="setDepositAmt(10000,this)" style="padding:14px 4px;background:var(--card2);color:#fff;border:1px solid var(--border);border-radius:10px;font-size:14px;font-weight:800;cursor:pointer">10,000฿</button>
+        <button class="dep-amt-btn" onclick="setDepositAmt(50000,this)" style="padding:14px 4px;background:var(--card2);color:#fff;border:1px solid var(--border);border-radius:10px;font-size:14px;font-weight:800;cursor:pointer">50,000฿</button>
+      </div>
+
+      <!-- Custom -->
+      <div style="font-size:12px;color:var(--sub);margin-bottom:.5rem">หรือกรอกจำนวนเงินเอง</div>
+      <div style="position:relative;margin-bottom:1.25rem">
+        <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:17px;font-weight:800;color:var(--green)">฿</span>
+        <input id="dep-custom" type="number" placeholder="ขั้นต่ำ 100" min="100" oninput="onDepCustom()"
+          style="width:100%;padding:14px 14px 14px 36px;background:var(--card2);border:1px solid var(--border);border-radius:10px;font-size:16px;font-weight:700;color:var(--text);outline:none">
+      </div>
+
+      <!-- Summary -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem;margin-bottom:1.25rem">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:13px;color:var(--sub)">ยอดที่จะฝาก</span>
+          <span style="font-size:20px;font-weight:800;color:var(--green)" id="dep-summary-amt">฿0</span>
+        </div>
+      </div>
+
+      <button id="btn-submit-deposit" onclick="submitDeposit()" disabled
+        style="width:100%;padding:15px;border:none;border-radius:12px;background:var(--green);color:#000;font-size:16px;font-weight:800;cursor:not-allowed;opacity:.45;margin-bottom:.875rem">
+        แจ้งฝากเงิน
+      </button>
+
+      <div onclick="goDepositChat()" style="text-align:center;font-size:12px;color:var(--sub);cursor:pointer;padding:.5rem">
+        มีปัญหา? <span style="color:var(--yellow);font-weight:600">ติดต่อฝ่ายสนับสนุน ›</span>
+      </div>
+
+      <div style="background:rgba(245,166,35,.06);border:1px solid rgba(245,166,35,.2);border-radius:10px;padding:.875rem;margin-top:1.25rem">
+        <div style="font-size:12px;font-weight:700;color:var(--yellow);margin-bottom:.5rem">📌 วิธีการฝากเงิน</div>
+        <div style="font-size:11px;color:var(--sub);line-height:1.7">
+          1. เลือกจำนวนเงินที่ต้องการฝาก<br>
+          2. กด "แจ้งฝากเงิน" ระบบจะแจ้ง Admin<br>
+          3. Admin จะส่งเลขบัญชีให้ทางแชท<br>
+          4. โอนเงินและส่งสลิปยืนยัน<br>
+          5. เงินเข้าบัญชีภายใน 5-10 นาที
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- DEPOSIT/WITHDRAW HISTORY PAGE -->
   <div class="page" id="page-txhistory">
     <div class="th-header">
@@ -1965,7 +2028,7 @@ function openContractDetail(idx){
 }
 
 function switchPage(page,el){
-  if(['trade','fast','port','chat','history','txhistory'].includes(page)&&!requireLogin())return;
+  if(['trade','fast','port','chat','history','txhistory','deposit'].includes(page)&&!requireLogin())return;
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
   const pg=document.getElementById('page-'+page);
@@ -1977,6 +2040,17 @@ function switchPage(page,el){
   if(page==='port'){renderPort();loadFastHist();}
   if(page==='history'){loadTradeHistory();updateActiveContractCard();}
   if(page==='txhistory'){loadTxHistory();}
+  if(page==='deposit'){
+    const b=document.getElementById('dep-balance');
+    if(b)b.textContent=fmt(cash);
+    depositAmt=0;
+    const ci=document.getElementById('dep-custom');
+    if(ci)ci.value='';
+    document.querySelectorAll('.dep-amt-btn').forEach(btn=>{
+      btn.style.background='var(--card2)';btn.style.color='#fff';btn.style.borderColor='var(--border)';
+    });
+    updateDepositSummary();
+  }
   if(page==='market')renderMarket();
   if(page==='chat'){
     document.body.classList.add('chat-open');
@@ -2492,33 +2566,94 @@ function showBankSection(){
 }
 function goDeposit(){
   if(!requireLogin())return;
-  switchPage('chat',document.getElementById('nav-port'));
-  // Auto-send deposit request message after chat loads
-  setTimeout(()=>{
-    if(chatRoomId){
-      sendDepositMessage();
-    } else {
-      // Wait a bit more for room to init
-      setTimeout(sendDepositMessage, 800);
-    }
-  },600);
+  switchPage('deposit',document.getElementById('nav-port'));
 }
 
-async function sendDepositMessage(){
-  if(!chatRoomId){
-    setTimeout(sendDepositMessage, 500);
-    return;
+let depositAmt=0;
+
+function setDepositAmt(v,el){
+  depositAmt=v;
+  document.getElementById('dep-custom').value='';
+  document.querySelectorAll('.dep-amt-btn').forEach(b=>{
+    b.style.background='var(--card2)';b.style.color='#fff';b.style.borderColor='var(--border)';
+  });
+  if(el){el.style.background='var(--green)';el.style.color='#000';el.style.borderColor='var(--green)';}
+  updateDepositSummary();
+}
+
+function onDepCustom(){
+  const v=parseFloat(document.getElementById('dep-custom').value)||0;
+  if(v>0){
+    depositAmt=v;
+    document.querySelectorAll('.dep-amt-btn').forEach(b=>{
+      b.style.background='var(--card2)';b.style.color='#fff';b.style.borderColor='var(--border)';
+    });
+  } else {
+    depositAmt=0;
   }
-  const msg='💰 สวัสดีครับ ผมต้องการฝากเงินเข้าบัญชี กรุณาแนะนำวิธีการฝากเงินด้วยครับ';
-  try{
+  updateDepositSummary();
+}
+
+function updateDepositSummary(){
+  const el=document.getElementById('dep-summary-amt');
+  if(el)el.textContent=depositAmt>0?fmt(depositAmt):'฿0';
+  const btn=document.getElementById('btn-submit-deposit');
+  if(btn){
+    btn.disabled=depositAmt<=0;
+    btn.style.opacity=depositAmt<=0?'.45':'1';
+    btn.style.cursor=depositAmt<=0?'not-allowed':'pointer';
+  }
+}
+
+async function submitDeposit(){
+  if(!cu){toast('กรุณาเข้าสู่ระบบ');return;}
+  if(depositAmt<=0){toast('กรุณาเลือกหรือกรอกจำนวนเงิน');return;}
+  if(depositAmt<100){toast('ฝากขั้นต่ำ ฿100');return;}
+
+  const btn=document.getElementById('btn-submit-deposit');
+  if(btn){btn.disabled=true;btn.textContent='กำลังส่งคำขอ...';}
+
+  // Log locally
+  recordTransaction('deposit', depositAmt, 'pending', 'รอโอนเงิน', null);
+
+  // Send message to support chat
+  await ensureChatRoomThen(async()=>{
+    const msg=`💰 ขอฝากเงินจำนวน ${fmt(depositAmt)}\nกรุณาแจ้งบัญชีสำหรับโอนเงินครับ`;
     const {data:inserted}=await sb.from('chat_messages')
       .insert({room_id:chatRoomId,user_id:cu.id,sender:'user',message:msg})
       .select().single();
-    if(inserted){pendingMsgIds.add(inserted.id);appendMsg(inserted);}
-    await sb.from('chat_rooms').update({last_message:msg,last_time:new Date().toISOString(),unread_admin:true}).eq('id',chatRoomId);
-    // Log deposit inquiry in tx history
-    recordTransaction('deposit', 0, 'pending', 'ติดต่อผ่านแชท', null);
-  }catch(e){}
+    if(inserted)pendingMsgIds.add(inserted.id);
+    await sb.from('chat_rooms').update({last_message:'💰 ขอฝากเงิน '+fmt(depositAmt),last_time:new Date().toISOString(),unread_admin:true}).eq('id',chatRoomId);
+  });
+
+  if(btn){btn.disabled=false;btn.textContent='แจ้งฝากเงิน';}
+  document.getElementById('dep-custom').value='';
+  const amt=depositAmt;
+  depositAmt=0;
+  updateDepositSummary();
+  showTxSuccessPopup('deposit', amt);
+}
+
+// Ensure chat room exists before sending
+async function ensureChatRoomThen(fn){
+  if(!cu)return;
+  if(!chatRoomId){
+    try{
+      let {data:room}=await sb.from('chat_rooms').select('*').eq('user_id',cu.id).single();
+      if(!room){
+        const {data:nr}=await sb.from('chat_rooms').insert({user_id:cu.id,username:cu.username}).select().single();
+        room=nr;
+      }
+      if(room)chatRoomId=room.id;
+    }catch(e){}
+  }
+  if(chatRoomId){
+    try{ await fn(); }catch(e){ console.log('chat send failed:',e.message); }
+  }
+}
+
+function goDepositChat(){
+  switchPage('chat',document.getElementById('nav-port'));
 }
 
 function goWithdraw(){
