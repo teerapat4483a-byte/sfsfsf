@@ -67,12 +67,23 @@ body{max-width:480px;margin:0 auto;position:relative;overflow-x:hidden}
 .slider-track{display:flex;transition:transform .4s ease}
 /* NEW HOME DESIGN */
 .home-top{padding:.75rem;display:grid;grid-template-columns:1fr 165px;gap:8px}
-.promo-card{background:linear-gradient(150deg,#1e2530 0%,#161c26 100%);border-radius:14px;padding:.875rem;position:relative;overflow:hidden;min-height:230px;display:flex;flex-direction:column}
+.promo-wrap{position:relative;border-radius:14px;overflow:hidden;min-height:230px}
+.promo-track{display:flex;transition:transform .35s cubic-bezier(.4,0,.2,1);height:100%}
+.promo-card{background:linear-gradient(150deg,#1e2530 0%,#161c26 100%);border-radius:14px;padding:.875rem;position:relative;overflow:hidden;min-height:230px;display:flex;flex-direction:column;flex:0 0 100%;box-sizing:border-box}
+.promo-card.binance{background:linear-gradient(158deg,#1a1710 0%,#15130d 100%);border:1px solid rgba(240,185,11,.12)}
+.promo-dots{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:5}
+.promo-dot{width:5px;height:5px;border-radius:99px;background:rgba(255,255,255,.25);transition:all .25s;cursor:pointer}
+.promo-dot.active{width:16px;background:var(--yellow)}
+.binance-badge{position:absolute;top:0;right:0;background:rgba(240,185,11,.14);border-left:1px solid rgba(240,185,11,.2);border-bottom:1px solid rgba(240,185,11,.2);color:#F0B90B;font-size:8.5px;font-weight:800;letter-spacing:.4px;padding:4px 10px 4px 12px;border-radius:0 14px 0 9px;z-index:2}
+.binance-btn{background:#F0B90B;color:#14110b;border:none;border-radius:99px;padding:8px 16px;font-size:11.5px;font-weight:800;cursor:pointer;align-self:flex-start;display:flex;align-items:center;gap:5px;transition:transform .12s,box-shadow .2s;box-shadow:0 3px 14px rgba(240,185,11,.22);z-index:2;position:relative}
+.binance-btn:active{transform:scale(.96)}
+.binance-btn:hover{box-shadow:0 4px 20px rgba(240,185,11,.32)}
 .promo-badge{position:absolute;top:0;right:0;background:#ff5c8a;color:#fff;font-size:9px;font-weight:700;padding:3px 10px 3px 14px;border-radius:0 14px 0 10px}
 .promo-label{font-size:10px;color:var(--sub);margin-bottom:6px}
 .promo-title{font-size:12px;font-weight:600;color:var(--text);line-height:1.35;margin-bottom:8px}
 .promo-amount{font-size:19px;font-weight:900;color:var(--text);margin-bottom:10px;letter-spacing:-.5px}
-.promo-btn{background:#00d68f;color:#000;border:none;border-radius:99px;padding:5px 14px;font-size:11px;font-weight:800;cursor:pointer;align-self:flex-start;display:flex;align-items:center;gap:4px}
+.promo-btn{background:#00d68f;color:#04120c;border:none;border-radius:99px;padding:8px 16px;font-size:11.5px;font-weight:800;cursor:pointer;align-self:flex-start;display:flex;align-items:center;gap:5px;box-shadow:0 3px 14px rgba(0,214,143,.22);transition:transform .12s;z-index:2;position:relative}
+.promo-btn:active{transform:scale(.96)}
 .promo-art{flex:1;display:flex;align-items:center;justify-content:center;margin-top:8px}
 
 .gembox-card{background:linear-gradient(150deg,#1e2530 0%,#161c26 100%);border-radius:14px;padding:.75rem;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;min-height:150px}
@@ -1200,33 +1211,133 @@ body.chat-open .bnav{display:none!important}
 
     <!-- TOP PROMO ROW -->
     <div class="home-top">
-      <!-- Left: Promo card -->
-      <div class="promo-card">
-        <div class="promo-badge">Featured</div>
-        <div class="promo-label">Newest</div>
-        <div class="promo-title">Friendship Invitation Benefits<br>Share Now!</div>
-        <div class="promo-amount">200,000 USDT!</div>
-        <button class="promo-btn" onclick="requireLogin()">GO <span style="font-size:13px">›</span></button>
-        <div class="promo-art">
-          <svg width="88" height="88" viewBox="0 0 100 100">
-            <defs>
-              <linearGradient id="cb1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#4a2fd6"/></linearGradient>
-              <linearGradient id="cb2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00e0a0"/><stop offset="1" stop-color="#00a173"/></linearGradient>
-              <linearGradient id="cb3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8fb0"/><stop offset="1" stop-color="#e0507a"/></linearGradient>
-              <linearGradient id="cb4" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd166"/><stop offset="1" stop-color="#e0a020"/></linearGradient>
-            </defs>
-            <g transform="translate(50,52)">
-              <path d="M0,-26 L20,-15 L20,7 L0,18 L-20,7 L-20,-15 Z" fill="url(#cb1)" opacity=".95"/>
-              <path d="M0,-26 L20,-15 L0,-4 L-20,-15 Z" fill="#9d80ff" opacity=".9"/>
-              <path d="M-22,-4 L-4,6 L-4,26 L-22,16 Z" fill="url(#cb2)"/>
-              <path d="M22,-4 L4,6 L4,26 L22,16 Z" fill="url(#cb3)"/>
-              <path d="M-22,-4 L-4,6 L4,6 L22,-4 L0,-15 Z" fill="url(#cb4)" opacity=".85"/>
-              <circle cx="-26" cy="-20" r="3" fill="#00e0a0"/>
-              <circle cx="27" cy="-18" r="2.5" fill="#ff8fb0"/>
-              <circle cx="24" cy="24" r="2" fill="#ffd166"/>
-              <circle cx="-27" cy="22" r="2.5" fill="#7c5cff"/>
-            </g>
-          </svg>
+      <!-- Left: Promo slider -->
+      <div class="promo-wrap" id="promo-wrap">
+        <div class="promo-track" id="promo-track">
+
+          <!-- Slide 1: Referral -->
+          <div class="promo-card">
+            <div class="promo-badge">Featured</div>
+
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:.875rem">
+              <div style="width:30px;height:30px;border-radius:8px;background:rgba(124,92,255,.14);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px">🎁</div>
+              <div>
+                <div style="font-size:14px;font-weight:800;color:#fff;line-height:1.1">ชวนเพื่อน</div>
+                <div style="font-size:9px;color:#8b8578;margin-top:1px">Referral Program</div>
+              </div>
+            </div>
+
+            <div style="font-size:11.5px;color:#a8a196;line-height:1.5;margin-bottom:.75rem">
+              ชวนเพื่อนมาเทรด<br>รับรางวัลทันที
+            </div>
+
+            <div style="display:flex;align-items:baseline;gap:5px;margin-bottom:.25rem">
+              <span style="font-size:24px;font-weight:900;color:#fff;letter-spacing:-.5px">200,000</span>
+              <span style="font-size:11px;color:#c9c2b4;font-weight:600">USDT</span>
+            </div>
+            <div style="font-size:9.5px;color:#6f6a60;margin-bottom:.875rem">แบ่งปันรางวัลรวม</div>
+
+            <button class="promo-btn" onclick="requireLogin()">
+              เริ่มชวนเพื่อน <span style="font-size:11px;opacity:.7">›</span>
+            </button>
+
+            <div style="position:absolute;bottom:-10px;right:-10px;opacity:.13;pointer-events:none">
+              <svg width="110" height="110" viewBox="0 0 100 100">
+                <g transform="translate(50,52)">
+                  <path d="M0,-26 L20,-15 L20,7 L0,18 L-20,7 L-20,-15 Z" fill="#7c5cff"/>
+                  <path d="M0,-26 L20,-15 L0,-4 L-20,-15 Z" fill="#9d80ff"/>
+                  <path d="M-22,-4 L-4,6 L-4,26 L-22,16 Z" fill="#00e0a0"/>
+                  <path d="M22,-4 L4,6 L4,26 L22,16 Z" fill="#ff8fb0"/>
+                </g>
+              </svg>
+            </div>
+            <div style="position:absolute;top:36%;right:14px;width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,rgba(124,92,255,.08),transparent 68%);pointer-events:none"></div>
+          </div>
+
+          <!-- Slide 2: Binance -->
+          <div class="promo-card binance">
+            <div class="binance-badge">PARTNER</div>
+
+            <!-- Header row -->
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:.875rem">
+              <div style="width:30px;height:30px;border-radius:8px;background:rgba(240,185,11,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <svg width="17" height="17" viewBox="0 0 32 32">
+                  <path fill="#F0B90B" d="M16 4l3.4 3.5-8.6 8.5L7.4 12.5 16 4zm5.6 5.7L25 13.2l-3.4 3.4-3.4-3.4 3.4-3.5zM10.4 9.7l3.4 3.5-3.4 3.4L7 13.2l3.4-3.5zM16 15.3l3.4 3.4-3.4 3.5-3.4-3.5 3.4-3.4zm0 6.9l3.4 3.4L16 29l-3.4-3.4 3.4-3.4z"/>
+                </svg>
+              </div>
+              <div>
+                <div style="font-size:14px;font-weight:800;color:#fff;line-height:1.1">Binance</div>
+                <div style="font-size:9px;color:#8b8578;margin-top:1px">Official Exchange</div>
+              </div>
+            </div>
+
+            <!-- Copy -->
+            <div style="font-size:11.5px;color:#a8a196;line-height:1.5;margin-bottom:.75rem">
+              เทรดคริปโตกับ Exchange<br>อันดับ 1 ของโลก
+            </div>
+
+            <!-- Offer -->
+            <div style="display:flex;align-items:baseline;gap:5px;margin-bottom:.25rem">
+              <span style="font-size:24px;font-weight:900;color:#F0B90B;letter-spacing:-.5px">20%</span>
+              <span style="font-size:11px;color:#c9c2b4;font-weight:600">ส่วนลดค่าธรรมเนียม</span>
+            </div>
+            <div style="font-size:9.5px;color:#6f6a60;margin-bottom:.875rem">ตลอดชีพ · สำหรับสมาชิกใหม่</div>
+
+            <button class="binance-btn" onclick="openBinance()">
+              เปิดบัญชีฟรี <span style="font-size:11px;opacity:.7">↗</span>
+            </button>
+
+            <!-- Art -->
+            <div style="position:absolute;bottom:-14px;right:-14px;opacity:.09;pointer-events:none">
+              <svg width="118" height="118" viewBox="0 0 100 100">
+                <path fill="#F0B90B" d="M50 22l10.6 10.9-26.7 26.5L23.3 48.6 50 22zm17.4 17.8L78 50.6l-10.6 10.6L56.8 50.6l10.6-10.8zM32.6 39.8l10.6 10.8-10.6 10.6L22 50.6l10.6-10.8zM50 57.4l10.6 10.6L50 78.6 39.4 68l10.6-10.6z"/>
+              </svg>
+            </div>
+            <div style="position:absolute;top:36%;right:14px;width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,rgba(240,185,11,.08),transparent 68%);pointer-events:none"></div>
+          </div>
+
+          <!-- Slide 3: Gold -->
+          <div class="promo-card" style="background:linear-gradient(158deg,#191509 0%,#14110a 100%);border:1px solid rgba(212,175,55,.12)">
+            <div class="binance-badge" style="background:rgba(212,175,55,.14);border-left-color:rgba(212,175,55,.2);border-bottom-color:rgba(212,175,55,.2);color:#D4AF37">GOLD</div>
+
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:.875rem">
+              <div style="width:30px;height:30px;border-radius:8px;background:rgba(212,175,55,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px">🥇</div>
+              <div>
+                <div style="font-size:14px;font-weight:800;color:#fff;line-height:1.1">XAU / USD</div>
+                <div style="font-size:9px;color:#8b8578;margin-top:1px">Spot Market</div>
+              </div>
+            </div>
+
+            <div style="font-size:11.5px;color:#a8a196;line-height:1.5;margin-bottom:.75rem">
+              เทรดทองคำโลก<br>ราคาเรียลไทม์ 24 ชั่วโมง
+            </div>
+
+            <div style="display:flex;align-items:baseline;gap:5px;margin-bottom:.25rem">
+              <span style="font-size:24px;font-weight:900;color:#D4AF37;letter-spacing:-.5px" id="promo-gold-price">$0</span>
+              <span style="font-size:11px;color:#c9c2b4;font-weight:600">/ oz</span>
+            </div>
+            <div style="font-size:9.5px;color:#6f6a60;margin-bottom:.875rem" id="promo-gold-chg">อัพเดตทุก 3 วินาที</div>
+
+            <button class="binance-btn" style="background:#D4AF37;color:#14110b;box-shadow:0 3px 14px rgba(212,175,55,.22)" onclick="goTrade('XAUUSD')">
+              เทรดทองคำ <span style="font-size:11px;opacity:.7">›</span>
+            </button>
+
+            <div style="position:absolute;bottom:-16px;right:-16px;opacity:.1;pointer-events:none">
+              <svg width="120" height="120" viewBox="0 0 64 64">
+                <circle cx="32" cy="32" r="30" fill="#D4AF37"/>
+                <circle cx="32" cy="32" r="23" fill="none" stroke="#8b6914" stroke-width="1.5"/>
+                <text x="32" y="30" text-anchor="middle" font-family="Georgia,serif" font-size="13" font-weight="700" fill="#6b4e00">XAU</text>
+                <text x="32" y="42" text-anchor="middle" font-family="Arial" font-size="6" font-weight="600" fill="#7a5c0f">999.9</text>
+              </svg>
+            </div>
+            <div style="position:absolute;top:36%;right:14px;width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,rgba(212,175,55,.08),transparent 68%);pointer-events:none"></div>
+          </div>
+
+        </div>
+        <div class="promo-dots">
+          <div class="promo-dot active" onclick="goPromo(0)"></div>
+          <div class="promo-dot" onclick="goPromo(1)"></div>
+          <div class="promo-dot" onclick="goPromo(2)"></div>
         </div>
       </div>
 
@@ -2346,13 +2457,102 @@ function goBack(){
 }
 
 // SLIDER
-function goSlide(i){
-  const t=document.getElementById('slider-track');
-  if(!t)return;
-  slideIdx=i;
-  t.style.transform=`translateX(-${i*100}%)`;
-  document.querySelectorAll('.dot').forEach((d,j)=>d.classList.toggle('active',j===i));
+/* ─── PROMO SLIDER ─── */
+let promoIdx=0, promoIv=null, promoCount=3;
+
+function goPromo(i){
+  const track=document.getElementById('promo-track');
+  if(!track)return;
+  promoIdx=(i+promoCount)%promoCount;
+  track.style.transform=`translateX(-${promoIdx*100}%)`;
+  document.querySelectorAll('.promo-dot').forEach((d,j)=>d.classList.toggle('active',j===promoIdx));
+  restartPromoAuto();
 }
+
+function nextPromo(){ goPromo(promoIdx+1); }
+
+function restartPromoAuto(){
+  if(promoIv)clearInterval(promoIv);
+  promoIv=setInterval(()=>{
+    const track=document.getElementById('promo-track');
+    if(!track)return;
+    promoIdx=(promoIdx+1)%promoCount;
+    track.style.transform=`translateX(-${promoIdx*100}%)`;
+    document.querySelectorAll('.promo-dot').forEach((d,j)=>d.classList.toggle('active',j===promoIdx));
+  },5000);
+}
+
+function initPromoSwipe(){
+  const wrap=document.getElementById('promo-wrap');
+  const track=document.getElementById('promo-track');
+  if(!wrap||!track)return;
+
+  let startX=0, curX=0, dragging=false;
+
+  const onStart=(x)=>{ startX=x; curX=x; dragging=true; track.style.transition='none'; if(promoIv)clearInterval(promoIv); };
+  const onMove=(x)=>{
+    if(!dragging)return;
+    curX=x;
+    const dx=curX-startX;
+    const pct=(dx/wrap.offsetWidth)*100;
+    track.style.transform=`translateX(${-promoIdx*100+pct}%)`;
+  };
+  const onEnd=()=>{
+    if(!dragging)return;
+    dragging=false;
+    track.style.transition='transform .35s cubic-bezier(.4,0,.2,1)';
+    const dx=curX-startX;
+    const threshold=wrap.offsetWidth*0.2;
+    if(dx<-threshold) goPromo(promoIdx+1);
+    else if(dx>threshold) goPromo(promoIdx-1);
+    else goPromo(promoIdx);
+  };
+
+  wrap.addEventListener('touchstart',e=>onStart(e.touches[0].clientX),{passive:true});
+  wrap.addEventListener('touchmove', e=>onMove(e.touches[0].clientX),{passive:true});
+  wrap.addEventListener('touchend', onEnd);
+  wrap.addEventListener('mousedown',e=>{e.preventDefault();onStart(e.clientX);});
+  window.addEventListener('mousemove',e=>onMove(e.clientX));
+  window.addEventListener('mouseup', onEnd);
+
+  restartPromoAuto();
+}
+
+function openBinance(){
+  showAlert({
+    type:'warn',
+    icon:'🔗',
+    title:'ไปที่ Binance',
+    msg:'คุณกำลังจะออกจาก Bitforex168<br>ไปยังเว็บไซต์ภายนอก',
+    rows:[
+      ['เว็บไซต์','binance.com'],
+      ['สิทธิพิเศษ','ลดค่าธรรมเนียม 20%','var(--yellow)']
+    ],
+    buttons:[
+      {text:'เปิด Binance ↗', style:'primary', onClick:()=>window.open('https://www.binance.com/register','_blank','noopener')},
+      {text:'ยกเลิก', style:'ghost'}
+    ]
+  });
+}
+
+function updatePromoGold(){
+  const el=document.getElementById('promo-gold-price');
+  const p=prices['XAUUSD'];
+  if(el&&p){
+    el.textContent='$'+Math.round(p).toLocaleString();
+  }
+  const chgEl=document.getElementById('promo-gold-chg');
+  const h=hists['XAUUSD'];
+  if(chgEl&&h&&h.length>1&&p){
+    const prev=h[h.length-2]||h[0];
+    const chg=((p-prev)/prev*100);
+    const up=chg>=0;
+    chgEl.innerHTML=`<span style="color:${up?'var(--green)':'var(--red)'};font-weight:700">${up?'▲':'▼'} ${Math.abs(chg).toFixed(2)}%</span> <span style="opacity:.6">วันนี้</span>`;
+  }
+}
+
+// legacy stubs
+function goSlide(i){}
 function startSlider(){}
 
 // STATS
@@ -4295,6 +4495,7 @@ function tick(){
     if(id==='page-trade')updateTradeCard();
   }
   updateTicker();updateStats();
+  updatePromoGold();
   const gp=prices['XAUUSD'],gh=hists['XAUUSD'];
   if(gh&&gp){const gprev=gh[gh.length-2]||gh[0],gchg=((gp-gprev)/gprev*100).toFixed(2),gup=gchg>=0;
     const gpEl=document.getElementById('gold-banner-price');if(gpEl)gpEl.textContent='$'+Math.round(gp).toLocaleString()+' / oz';
@@ -4497,7 +4698,7 @@ async function cleanupOrphanedTrades(){
 }
 
 // INIT
-renderHomeMlist();updateTicker();applyLang();restoreSession();
+renderHomeMlist();updateTicker();applyLang();restoreSession();initPromoSwipe();
 // Fetch real Binance prices + start websocket
 initBinance();
 // Also refresh prices every 30s as fallback
