@@ -65,6 +65,53 @@ body{max-width:480px;margin:0 auto;position:relative;overflow-x:hidden}
 /* Slider */
 .slider-wrap{position:relative;overflow:hidden;margin-bottom:0}
 .slider-track{display:flex;transition:transform .4s ease}
+/* NEW HOME DESIGN */
+.home-top{padding:.75rem;display:grid;grid-template-columns:1fr 165px;gap:8px}
+.promo-card{background:linear-gradient(150deg,#1e2530 0%,#161c26 100%);border-radius:14px;padding:.875rem;position:relative;overflow:hidden;min-height:230px;display:flex;flex-direction:column}
+.promo-badge{position:absolute;top:0;right:0;background:#ff5c8a;color:#fff;font-size:9px;font-weight:700;padding:3px 10px 3px 14px;border-radius:0 14px 0 10px}
+.promo-label{font-size:10px;color:var(--sub);margin-bottom:6px}
+.promo-title{font-size:12px;font-weight:600;color:var(--text);line-height:1.35;margin-bottom:8px}
+.promo-amount{font-size:19px;font-weight:900;color:var(--text);margin-bottom:10px;letter-spacing:-.5px}
+.promo-btn{background:#00d68f;color:#000;border:none;border-radius:99px;padding:5px 14px;font-size:11px;font-weight:800;cursor:pointer;align-self:flex-start;display:flex;align-items:center;gap:4px}
+.promo-art{flex:1;display:flex;align-items:center;justify-content:center;margin-top:8px}
+
+.gembox-card{background:linear-gradient(150deg,#1e2530 0%,#161c26 100%);border-radius:14px;padding:.75rem;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;min-height:150px}
+.gembox-badge{position:absolute;top:0;right:0;background:linear-gradient(90deg,#ff9500,#ffb800);color:#000;font-size:9px;font-weight:800;padding:3px 10px 3px 14px;border-radius:0 14px 0 10px}
+.gembox-title{font-size:12px;font-weight:800;color:#00d68f;align-self:flex-start;letter-spacing:-.2px}
+.gembox-coin{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#627eea,#8ba3f5);display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;margin:.875rem 0 .375rem}
+.gembox-name{font-size:12px;color:var(--sub);margin-bottom:.625rem}
+.gembox-bars{display:flex;align-items:center;gap:10px;width:100%;justify-content:space-between}
+.gembox-bar-group{display:flex;gap:2px}
+.gembox-bar{width:5px;border-radius:1px;background:#00d68f}
+.gembox-bar.dim{background:#2a3140}
+.gembox-val{font-size:17px;font-weight:800;color:var(--text)}
+
+.buycrypto-card{background:linear-gradient(150deg,#1e2530 0%,#161c26 100%);border-radius:14px;padding:.75rem;display:flex;align-items:center;justify-content:space-between;gap:6px;min-height:72px}
+.buycrypto-txt{font-size:11px;color:var(--text);line-height:1.4;font-weight:500}
+.buycrypto-sub{font-size:9.5px;color:var(--sub);margin-top:2px}
+.buycrypto-icons{display:flex;align-items:center;gap:2px;flex-shrink:0}
+
+.qm-new{background:var(--card);padding:1.125rem .5rem;display:grid;grid-template-columns:repeat(5,1fr);margin:0 .75rem;border-radius:14px}
+.qm-new-item{display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer}
+.qm-new-icon{width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:22px}
+.qm-new-label{font-size:10.5px;color:var(--sub);font-weight:500}
+
+.ticker3{background:var(--card);margin:8px .75rem 0;border-radius:14px;display:grid;grid-template-columns:repeat(3,1fr);padding:1rem .5rem}
+.ticker3-item{text-align:center}
+.ticker3-sym{font-size:11px;color:var(--sub);margin-bottom:5px}
+.ticker3-price{font-size:19px;font-weight:800;margin-bottom:3px;letter-spacing:-.5px}
+.ticker3-chg{font-size:12px;font-weight:700}
+
+.announce-new{background:var(--card);margin:8px .75rem 0;border-radius:14px;padding:.75rem .875rem;display:flex;align-items:center;gap:.625rem}
+.announce-new-icon{font-size:15px;color:var(--sub);flex-shrink:0}
+.announce-new-txt{flex:1;font-size:11.5px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.announce-new-menu{color:var(--sub);font-size:14px;flex-shrink:0}
+
+.top-nav-new{display:flex;align-items:center;justify-content:space-between;padding:.875rem 1rem}
+.top-nav-left{display:flex;align-items:center;gap:.625rem}
+.top-avatar{width:32px;height:32px;border-radius:50%;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--sub)}
+.top-login-txt{font-size:14px;font-weight:600;color:var(--text)}
+.top-globe{width:34px;height:34px;border-radius:50%;background:transparent;border:none;color:var(--text);font-size:19px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .slide{min-width:100%;padding:1.25rem 1rem;display:flex;justify-content:space-between;align-items:center}
 .slide-1{background:linear-gradient(135deg,#1a1040 0%,#2d1b69 100%)}
 .slide-2{background:linear-gradient(135deg,#0a2a1a 0%,#0d4a2e 100%)}
@@ -945,141 +992,147 @@ body.chat-open .bnav{display:none!important}
 <!-- MAIN APP -->
 <div class="app">
   <!-- TOPBAR -->
-  <div class="topbar">
-    <div class="topbar-logo">
-      <span>📈 Bitforex168</span>
-    </div>
-    <div class="topbar-right">
-      <button class="btn-lang" onclick="openLangPicker()" title="เปลี่ยนภาษา" id="btn-lang">🌐</button>
-      <button class="btn-login-top" id="btn-login-top" onclick="openLogin()" data-i18n="login_btn">เข้าสู่ระบบ / ลงทะเบียน</button>
-      <div class="user-info" id="user-info">
-        <div class="user-avatar" id="user-avatar">T</div>
-        <span class="user-cash" id="user-cash">฿0</span>
-        <button class="btn-out" onclick="doLogout()" title="ออกจากระบบ">⊗</button>
+  <div class="top-nav-new">
+    <div class="top-nav-left" onclick="if(!cu)openLogin();else switchPage('port',document.getElementById('nav-port'))" style="cursor:pointer">
+      <div class="top-avatar" id="top-avatar-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.6"/><path d="M4.5 20c0-4 3.4-6.5 7.5-6.5s7.5 2.5 7.5 6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
       </div>
+      <span class="top-login-txt" id="btn-login-top" data-i18n="login_btn">เข้าสู่ระบบ / ลงทะเบียน</span>
+      <div class="user-info" id="user-info" style="display:none">
+        <span class="user-cash" id="user-cash" style="font-size:14px;font-weight:700;color:var(--green)">฿0</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="btn-out" id="btn-logout-top" onclick="doLogout()" title="ออกจากระบบ" style="display:none;background:none;border:none;color:var(--sub);font-size:18px;cursor:pointer">⊗</button>
+      <button class="top-globe" onclick="openLangPicker()" title="เปลี่ยนภาษา" id="btn-lang">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18" stroke="currentColor" stroke-width="1.6"/></svg>
+      </button>
     </div>
   </div>
 
   <!-- HOME PAGE -->
   <div class="page active" id="page-home">
-    <!-- Slider -->
-    <div class="slider-wrap">
-      <div class="slider-track" id="slider-track">
-        <div class="slide slide-1">
-          <div class="slide-left">
-            <div class="slide-badge featured">⭐ Featured</div>
-            <div class="slide-title">Friendship Invitation Benefits<br>Share Now!</div>
-            <div class="slide-amount">200,000 USDT!</div>
-            <button class="slide-btn" onclick="requireLogin()">GO ›</button>
-          </div>
-          <div class="slide-right">
-            <div class="slide-coin-icon" style="background:rgba(98,126,234,.2)">Ξ</div>
-            <div class="slide-coin-name">ETH</div>
-            <div style="color:var(--green);font-size:13px;font-weight:700;margin-top:4px" id="slide-eth-price">฿0</div>
-          </div>
-        </div>
-        <div class="slide slide-2">
-          <div class="slide-left">
-            <div class="slide-badge new" style="background:rgba(0,192,135,.2);color:var(--green)">🆕 New Listing</div>
-            <div class="slide-title">เทรดคริปโตและหุ้นไทย<br>ด้วยเงินจำลอง!</div>
-            <div class="slide-amount">ฟรี 0 บาท</div>
-            <button class="slide-btn" onclick="openLogin()">สมัครเลย ›</button>
-          </div>
-          <div class="slide-right">
-            <div class="slide-coin-icon" style="background:rgba(240,185,11,.2)">₿</div>
-            <div class="slide-coin-name">BTC</div>
-            <div style="color:var(--yellow);font-size:13px;font-weight:700;margin-top:4px" id="slide-btc-price">฿0</div>
-          </div>
-        </div>
-        <div class="slide slide-3">
-          <div class="slide-left">
-            <div class="slide-badge top" style="background:rgba(239,68,68,.2);color:var(--red)">🔥 TOP1</div>
-            <div class="slide-title">Staking ผลตอบแทนสูง<br>APR สูงสุด 120%</div>
-            <div class="slide-amount">เริ่มต้นวันนี้!</div>
-            <button class="slide-btn" onclick="switchPage('fast',document.getElementById('nav-fast'))">เริ่มเลย ›</button>
-          </div>
-          <div class="slide-right">
-            <div class="slide-coin-icon" style="background:rgba(139,92,246,.2)">◎</div>
-            <div class="slide-coin-name">SOL</div>
-            <div style="color:var(--purple);font-size:13px;font-weight:700;margin-top:4px" id="slide-sol-price">฿0</div>
-          </div>
+
+    <!-- TOP PROMO ROW -->
+    <div class="home-top">
+      <!-- Left: Promo card -->
+      <div class="promo-card">
+        <div class="promo-badge">Featured</div>
+        <div class="promo-label">Newest</div>
+        <div class="promo-title">Friendship Invitation Benefits<br>Share Now!</div>
+        <div class="promo-amount">200,000 USDT!</div>
+        <button class="promo-btn" onclick="requireLogin()">GO <span style="font-size:13px">›</span></button>
+        <div class="promo-art">
+          <svg width="88" height="88" viewBox="0 0 100 100">
+            <defs>
+              <linearGradient id="cb1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#4a2fd6"/></linearGradient>
+              <linearGradient id="cb2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00e0a0"/><stop offset="1" stop-color="#00a173"/></linearGradient>
+              <linearGradient id="cb3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8fb0"/><stop offset="1" stop-color="#e0507a"/></linearGradient>
+              <linearGradient id="cb4" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd166"/><stop offset="1" stop-color="#e0a020"/></linearGradient>
+            </defs>
+            <g transform="translate(50,52)">
+              <path d="M0,-26 L20,-15 L20,7 L0,18 L-20,7 L-20,-15 Z" fill="url(#cb1)" opacity=".95"/>
+              <path d="M0,-26 L20,-15 L0,-4 L-20,-15 Z" fill="#9d80ff" opacity=".9"/>
+              <path d="M-22,-4 L-4,6 L-4,26 L-22,16 Z" fill="url(#cb2)"/>
+              <path d="M22,-4 L4,6 L4,26 L22,16 Z" fill="url(#cb3)"/>
+              <path d="M-22,-4 L-4,6 L4,6 L22,-4 L0,-15 Z" fill="url(#cb4)" opacity=".85"/>
+              <circle cx="-26" cy="-20" r="3" fill="#00e0a0"/>
+              <circle cx="27" cy="-18" r="2.5" fill="#ff8fb0"/>
+              <circle cx="24" cy="24" r="2" fill="#ffd166"/>
+              <circle cx="-27" cy="22" r="2.5" fill="#7c5cff"/>
+            </g>
+          </svg>
         </div>
       </div>
-      <div class="slide-dots">
-        <div class="dot active" onclick="goSlide(0)"></div>
-        <div class="dot" onclick="goSlide(1)"></div>
-        <div class="dot" onclick="goSlide(2)"></div>
+
+      <!-- Right column -->
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="gembox-card">
+          <div class="gembox-badge">TOP1</div>
+          <div class="gembox-title">GemBox</div>
+          <div class="gembox-coin">Ξ</div>
+          <div class="gembox-name">ETH</div>
+          <div class="gembox-bars">
+            <div class="gembox-bar-group">
+              <div class="gembox-bar" style="height:15px"></div>
+              <div class="gembox-bar" style="height:18px"></div>
+              <div class="gembox-bar" style="height:21px"></div>
+              <div class="gembox-bar dim" style="height:15px"></div>
+              <div class="gembox-bar dim" style="height:18px"></div>
+              <div class="gembox-bar dim" style="height:21px"></div>
+            </div>
+            <div class="gembox-val" id="gembox-val">2.5</div>
+          </div>
+        </div>
+
+        <div class="buycrypto-card" onclick="goDeposit()">
+          <div>
+            <div class="buycrypto-txt">ซื้อสกุลเงิน<br>ดิจิทัล</div>
+            <div class="buycrypto-sub">Visa, Mastercard</div>
+          </div>
+          <div class="buycrypto-icons">
+            <svg width="16" height="26" viewBox="0 0 16 26"><path d="M8 2 L8 24 M8 2 L4 7 M8 2 L12 7" stroke="#00d68f" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>
+            <svg width="34" height="34" viewBox="0 0 40 40">
+              <circle cx="14" cy="20" r="11" fill="#00d68f" opacity=".9"/>
+              <circle cx="26" cy="20" r="11" fill="#f5a623"/>
+              <text x="26" y="26" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">₿</text>
+            </svg>
+            <svg width="16" height="26" viewBox="0 0 16 26"><path d="M8 24 L8 2 M8 24 L4 19 M8 24 L12 19" stroke="#f6465d" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Market Ticker 3 col -->
-    <div class="market-ticker">
-      <div class="mticker-item">
-        <div class="mticker-sym">BTC/THB</div>
-        <div class="mticker-price up" id="mt-btc">฿0</div>
-        <div class="mticker-chg" id="mt-btc-chg">0%</div>
+    <!-- QUICK MENU -->
+    <div class="qm-new">
+      <div class="qm-new-item" onclick="goDeposit()">
+        <div class="qm-new-icon">🚀</div>
+        <div class="qm-new-label">เงินฝาก</div>
       </div>
-      <div class="mticker-item">
-        <div class="mticker-sym">BCH/THB</div>
-        <div class="mticker-price" id="mt-eth">฿0</div>
-        <div class="mticker-chg" id="mt-eth-chg">0%</div>
+      <div class="qm-new-item" onclick="goWithdraw()">
+        <div class="qm-new-icon">💼</div>
+        <div class="qm-new-label">ถอน</div>
       </div>
-      <div class="mticker-item">
-        <div class="mticker-sym">ETH/THB</div>
-        <div class="mticker-price" id="mt-bnb">฿0</div>
-        <div class="mticker-chg" id="mt-bnb-chg">0%</div>
+      <div class="qm-new-item" onclick="requireLogin()">
+        <div class="qm-new-icon">🎯</div>
+        <div class="qm-new-label">IEO</div>
       </div>
-    </div>
-
-    <!-- Quick Menu -->
-    <div class="quick-menu">
-      <div class="qm-item" onclick="goDeposit()">
-        <div class="qm-icon" style="background:rgba(0,192,135,.1)">💰</div>
-        <div class="qm-label">เงินฝาก</div>
+      <div class="qm-new-item" onclick="requireLogin()">
+        <div class="qm-new-icon">🔨</div>
+        <div class="qm-new-label">Staking</div>
       </div>
-      <div class="qm-item" onclick="goWithdraw()">
-        <div class="qm-icon" style="background:rgba(239,68,68,.1)">💸</div>
-        <div class="qm-label">ถอน</div>
-      </div>
-      <div class="qm-item" onclick="requireLogin()">
-        <div class="qm-icon" style="background:rgba(245,166,35,.1)">🚀</div>
-        <div class="qm-label">IEO</div>
-      </div>
-      <div class="qm-item" onclick="requireLogin()">
-        <div class="qm-icon" style="background:rgba(139,92,246,.1)">🔒</div>
-        <div class="qm-label">Staking</div>
-      </div>
-      <div class="qm-item" onclick="switchPage('chat',document.getElementById('nav-port'))">
-        <div class="qm-icon" style="background:rgba(59,130,246,.1)">🎧</div>
-        <div class="qm-label">ติดต่อ</div>
+      <div class="qm-new-item" onclick="switchPage('chat',document.getElementById('nav-port'))">
+        <div class="qm-new-icon">🎧</div>
+        <div class="qm-new-label">ติดต่อ</div>
       </div>
     </div>
 
-    <!-- Announcement -->
-    <div class="announce-bar">
-      <div class="announce-icon">📢</div>
-      <div class="announce-scroll">
-        <div class="announce-text" id="announce-text">Bitforex168 ยินดีต้อนรับ! เทรดคริปโตและหุ้นไทยด้วยเงินจำลอง • BTC/THB ราคาอัพเดตเรียลไทม์ • เติมเงินจำลองได้ที่แอดมิน</div>
+    <!-- 3 COL TICKER -->
+    <div class="ticker3">
+      <div class="ticker3-item">
+        <div class="ticker3-sym">BTC/THB</div>
+        <div class="ticker3-price" id="mt-btc">฿0</div>
+        <div class="ticker3-chg" id="mt-btc-chg">0%</div>
       </div>
-      <div class="announce-menu">☰</div>
-    </div>
-
-    <!-- Gold Banner -->
-    <div style="background:linear-gradient(135deg,#1a1200 0%,#3d2b00 50%,#1a1200 100%);margin-top:8px;padding:1rem;display:flex;align-items:center;gap:1rem;border-top:1px solid #5a4000;border-bottom:1px solid #5a4000">
-      <div style="font-size:36px">🥇</div>
-      <div style="flex:1">
-        <div style="font-size:11px;color:#d4af37;font-weight:700;letter-spacing:1px;margin-bottom:2px">GOLD MARKET</div>
-        <div style="font-size:14px;font-weight:700;color:#ffd700">ทองคำโลก XAU/USD</div>
-        <div style="font-size:12px;color:#c9a227;margin-top:2px" id="gold-banner-price">$4,069 / oz</div>
+      <div class="ticker3-item">
+        <div class="ticker3-sym">ETH/THB</div>
+        <div class="ticker3-price" id="mt-eth">฿0</div>
+        <div class="ticker3-chg" id="mt-eth-chg">0%</div>
       </div>
-      <div style="text-align:right">
-        <div style="font-size:11px;color:#d4af37;margin-bottom:2px">เปลี่ยนแปลง</div>
-        <div id="gold-banner-chg" style="font-size:14px;font-weight:700;color:#00c087">+0.00%</div>
-        <div style="font-size:10px;color:#5a4000;margin-top:4px">อัพเดต 3 วิ</div>
+      <div class="ticker3-item">
+        <div class="ticker3-sym">XAU/USD</div>
+        <div class="ticker3-price" id="mt-bnb">$0</div>
+        <div class="ticker3-chg" id="mt-bnb-chg">0%</div>
       </div>
     </div>
 
-    <!-- Market List -->
+    <!-- ANNOUNCE -->
+    <div class="announce-new">
+      <div class="announce-new-icon">📢</div>
+      <div class="announce-new-txt" id="announce-text">Bitforex168 ยินดีต้อนรับ! เทรดคริปโตและทองคำด้วยราคาเรียลไทม์</div>
+      <div class="announce-new-menu">☰</div>
+    </div>
+
     <div class="market-section">
       <div class="market-header">
         <div class="market-header-title">ตลาด</div>
@@ -1817,15 +1870,26 @@ async function restoreSession(){
   if(u){cu=u;cash=u.cash;showUser();}
 }
 function showUser(){
-  document.getElementById('btn-login-top').style.display='none';
-  const ui=document.getElementById('user-info');ui.style.display='flex';
-  document.getElementById('user-avatar').textContent=cu.username[0].toUpperCase();
+  const lbl=document.getElementById('btn-login-top');
+  if(lbl){lbl.textContent=cu.username;lbl.style.color='var(--text)';}
+  const ui=document.getElementById('user-info');
+  if(ui)ui.style.display='flex';
+  const av=document.getElementById('top-avatar-icon');
+  if(av){av.innerHTML=cu.username[0].toUpperCase();av.style.background='var(--yellow)';av.style.color='#000';av.style.fontWeight='800';av.style.fontSize='14px';}
+  const lo=document.getElementById('btn-logout-top');
+  if(lo)lo.style.display='block';
   updateStats();loadTradeHistory();
 }
 function doLogout(){
   localStorage.removeItem('bf168_uid');cu=null;cash=0;portfolio={};
-  document.getElementById('btn-login-top').style.display='block';
-  document.getElementById('user-info').style.display='none';
+  const lbl=document.getElementById('btn-login-top');
+  if(lbl){lbl.textContent='เข้าสู่ระบบ / ลงทะเบียน';}
+  const ui=document.getElementById('user-info');
+  if(ui)ui.style.display='none';
+  const av=document.getElementById('top-avatar-icon');
+  if(av){av.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.6"/><path d="M4.5 20c0-4 3.4-6.5 7.5-6.5s7.5 2.5 7.5 6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';av.style.background='var(--card2)';av.style.color='var(--sub)';}
+  const lo=document.getElementById('btn-logout-top');
+  if(lo)lo.style.display='none';
   toast('ออกจากระบบแล้ว');
 }
 
@@ -1887,11 +1951,13 @@ function goBack(){
 
 // SLIDER
 function goSlide(i){
+  const t=document.getElementById('slider-track');
+  if(!t)return;
   slideIdx=i;
-  document.getElementById('slider-track').style.transform=`translateX(-${i*100}%)`;
+  t.style.transform=`translateX(-${i*100}%)`;
   document.querySelectorAll('.dot').forEach((d,j)=>d.classList.toggle('active',j===i));
 }
-function startSlider(){slideIv=setInterval(()=>{slideIdx=(slideIdx+1)%3;goSlide(slideIdx);},4000);}
+function startSlider(){}
 
 // STATS
 function updateStats(){
@@ -1954,15 +2020,22 @@ function goTrade(sym){
   switchPage('trade',document.getElementById('nav-trade'));
 }
 function updateTicker(){
-  const ids=[['BTC','mt-btc','mt-btc-chg'],['ETH','mt-eth','mt-eth-chg'],['BNB','mt-bnb','mt-bnb-chg']];
+  const ids=[['BTC','mt-btc','mt-btc-chg'],['ETH','mt-eth','mt-eth-chg'],['XAUUSD','mt-bnb','mt-bnb-chg']];
   ids.forEach(([s,pid,cid])=>{
+    if(!hists[s])return;
     const hist=hists[s],prev=hist[hist.length-2]||hist[0],cur=prices[s],chg=pct(cur,prev),up=chg>=0;
-    const pe=document.getElementById(pid);if(pe){pe.textContent=fmt(cur);pe.className='mticker-price '+(up?'up':'dn');}
-    const ce=document.getElementById(cid);if(ce){ce.textContent=(up?'+':'')+chg+'%';ce.className='mticker-chg '+(up?'up':'dn');}
+    const pe=document.getElementById(pid);
+    if(pe){
+      pe.textContent=s==='XAUUSD'?'$'+cur.toLocaleString(undefined,{maximumFractionDigits:2}):(cur>=1000?cur.toLocaleString(undefined,{maximumFractionDigits:2}):cur.toFixed(2));
+      pe.className='ticker3-price '+(up?'up':'dn');
+    }
+    const ce=document.getElementById(cid);
+    if(ce){ce.textContent=(up?'+':'')+chg+'%';ce.className='ticker3-chg '+(up?'up':'dn');}
   });
-  ['slide-btc-price','slide-eth-price','slide-sol-price'].forEach((id,i)=>{
-    const el=document.getElementById(id);if(el)el.textContent=fmt(prices[['BTC','ETH','SOL'][i]]);
-  });
+  // gembox value
+  const gb=document.getElementById('gembox-val');
+  if(gb&&prices['ETH'])gb.textContent=(prices['ETH']/25000).toFixed(1);
+
 }
 
 // TRADE
@@ -3274,7 +3347,7 @@ setInterval(async()=>{
 },60000);
 
 // INIT
-renderHomeMlist();updateTicker();startSlider();applyLang();restoreSession();
+renderHomeMlist();updateTicker();applyLang();restoreSession();
 // Fetch real Binance prices + start websocket
 initBinance();
 // Also refresh prices every 30s as fallback
@@ -3286,19 +3359,24 @@ setInterval(tick,3000);
 <!-- BOTTOM NAV -->
   <nav class="bnav">
     <button class="bnav-btn active" id="nav-home" onclick="switchPage('home',this)">
-      <span class="bnav-icon">🏠</span><span data-i18n="nav_home">หน้าหลัก</span>
+      <span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 10.5L12 3l9 7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 9.5V20h13V9.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <span data-i18n="nav_home">หน้าหลัก</span>
     </button>
     <button class="bnav-btn" id="nav-market" onclick="switchPage('market',this)">
-      <span class="bnav-icon">📊</span><span data-i18n="nav_market">ตลาด</span>
+      <span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="12" width="3.5" height="8" rx="1" fill="currentColor"/><rect x="9" y="7" width="3.5" height="13" rx="1" fill="currentColor"/><rect x="15" y="10" width="3.5" height="10" rx="1" fill="currentColor"/><rect x="20" y="4" width="1.5" height="16" rx=".7" fill="currentColor"/></svg></span>
+      <span data-i18n="nav_market">ตลาด</span>
     </button>
     <button class="bnav-btn" id="nav-trade" onclick="switchPage('trade',this)">
-      <span class="bnav-icon">💱</span><span data-i18n="nav_trade">ซื้อขาย</span>
+      <span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M8 15l8-6M9 9h.01M15 15h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+      <span data-i18n="nav_trade">ซื้อขาย</span>
     </button>
     <button class="bnav-btn" id="nav-fast" onclick="switchPage('fast',this)">
-      <span class="bnav-icon">⚡</span><span data-i18n="nav_fast">ฟิวเจอร์ส</span>
+      <span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M18 5l-7 7 3 1-3 6 7-7-3-1 3-6z" fill="currentColor"/><circle cx="6" cy="18" r="2" fill="currentColor"/></svg></span>
+      <span data-i18n="nav_fast">ฟิวเจอร์ส</span>
     </button>
     <button class="bnav-btn" id="nav-port" onclick="switchPage('port',this)">
-      <span class="bnav-icon">💼</span><span data-i18n="nav_wallet">กระเป๋าเงิน</span>
+      <span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 3a9 9 0 019 9h-9V3z" fill="currentColor"/></svg></span>
+      <span data-i18n="nav_wallet">กระเป๋าเงิน</span>
     </button>
   </nav>
 <div id="lang-picker-container"></div>
