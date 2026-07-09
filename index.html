@@ -1871,6 +1871,7 @@ async function restoreSession(){
   }
 }
 function showUser(){
+  if(!cu)return;
   const lbl=document.getElementById('btn-login-top');
   if(lbl){lbl.textContent=cu.username;lbl.style.color='var(--text)';}
   const ui=document.getElementById('user-info');
@@ -1879,10 +1880,12 @@ function showUser(){
   if(av){av.innerHTML=cu.username[0].toUpperCase();av.style.background='var(--yellow)';av.style.color='#000';av.style.fontWeight='800';av.style.fontSize='14px';}
   const lo=document.getElementById('btn-logout-top');
   if(lo)lo.style.display='block';
-  updateStats();loadTradeHistory();
+  updateStats();
+  loadTradeHistory(); // cu is guaranteed set here
 }
 function doLogout(){
-  localStorage.removeItem('bf168_uid');cu=null;cash=0;portfolio={};
+  localStorage.removeItem('bf168_uid');
+  cu=null;cash=0;portfolio={};tradeHistory=[];
   const lbl=document.getElementById('btn-login-top');
   if(lbl){lbl.textContent='เข้าสู่ระบบ / ลงทะเบียน';}
   const ui=document.getElementById('user-info');
@@ -3065,6 +3068,7 @@ function viewContract(){
 
 // TRADE HISTORY
 function recordTrade(type,sym,dir,qty,price,total,pnl,duration,closePrice){
+  if(!cu)return;
   const entry={
     id:'local_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
     type,sym,dir:dir||type,
@@ -3073,61 +3077,93 @@ function recordTrade(type,sym,dir,qty,price,total,pnl,duration,closePrice){
     closePrice:closePrice||null,
     time:new Date().toISOString()
   };
-  tradeHistory.unshift(entry);
-  if(tradeHistory.length>200)tradeHistory=tradeHistory.slice(0,200);
-  if(cu)localStorage.setItem('bf168_hist_'+cu.id,JSON.stringify(tradeHistory.slice(0,200)));
+  // Read fresh from storage to avoid stale in-memory state
+  const current = readLocalHist();
+  current.unshift(entry);
+  tradeHistory = current.slice(0,200);
+  writeLocalHist(tradeHistory);
 }
+function histKey(){ return 'bf168_hist_'+(cu?cu.id:'anon'); }
+
+function readLocalHist(){
+  if(!cu)return [];
+  try{
+    const raw=localStorage.getItem(histKey());
+    if(!raw)return [];
+    const arr=JSON.parse(raw);
+    return Array.isArray(arr)?arr:[];
+  }catch(e){ return []; }
+}
+
+function writeLocalHist(arr){
+  if(!cu)return;
+  try{ localStorage.setItem(histKey(), JSON.stringify(arr.slice(0,200))); }catch(e){}
+}
+
 async function loadTradeHistory(){
   if(!cu)return;
-  // Load localStorage cache first (instant display)
-  const saved=localStorage.getItem('bf168_hist_'+cu.id);
-  let localTrades=[];
-  if(saved)try{localTrades=JSON.parse(saved);}catch(e){}
-  tradeHistory=localTrades;
-  renderTH(); // show cached immediately
 
-  // Then fetch authoritative data from Supabase
+  // 1. Always start from local cache and render immediately
+  const localTrades = readLocalHist();
+  tradeHistory = localTrades;
+  renderTH();
+
+  // 2. Fetch DB records
+  let dbTrades = [];
   try{
-    const {data:fastData}=await sb.from('fast_trades')
+    const {data:fastData, error} = await sb.from('fast_trades')
       .select('*').eq('user_id',cu.id)
-      .order('created_at',{ascending:false}).limit(150);
+      .order('created_at',{ascending:false}).limit(200);
 
-    const dbTrades=(fastData||[]).map(f=>{
-      const openP=f.open_price||0;
-      const isContract=f.duration>=180;
+    if(error) throw error;
+
+    dbTrades = (fastData||[]).map(f=>{
+      const openP = f.open_price || 0;
+      const isContract = f.duration >= 180;
       return {
-        id:'db_'+f.id,
-        type:isContract?'contract':'fast',
-        sym:f.symbol,
-        dir:f.direction==='up'?'buy':'sell',
-        qty:openP>0?f.bet/openP:0,
-        price:openP,
-        closePrice:f.close_price||null,
-        total:f.bet,
-        pnl:f.pnl||0,
-        duration:f.duration,
-        time:f.created_at
+        id: 'db_'+f.id,
+        dbId: f.id,
+        type: isContract ? 'contract' : 'fast',
+        sym: f.symbol,
+        dir: f.direction==='up' ? 'buy' : 'sell',
+        qty: openP>0 ? f.bet/openP : 0,
+        price: openP,
+        closePrice: f.close_price || null,
+        total: f.bet,
+        pnl: f.pnl || 0,
+        duration: f.duration,
+        time: f.created_at
       };
     });
-
-    // Merge: prefer DB records, keep local-only ones (buy/sell without contract)
-    const dbTimes=new Set(dbTrades.map(t=>new Date(t.time).getTime()));
-    const localOnly=localTrades.filter(t=>{
-      if(String(t.id).startsWith('db_'))return false;
-      // drop local contract records that now exist in DB (within 5s window)
-      const lt=new Date(t.time).getTime();
-      for(const dt of dbTimes){ if(Math.abs(dt-lt)<5000) return false; }
-      return true;
-    });
-
-    const merged=[...dbTrades,...localOnly];
-    merged.sort((a,b)=>new Date(b.time)-new Date(a.time));
-    tradeHistory=merged;
-    // Persist merged view so refresh keeps everything
-    localStorage.setItem('bf168_hist_'+cu.id,JSON.stringify(merged.slice(0,200)));
   }catch(e){
-    tradeHistory=localTrades;
+    // DB unreachable — keep local only, do NOT wipe cache
+    console.log('History DB fetch failed, using local cache');
+    tradeHistory = localTrades;
+    renderTH();
+    return;
   }
+
+  // 3. Merge: dedupe by dbId, and drop local records that DB already covers
+  const seenDbIds = new Set(dbTrades.map(t=>t.dbId));
+  const dbTimes = dbTrades.map(t=>new Date(t.time).getTime());
+
+  const localOnly = localTrades.filter(t=>{
+    // If this local record already came from DB, skip (DB copy wins)
+    if(t.dbId && seenDbIds.has(t.dbId)) return false;
+    if(String(t.id).startsWith('db_')) return false;
+    // Drop local contract/fast entries that DB now has (within 8s window)
+    if(t.type==='contract' || t.type==='fast'){
+      const lt = new Date(t.time).getTime();
+      if(dbTimes.some(dt => Math.abs(dt-lt) < 8000)) return false;
+    }
+    return true;
+  });
+
+  const merged = [...dbTrades, ...localOnly];
+  merged.sort((a,b)=> new Date(b.time) - new Date(a.time));
+
+  tradeHistory = merged;
+  writeLocalHist(merged);
   renderTH();
 }
 function filterTH(f,el){thFilter=f;document.querySelectorAll('.th-fbtn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderTH();}
