@@ -1609,17 +1609,24 @@ body.chat-open .bnav{display:none!important}
 
     <!-- Amount presets -->
     <div style="font-size:12px;color:#6b7280;font-weight:600;letter-spacing:.5px;margin-bottom:.75rem">เลือกจำนวนเงิน</div>
-    <div style="display:flex;gap:8px;margin-bottom:.875rem">
+    <div style="display:flex;gap:8px;margin-bottom:.625rem">
       <button class="om-amt-btn active" onclick="setOmAmt(1000,this)" style="flex:1;padding:12px 4px;background:var(--green);color:#000;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;text-align:center"><div>1000</div><div style="font-size:10px;opacity:.7">฿</div></button>
       <button class="om-amt-btn" onclick="setOmAmt(3000,this)" style="flex:1;padding:12px 4px;background:var(--card2);color:#fff;border:1px solid var(--border);border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;text-align:center"><div>3000</div><div style="font-size:10px;opacity:.5">฿</div></button>
       <button class="om-amt-btn" onclick="setOmAmt(5000,this)" style="flex:1;padding:12px 4px;background:var(--card2);color:#fff;border:1px solid var(--border);border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;text-align:center"><div>5000</div><div style="font-size:10px;opacity:.5">฿</div></button>
     </div>
+
     <div style="height:1px;background:rgba(255,255,255,.08);margin-bottom:1rem"></div>
 
     <!-- Custom amount -->
     <div style="font-size:12px;color:#6b7280;margin-bottom:.5rem">จำนวนเงินที่กำหนดเอง</div>
-    <input id="om-custom" type="number" placeholder="กรุณาระบุจำนวนเงิน" min="1" oninput="onOmCustom()"
-      style="width:100%;padding:12px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;font-size:15px;color:#fff;outline:none;margin-bottom:.625rem">
+    <div style="position:relative;margin-bottom:.625rem">
+      <input id="om-custom" type="number" placeholder="กรุณาระบุจำนวนเงิน" min="1" oninput="onOmCustom()"
+        style="width:100%;padding:12px 76px 12px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;font-size:15px;color:#fff;outline:none">
+      <button onclick="setOmAll()"
+        style="position:absolute;right:6px;top:50%;transform:translateY(-50%);padding:7px 12px;background:rgba(245,166,35,.15);color:var(--yellow);border:1px solid rgba(245,166,35,.4);border-radius:7px;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap">
+        ทั้งหมด
+      </button>
+    </div>
     <!-- % presets -->
     <div style="display:flex;gap:6px;margin-bottom:.75rem">
       <button onclick="setOmPct(25)" style="flex:1;padding:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;color:#9ca3af">25%</button>
@@ -2800,6 +2807,18 @@ function setOmPct(p){
   });
   updateOmSummary();
 }
+
+function setOmAll(){
+  const maxAmt=buySell==='buy'?cash:(portfolio[selSym]?portfolio[selSym].qty*prices[selSym]:0);
+  if(maxAmt<=0){toast(buySell==='buy'?'ไม่มีเงินคงเหลือ':'ไม่มีเหรียญที่ถืออยู่');return;}
+  omAmt=Math.floor(maxAmt);
+  document.getElementById('om-custom').value=omAmt;
+  document.querySelectorAll('.om-amt-btn').forEach(b=>{
+    b.style.background='var(--card2)';b.style.color='#fff';b.style.borderColor='var(--border)';
+  });
+  updateOmSummary();
+  toast('ใส่จำนวนเงินทั้งหมด '+fmt(omAmt));
+}
 function updateOmSummary(){
   const price=prices[selSym]||1;
   const el1=document.getElementById('om-amt-show');if(el1)el1.textContent=omAmt.toLocaleString()+' ฿';
@@ -2807,6 +2826,7 @@ function updateOmSummary(){
   const el3=document.getElementById('om-balance');if(el3)el3.textContent=cash.toFixed(8);
   const el4=document.getElementById('om-coin-show');if(el4)el4.textContent=(omAmt/price).toFixed(6);
   const el5=document.getElementById('om-coin-unit');if(el5)el5.textContent=selSym;
+
 }
 let contractTimer=null,contractLiveTimer=null;
 
