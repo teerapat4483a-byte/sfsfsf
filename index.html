@@ -1893,7 +1893,10 @@ function doLogout(){
 
 // NAV
 function openContractDetail(idx){
-  const list = thFilter==='all'?tradeHistory:thFilter==='fast'?tradeHistory.filter(t=>t.type==='fast'):tradeHistory.filter(t=>t.type===thFilter);
+  let list;
+  if(thFilter==='all') list=tradeHistory;
+  else if(thFilter==='fast') list=tradeHistory.filter(t=>t.type==='fast'||t.type==='contract');
+  else list=tradeHistory.filter(t=>t.dir===thFilter||t.type===thFilter);
   const t = list[idx];
   if(!t) return;
   const isBuy = t.dir==='buy'||t.type==='buy';
@@ -1903,7 +1906,7 @@ function openContractDetail(idx){
   // Close time = open time + duration (for fast) or open time + 3min
   const openTime = new Date(t.time);
   const closeTime = new Date(openTime.getTime() + (t.duration||180)*1000);
-  const closePrice = t.price * (1 + (Math.random()-.5)*0.002);
+  const closePrice = t.closePrice || (t.price * (1 + (Math.random()-.5)*0.002));
   
   document.getElementById('cd-title').textContent = t.sym+'/THB รายละเอียดสัญญา';
   document.getElementById('cd-body').innerHTML = `
@@ -2975,18 +2978,35 @@ async function resolveContract(openPrice, closePrice, betAmount, duration, direc
   cash+=payout;
   await sb.from('users').update({cash}).eq('id',cu.id);
   
-  // Save to fast_trades (contract records)
-  await sb.from('fast_trades').insert({
-    user_id:cu.id,symbol:selSym,
-    direction:direction==='buy'?'up':'down',
-    bet:betAmount,duration,
-    result:won?'win':'lose',pnl:profit,forced
-  });
+  // Save to fast_trades (contract records) with open/close price
+  try{
+    await sb.from('fast_trades').insert({
+      user_id:cu.id,symbol:selSym,
+      direction:direction==='buy'?'up':'down',
+      bet:betAmount,duration,
+      result:won?'win':'lose',pnl:profit,forced,
+      open_price:openPrice,close_price:closePrice
+    });
+  }catch(e){
+    // Fallback if open_price/close_price columns don't exist
+    try{
+      await sb.from('fast_trades').insert({
+        user_id:cu.id,symbol:selSym,
+        direction:direction==='buy'?'up':'down',
+        bet:betAmount,duration,
+        result:won?'win':'lose',pnl:profit,forced
+      });
+    }catch(e2){}
+  }
+  
+  // Also save to localStorage for instant history
+  recordTrade('contract',selSym,direction,betAmount/openPrice,openPrice,betAmount,profit,duration,closePrice);
+  
   // Mark active_trade as completed (if table exists)
   if(activeTradeId){
     try{
       await sb.from('active_trades').update({status:'completed',close_price:closePrice,pnl:profit,result:won?'win':'lose'}).eq('id',activeTradeId);
-    }catch(e){/* silent */}
+    }catch(e){}
     activeTradeId=null;
   }
   
@@ -3041,37 +3061,67 @@ function viewContract(){
 }
 
 // TRADE HISTORY
-function recordTrade(type,sym,dir,qty,price,total,pnl){
-  const entry={id:Date.now(),type,sym,dir:dir||type,qty:qty||0,price:price||0,total:total||0,pnl:pnl||0,time:new Date()};
-  tradeHistory.unshift(entry);if(tradeHistory.length>200)tradeHistory=tradeHistory.slice(0,200);
+function recordTrade(type,sym,dir,qty,price,total,pnl,duration,closePrice){
+  const entry={
+    id:'local_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+    type,sym,dir:dir||type,
+    qty:qty||0,price:price||0,total:total||0,pnl:pnl||0,
+    duration:duration||null,
+    closePrice:closePrice||null,
+    time:new Date().toISOString()
+  };
+  tradeHistory.unshift(entry);
+  if(tradeHistory.length>200)tradeHistory=tradeHistory.slice(0,200);
   if(cu)localStorage.setItem('bf168_hist_'+cu.id,JSON.stringify(tradeHistory.slice(0,200)));
 }
 async function loadTradeHistory(){
   if(!cu)return;
-  // Load from localStorage first (buy/sell trades)
+  // Load localStorage cache first (instant display)
   const saved=localStorage.getItem('bf168_hist_'+cu.id);
   let localTrades=[];
   if(saved)try{localTrades=JSON.parse(saved);}catch(e){}
-  // Also fetch fast_trades from Supabase
+  tradeHistory=localTrades;
+  renderTH(); // show cached immediately
+
+  // Then fetch authoritative data from Supabase
   try{
-    const {data:fastData}=await sb.from('fast_trades').select('*').eq('user_id',cu.id).order('created_at',{ascending:false}).limit(100);
-    const fastTrades=(fastData||[]).map(f=>({
-      id:'fast_'+f.id,
-      type:'fast',
-      sym:f.symbol,
-      dir:f.direction,
-      qty:f.bet/(f.bet||1),
-      price:0,
-      total:f.bet,
-      pnl:f.pnl||0,
-      duration:f.duration,
-      time:new Date(f.created_at)
-    }));
-    // Merge: local trades + fast trades, remove duplicates, sort by time
-    const allIds=new Set(localTrades.map(t=>t.id));
-    const merged=[...localTrades,...fastTrades.filter(t=>!allIds.has(t.id))];
+    const {data:fastData}=await sb.from('fast_trades')
+      .select('*').eq('user_id',cu.id)
+      .order('created_at',{ascending:false}).limit(150);
+
+    const dbTrades=(fastData||[]).map(f=>{
+      const openP=f.open_price||0;
+      const isContract=f.duration>=180;
+      return {
+        id:'db_'+f.id,
+        type:isContract?'contract':'fast',
+        sym:f.symbol,
+        dir:f.direction==='up'?'buy':'sell',
+        qty:openP>0?f.bet/openP:0,
+        price:openP,
+        closePrice:f.close_price||null,
+        total:f.bet,
+        pnl:f.pnl||0,
+        duration:f.duration,
+        time:f.created_at
+      };
+    });
+
+    // Merge: prefer DB records, keep local-only ones (buy/sell without contract)
+    const dbTimes=new Set(dbTrades.map(t=>new Date(t.time).getTime()));
+    const localOnly=localTrades.filter(t=>{
+      if(String(t.id).startsWith('db_'))return false;
+      // drop local contract records that now exist in DB (within 5s window)
+      const lt=new Date(t.time).getTime();
+      for(const dt of dbTimes){ if(Math.abs(dt-lt)<5000) return false; }
+      return true;
+    });
+
+    const merged=[...dbTrades,...localOnly];
     merged.sort((a,b)=>new Date(b.time)-new Date(a.time));
     tradeHistory=merged;
+    // Persist merged view so refresh keeps everything
+    localStorage.setItem('bf168_hist_'+cu.id,JSON.stringify(merged.slice(0,200)));
   }catch(e){
     tradeHistory=localTrades;
   }
@@ -3080,11 +3130,15 @@ async function loadTradeHistory(){
 function filterTH(f,el){thFilter=f;document.querySelectorAll('.th-fbtn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderTH();}
 function renderTH(){
   const el=document.getElementById('th-list');if(!el)return;
-  let list=thFilter==='all'?tradeHistory:thFilter==='fast'?tradeHistory.filter(t=>t.type==='fast'):tradeHistory.filter(t=>t.type===thFilter);
+  let list;
+  if(thFilter==='all') list=tradeHistory;
+  else if(thFilter==='fast') list=tradeHistory.filter(t=>t.type==='fast'||t.type==='contract');
+  else list=tradeHistory.filter(t=>t.dir===thFilter||t.type===thFilter);
   if(!list.length){el.innerHTML='<div class="th-empty">📭 ยังไม่มีรายการ</div>';return;}
   function fmtDate(d){const dt=new Date(d);return(dt.getMonth()+1).toString().padStart(2,'0')+'-'+dt.getDate().toString().padStart(2,'0')+' '+dt.getHours().toString().padStart(2,'0')+':'+dt.getMinutes().toString().padStart(2,'0');}
   el.innerHTML=list.map((t,idx)=>{
-    const isBuy=t.dir==='buy'||t.type==='buy',isFast=t.type==='fast';
+    const isBuy=t.dir==='buy'||t.type==='buy';
+    const isFast=t.type==='fast'||t.type==='contract';
     const pnl=t.pnl||0;
     const priceStr=t.price>0?t.price.toFixed(4):'-';
     return`<div class="th-item" onclick="openContractDetail(${idx})" style="cursor:pointer">
