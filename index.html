@@ -1295,62 +1295,12 @@ body.chat-open .bnav{display:none!important}
         <button class="bs-tab sell" id="bs-sell" onclick="setBuySell('sell')">ขาย</button>
       </div>
 
-      <!-- Input mode toggle -->
-      <div style="display:flex;background:var(--card2);border-radius:10px;padding:4px;margin-bottom:.875rem;gap:4px">
-        <button id="mode-coin" onclick="setInputMode('coin')" style="flex:1;padding:9px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;background:var(--green);color:#000;display:flex;align-items:center;justify-content:center;gap:5px">
-          🪙 จำนวนเหรียญ
-        </button>
-        <button id="mode-thb" onclick="setInputMode('thb')" style="flex:1;padding:9px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:var(--sub);display:flex;align-items:center;justify-content:center;gap:5px">
-          ฿ จำนวนเงิน
-        </button>
-      </div>
-
-      <!-- Coin input -->
-      <div id="input-coin">
-        <div style="position:relative;margin-bottom:.5rem">
-          <div style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--sub);font-weight:600" id="coin-unit-label">หน่วย</div>
-          <div style="display:flex;align-items:center;background:var(--card2);border:1px solid var(--border);border-radius:10px;overflow:hidden">
-            <button onclick="adjQty(-1)" style="padding:12px 16px;background:none;border:none;border-right:1px solid var(--border);color:var(--text);font-size:20px;cursor:pointer">−</button>
-            <input type="number" class="order-input" id="t-qty" value="1" min="0.0001" step="0.0001" style="flex:1;text-align:center;background:transparent;border:none;font-size:18px;font-weight:700;padding:12px 8px;outline:none;color:var(--text)" oninput="onQtyChange()">
-            <button onclick="adjQty(1)" style="padding:12px 16px;background:none;border:none;border-left:1px solid var(--border);color:var(--text);font-size:20px;cursor:pointer">+</button>
-          </div>
-        </div>
-        <!-- Preset % of holding (sell) / preset coins -->
-        <div style="display:flex;gap:6px;margin-bottom:.875rem" id="coin-presets">
-          <button onclick="setQtyPct(25)" style="flex:1;padding:5px;background:var(--card2);border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;color:var(--sub)">25%</button>
-          <button onclick="setQtyPct(50)" style="flex:1;padding:5px;background:var(--card2);border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;color:var(--sub)">50%</button>
-          <button onclick="setQtyPct(75)" style="flex:1;padding:5px;background:var(--card2);border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;color:var(--sub)">75%</button>
-          <button onclick="setQtyPct(100)" style="flex:1;padding:5px;background:var(--card2);border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;color:var(--sub)">100%</button>
-        </div>
-      </div>
-
-      <!-- THB input -->
-      <div id="input-thb" style="display:none">
-        <div style="position:relative;margin-bottom:.5rem">
-          <div style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:18px;font-weight:800;color:var(--yellow)">฿</div>
-          <input type="number" class="order-input" id="t-thb" placeholder="0.00" min="1" style="width:100%;padding:14px 14px 14px 36px;background:var(--card2);border:1px solid var(--border);border-radius:10px;font-size:20px;font-weight:700;color:var(--text);outline:none" oninput="onThbChange()">
-        </div>
-        <div style="display:flex;gap:6px;margin-bottom:.875rem">
-          <button onclick="setThbAmt(100)" style="flex:1;padding:5px;background:var(--card2);border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;color:var(--sub)">฿100</button>
-          <button onclick="setThbAmt(500)" style="flex:1;padding:5px;background:var(--card2);border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;color:var(--sub)">฿500</button>
-          <button onclick="setThbAmt(1000)" style="flex:1;padding:5px;background:var(--card2);border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;color:var(--sub)">฿1K</button>
-          <button onclick="setThbAmt(5000)" style="flex:1;padding:5px;background:var(--card2);border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;color:var(--sub)">฿5K</button>
-        </div>
-      </div>
-
-      <div class="holding-row">
+      <div class="holding-row" style="margin-top:.875rem">
         <span>ราคา: <strong id="t-cur-price" class="up">฿0</strong></span>
         <span>ถือ: <strong id="t-holding">0</strong> | ทุน: <strong id="t-avg-cost">฿0</strong></span>
       </div>
-      <div class="order-summary" style="flex-direction:column;gap:4px">
-        <div style="display:flex;justify-content:space-between">
-          <span>จำนวนเหรียญ</span><strong id="t-coin-show">0</strong>
-        </div>
-        <div style="display:flex;justify-content:space-between">
-          <span>มูลค่ารวม</span><strong id="t-total">฿0</strong>
-        </div>
-      </div>
-      <button class="btn-order buy" id="btn-order" onclick="openOrderModal()">ซื้อ</button>
+
+      <button class="btn-order buy" id="btn-order" onclick="openOrderModal()" style="margin-top:.875rem">ซื้อ</button>
     </div>
   </div>
 
@@ -1670,7 +1620,17 @@ body.chat-open .bnav{display:none!important}
     <div style="font-size:12px;color:#6b7280;margin-bottom:.5rem">จำนวนเงินที่กำหนดเอง</div>
     <input id="om-custom" type="number" placeholder="กรุณาระบุจำนวนเงิน" min="1" oninput="onOmCustom()"
       style="width:100%;padding:12px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;font-size:15px;color:#fff;outline:none;margin-bottom:.625rem">
-    <div style="font-size:12px;color:#6b7280;margin-bottom:1.25rem">สมดุล: <span id="om-balance" style="color:var(--green);font-weight:700">0.00000000</span> ฿</div>
+    <!-- % presets -->
+    <div style="display:flex;gap:6px;margin-bottom:.75rem">
+      <button onclick="setOmPct(25)" style="flex:1;padding:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;color:#9ca3af">25%</button>
+      <button onclick="setOmPct(50)" style="flex:1;padding:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;color:#9ca3af">50%</button>
+      <button onclick="setOmPct(75)" style="flex:1;padding:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;color:#9ca3af">75%</button>
+      <button onclick="setOmPct(100)" style="flex:1;padding:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;color:#9ca3af">100%</button>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:#6b7280;margin-bottom:1.25rem">
+      <span>สมดุล: <span id="om-balance" style="color:var(--green);font-weight:700">0.00000000</span> ฿</span>
+      <span>≈ <span id="om-coin-show" style="color:#fff;font-weight:600">0</span> <span id="om-coin-unit">BTC</span></span>
+    </div>
 
     <!-- Summary table -->
     <div style="background:rgba(255,255,255,.04);border-radius:10px;overflow:hidden;margin-bottom:1.25rem">
@@ -2088,73 +2048,38 @@ function selSymbol(sym){
 }
 function setBuySell(v){
   buySell=v;
-  document.getElementById('bs-buy').classList.toggle('active',v==='buy');
-  document.getElementById('bs-sell').classList.toggle('active',v==='sell');
-  document.getElementById('btn-order').className='btn-order '+v;
-  document.getElementById('btn-order').textContent=v==='buy'?'ซื้อ':'ขาย';
-  updTradeTotal();
+  const bb=document.getElementById('bs-buy');if(bb)bb.classList.toggle('active',v==='buy');
+  const bs=document.getElementById('bs-sell');if(bs)bs.classList.toggle('active',v==='sell');
+  const bo=document.getElementById('btn-order');
+  if(bo){bo.className='btn-order '+v;bo.textContent=v==='buy'?'ซื้อ':'ขาย';}
 }
-function setInputMode(mode){
-  inputMode=mode;
-  const ci=document.getElementById('input-coin'),ti=document.getElementById('input-thb');
-  if(ci)ci.style.display=mode==='coin'?'block':'none';
-  if(ti)ti.style.display=mode==='thb'?'block':'none';
-  const mc=document.getElementById('mode-coin'),mt=document.getElementById('mode-thb');
-  const ac=buySell==='buy'?'var(--green)':'var(--red)';
-  if(mc){mc.style.background=mode==='coin'?ac:'transparent';mc.style.color=mode==='coin'?'#000':'var(--sub)';}
-  if(mt){mt.style.background=mode==='thb'?ac:'transparent';mt.style.color=mode==='thb'?'#000':'var(--sub)';}
-  updTradeTotal();
-}
-function adjQty(d){
-  const el=document.getElementById('t-qty');
-  const cur=parseFloat(el.value)||1;
-  const step=prices[selSym]>10000?0.001:prices[selSym]>100?0.01:1;
-  el.value=Math.max(step,+(cur+d*step).toFixed(4));
-  updTradeTotal();
-}
-function onQtyChange(){updTradeTotal();}
-function onThbChange(){
-  const thb=parseFloat(document.getElementById('t-thb').value)||0;
-  const coins=thb/(prices[selSym]||1);
-  const cs=document.getElementById('t-coin-show');if(cs)cs.textContent=coins>0?coins.toFixed(4):'0';
-  const tt=document.getElementById('t-total');if(tt)tt.textContent=fmt(thb);
-}
-function setThbAmt(v){document.getElementById('t-thb').value=v;onThbChange();}
-function setQtyPct(p){
-  const maxQty=buySell==='buy'?cash/(prices[selSym]||1):(portfolio[selSym]?portfolio[selSym].qty:0);
-  document.getElementById('t-qty').value=Math.max(0.0001,+(maxQty*p/100).toFixed(4));
-  updTradeTotal();
-}
-function updTradeTotal(){
-  const price=prices[selSym]||1;
-  if(inputMode==='coin'){
-    const qty=parseFloat(document.getElementById('t-qty').value)||0;
-    const cs=document.getElementById('t-coin-show');if(cs)cs.textContent=qty.toFixed(4);
-    const tt=document.getElementById('t-total');if(tt)tt.textContent=fmt(qty*price);
-  } else {
-    const thb=parseFloat(document.getElementById('t-thb').value)||0;
-    const cs=document.getElementById('t-coin-show');if(cs)cs.textContent=(thb/price).toFixed(4);
-    const tt=document.getElementById('t-total');if(tt)tt.textContent=fmt(thb);
-  }
-}
+// Legacy stubs - inputs moved to order modal
+function setInputMode(mode){inputMode=mode;}
+function adjQty(d){}
+function onQtyChange(){}
+function onThbChange(){}
+function setThbAmt(v){}
+function setQtyPct(p){}
+function updTradeTotal(){}
 function updateTradeCard(){
-  // Reset to 1D and sync button when switching symbol or entering trade page
   if(curTF==='1d'||!tfHists[selSym]){
     curTF='1d';
     document.querySelectorAll('.tf-btn').forEach(b=>{
-      const isd=b.onclick&&b.onclick.toString().includes("'1d'");
       b.classList.toggle('active', b.textContent.trim()==='1D');
     });
   }
+  if(!hists[selSym])return;
   const hist=hists[selSym],prev=hist[hist.length-2]||hist[0],cur=prices[selSym],chg=pct(cur,prev),up=chg>=0;
-  const ul=document.getElementById('coin-unit-label');if(ul)ul.textContent=selSym;
-  const sp=document.getElementById('tpc-sym');if(sp)sp.textContent=selSym+'/THB';
-  const pp=document.getElementById('tpc-price');if(pp){pp.textContent=fmt(cur);pp.className='tpc-price '+(up?'up':'dn');}
+  const isGold=selSym==='XAUUSD';
+  const priceStr=isGold?'$'+cur.toLocaleString(undefined,{maximumFractionDigits:2}):fmt(cur);
+  const sp=document.getElementById('tpc-sym');if(sp)sp.textContent=selSym+(isGold?'/USD':'/THB');
+  const pp=document.getElementById('tpc-price');if(pp){pp.textContent=priceStr;pp.className='tpc-price '+(up?'up':'dn');}
   const cp=document.getElementById('tpc-chg');if(cp){cp.textContent=(up?'+':'')+chg+'%';cp.className='tpc-chg '+(up?'chg-up':'chg-dn');}
-  const hp=document.getElementById('tpc-hold');if(hp)hp.textContent=portfolio[selSym]?portfolio[selSym].qty:0;
-  const cpr=document.getElementById('t-cur-price');if(cpr)cpr.textContent=fmt(cur);
+  const hp=document.getElementById('tpc-hold');if(hp)hp.textContent=portfolio[selSym]?portfolio[selSym].qty.toFixed(4):0;
+  const cpr=document.getElementById('t-cur-price');if(cpr)cpr.textContent=priceStr;
+  const hd=document.getElementById('t-holding');if(hd)hd.textContent=portfolio[selSym]?portfolio[selSym].qty.toFixed(4):'0';
   const avg=document.getElementById('t-avg-cost');if(avg)avg.textContent=portfolio[selSym]?fmt(portfolio[selSym].avgCost):'฿0';
-  drawTradeChart();updTradeTotal();
+  drawTradeChart();
 }
 
 // CHART
@@ -2311,9 +2236,8 @@ function drawTradeChart(){
 
 async function doTrade(){
   if(!requireLogin())return;
-  const price=prices[selSym];let qty;
-  if(inputMode==='coin')qty=parseFloat(document.getElementById('t-qty').value)||0;
-  else{const thb=parseFloat(document.getElementById('t-thb').value)||0;qty=thb/price;}
+  const price=prices[selSym];
+  let qty=omAmt/price;
   if(qty<=0){toast('ใส่จำนวนให้ถูกต้อง');return;}
   qty=+qty.toFixed(4);const total=qty*price;
   if(buySell==='buy'){
@@ -2857,8 +2781,33 @@ function setOmAmt(amt,el){
   el.style.background='var(--green)';el.style.color='#000';el.style.borderColor='var(--green)';
   updateOmSummary();
 }
-function onOmCustom(){const v=parseFloat(document.getElementById('om-custom').value)||0;if(v>0){omAmt=v;document.querySelectorAll('.om-amt-btn').forEach(b=>b.classList.remove('active'));}updateOmSummary();}
-function updateOmSummary(){document.getElementById('om-amt-show').textContent=omAmt.toLocaleString()+' ฿';document.getElementById('om-profit-show').textContent=Math.round(omAmt*0.85).toLocaleString()+' ฿';document.getElementById('om-balance').textContent=cash.toFixed(8);}
+function onOmCustom(){
+  const v=parseFloat(document.getElementById('om-custom').value)||0;
+  if(v>0){
+    omAmt=v;
+    document.querySelectorAll('.om-amt-btn').forEach(b=>{
+      b.style.background='var(--card2)';b.style.color='#fff';b.style.borderColor='var(--border)';
+    });
+  }
+  updateOmSummary();
+}
+function setOmPct(p){
+  const maxAmt=buySell==='buy'?cash:(portfolio[selSym]?portfolio[selSym].qty*prices[selSym]:0);
+  omAmt=Math.floor(maxAmt*p/100);
+  document.getElementById('om-custom').value=omAmt||'';
+  document.querySelectorAll('.om-amt-btn').forEach(b=>{
+    b.style.background='var(--card2)';b.style.color='#fff';b.style.borderColor='var(--border)';
+  });
+  updateOmSummary();
+}
+function updateOmSummary(){
+  const price=prices[selSym]||1;
+  const el1=document.getElementById('om-amt-show');if(el1)el1.textContent=omAmt.toLocaleString()+' ฿';
+  const el2=document.getElementById('om-profit-show');if(el2)el2.textContent=Math.round(omAmt*0.85).toLocaleString()+' ฿';
+  const el3=document.getElementById('om-balance');if(el3)el3.textContent=cash.toFixed(8);
+  const el4=document.getElementById('om-coin-show');if(el4)el4.textContent=(omAmt/price).toFixed(6);
+  const el5=document.getElementById('om-coin-unit');if(el5)el5.textContent=selSym;
+}
 let contractTimer=null,contractLiveTimer=null;
 
 let activeTradeId=null;
