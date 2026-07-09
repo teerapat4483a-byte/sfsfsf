@@ -180,7 +180,7 @@ body{max-width:480px;margin:0 auto;position:relative;overflow-x:hidden}
 .chg-dn{background:rgba(239,68,68,.15);color:var(--red)}
 
 /* TRADE PAGE */
-.trade-page{padding:0}
+.trade-page{padding:0;padding-bottom:80px;overflow-y:auto}
 .sym-scroll{display:flex;gap:0;overflow-x:auto;background:var(--card);border-bottom:1px solid var(--border)}
 .sym-btn{padding:.625rem 1rem;background:none;border:none;color:var(--sub);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent}
 .sym-btn.active{color:var(--yellow);border-bottom-color:var(--yellow)}
@@ -194,7 +194,7 @@ body{max-width:480px;margin:0 auto;position:relative;overflow-x:hidden}
 .tpc-vol{margin-top:4px}
 
 .chart-wrap{background:#0a0c14;padding:0;margin-bottom:8px;border-radius:0}
-canvas.tchart{width:100%;display:block}
+canvas.tchart{width:100%;display:block;height:190px}
 .chart-info-top{background:#0a0c14;padding:.5rem .875rem;border-bottom:1px solid #1a1d2e}
 .chart-symbol-big{font-size:13px;font-weight:700;color:var(--sub);margin-bottom:2px}
 .chart-price-big{font-size:22px;font-weight:800;color:var(--red)}
@@ -215,7 +215,7 @@ canvas.tchart{width:100%;display:block}
 .crosshair-info{position:absolute;top:4px;left:8px;font-size:11px;color:var(--sub);pointer-events:none;display:none}
 .chart-container{position:relative}
 
-.order-card{background:var(--card);padding:1rem;margin-bottom:8px}
+.order-card{background:var(--card);padding:1rem;margin-bottom:8px;border-top:1px solid var(--border)}
 .bs-tabs{display:flex;border-radius:10px;overflow:hidden;margin-bottom:1rem;border:1px solid var(--border)}
 .bs-tab{flex:1;padding:11px;background:none;border:none;font-size:14px;font-weight:700;cursor:pointer;color:var(--sub)}
 .bs-tab.buy.active{background:var(--green);color:#000}
@@ -1401,11 +1401,11 @@ body.chat-open .bnav{display:none!important}
       </div>
       <!-- Candle chart -->
       <div style="position:relative">
-        <canvas class="tchart" id="tchart" height="220"></canvas>
+        <canvas class="tchart" id="tchart" style="width:100%;display:block;height:190px" height="190"></canvas>
       </div>
       <!-- Volume chart -->
       <div style="position:relative;background:#0a0c14">
-        <canvas id="vol-canvas" style="width:100%;display:block" height="60"></canvas>
+        <canvas id="vol-canvas" style="width:100%;display:block;height:52px" height="52"></canvas>
         <div style="position:absolute;top:4px;left:8px;font-size:10px;color:var(--sub)">VOL(5,10,20) <span style="color:var(--yellow)">MA5: <span id="vol-ma5">-</span></span> <span style="color:#2196f3">MA10: <span id="vol-ma10">-</span></span></div>
       </div>
     </div>
@@ -2543,7 +2543,7 @@ function drawTradeChart(){
   const tEl=document.getElementById('ma-time');if(tEl)tEl.textContent=now.getFullYear()+'-'+(now.getMonth()+1).toString().padStart(2,'0')+'-'+now.getDate().toString().padStart(2,'0')+' '+now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
   const m5=document.getElementById('ma5-val');if(m5&&ma5[ma5.length-1])m5.textContent='฿'+fp(ma5[ma5.length-1]);
   const m10=document.getElementById('ma10-val');if(m10&&ma10[ma10.length-1])m10.textContent='฿'+fp(ma10[ma10.length-1]);
-  const W=cv.width=cv.offsetWidth*2,H=cv.height=480;
+  const W=cv.width=cv.offsetWidth*2,H=cv.height=380;
   const ctx=cv.getContext('2d');ctx.clearRect(0,0,W,H);
   const padL=90,padR=70,padT=20,padB=30,chartW=W-padL-padR,chartH=H-padT-padB;
   const cP=candles.flatMap(c=>[c.h,c.l]);
@@ -2572,7 +2572,7 @@ function drawTradeChart(){
   if(ctx.roundRect)ctx.roundRect(W-padR+2,curY-14,padR-2,26,3);
   ctx.fill();ctx.fillStyle='#000';ctx.font='bold 20px monospace';ctx.textAlign='center';ctx.fillText(fp(last),W-padR+padR/2,curY+6);
   const vc=document.getElementById('vol-canvas');
-  if(vc){const vW=vc.width=vc.offsetWidth*2,vH=vc.height=120;const vctx=vc.getContext('2d');vctx.clearRect(0,0,vW,vH);const maxVol=Math.max(...candles.map(c=>c.vol));candles.forEach((c,i)=>{const x=padL+(i+0.5)/candles.length*chartW,up=c.c>=c.o,barH=(c.vol/maxVol)*(vH-20);vctx.fillStyle=up?'rgba(14,203,129,0.6)':'rgba(246,70,93,0.6)';vctx.fillRect(x-cw/2,vH-barH,cw,barH);});}
+  if(vc){const vW=vc.width=vc.offsetWidth*2,vH=vc.height=104;const vctx=vc.getContext('2d');vctx.clearRect(0,0,vW,vH);const maxVol=Math.max(...candles.map(c=>c.vol));candles.forEach((c,i)=>{const x=padL+(i+0.5)/candles.length*chartW,up=c.c>=c.o,barH=(c.vol/maxVol)*(vH-20);vctx.fillStyle=up?'rgba(14,203,129,0.6)':'rgba(246,70,93,0.6)';vctx.fillRect(x-cw/2,vH-barH,cw,barH);});}
 }
 
 async function doTrade(){
